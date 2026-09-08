@@ -1,0 +1,20 @@
+[package]
+name = "xenia-kit"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "Typed Coronatio markup and HTTP building blocks for household cartridges"
+
+[dependencies]
+axum = "0.8"
+maud = { version = "0.27", features = ["axum"] }
+tokio = { version = "1", features = ["net", "fs", "time", "sync", "rt-multi-thread", "macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+regex = "1"
+cssparser = "0.35"
+async-stream = "0.3"
+futures-core = "0.3"
+uuid = { version = "1", features = ["v4"] }
