@@ -714,7 +714,13 @@ renderer!(RowInfoTile, s, {
             html! {label class="row-info-tile row-info-tile--selected"{input type="checkbox" checked[*checked];(text)" "(badge)}}
         }
         RowKind::Clickable { text, hint } => {
-            html! {button class="row-info-tile"{(text)" "span{(hint)}}}
+            html! {
+                button class="row-info-tile" {
+                    (text)
+                    " "
+                    span { (hint) }
+                }
+            }
         }
         RowKind::Error { text, badge } => {
             html! {div class="row-info-tile row-info-tile--error"{(text)" "(badge)}}
