@@ -4,6 +4,8 @@ use axum::{
 };
 use maud::{html, Markup, Render};
 
+use crate::ux::Toast;
+
 pub const CROWN_CONTENT_SECURITY_POLICY: &str = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'self'; frame-ancestors 'self'; frame-src http: https:";
 
 #[derive(Clone, Debug)]
@@ -31,6 +33,7 @@ pub struct Fragment {
     pub view: String,
     pub content: Markup,
     pub data: Vec<DataSeat>,
+    pub toasts: Vec<Toast>,
 }
 impl Fragment {
     pub fn new(id: impl Into<String>, content: Markup) -> Self {
@@ -40,7 +43,13 @@ impl Fragment {
             pane,
             content,
             data: Vec::new(),
+            toasts: Vec::new(),
         }
+    }
+
+    pub fn with_toast(mut self, toast: Toast) -> Self {
+        self.toasts.push(toast);
+        self
     }
 }
 impl Render for Fragment {
@@ -59,7 +68,12 @@ impl Render for Fragment {
         if let Some(at) = result.0.find('>') {
             result.0.insert_str(at, &attrs);
         }
-        result
+        html! {
+            (result)
+            @for toast in &self.toasts {
+                (toast)
+            }
+        }
     }
 }
 impl IntoResponse for Fragment {

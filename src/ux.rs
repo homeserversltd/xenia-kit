@@ -93,6 +93,71 @@ impl Tone {
     }
 }
 #[derive(Clone, Copy, Debug)]
+pub enum ToastKind {
+    Info,
+    Success,
+    Warning,
+    Error,
+}
+impl ToastKind {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Info => "info",
+            Self::Success => "success",
+            Self::Warning => "warning",
+            Self::Error => "error",
+        }
+    }
+}
+#[derive(Clone, Copy, Debug)]
+pub struct ToastTimeout(u64);
+impl ToastTimeout {
+    pub fn new(milliseconds: u64) -> Result<Self, String> {
+        if !(1..=2_147_483_647).contains(&milliseconds) {
+            return Err("toast timeout must be between 1 and 2147483647 milliseconds".into());
+        }
+        Ok(Self(milliseconds))
+    }
+
+    pub fn milliseconds(self) -> u64 {
+        self.0
+    }
+}
+#[derive(Clone, Debug)]
+pub struct Toast {
+    pub kind: ToastKind,
+    pub message: String,
+    pub timeout: Option<ToastTimeout>,
+}
+impl Toast {
+    pub fn new(kind: ToastKind, message: impl Into<String>) -> Self {
+        Self {
+            kind,
+            message: message.into(),
+            timeout: None,
+        }
+    }
+
+    pub fn with_timeout(mut self, timeout: ToastTimeout) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+}
+impl Render for Toast {
+    fn render(&self) -> Markup {
+        if self.message.is_empty() {
+            return html! {};
+        }
+        html! {
+            div hx-swap-oob="beforeend:[data-coronatio-toast-stack]" {
+                span hidden data-coronatio-toast-request data-toast-kind=(self.kind.name()) data-toast-timeout-ms=[self.timeout.map(ToastTimeout::milliseconds)] {
+                    (&self.message)
+                }
+            }
+        }
+    }
+}
+#[derive(Clone, Copy, Debug)]
 pub enum ButtonTone {
     Primary,
     Secondary,

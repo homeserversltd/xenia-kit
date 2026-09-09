@@ -8,12 +8,25 @@ ordinary `html! { (component) }`. Text and attribute values are escaped.
 The initial kit supplies Badge, Breadcrumbs, Button, Calendar, Card, Checkbox,
 Collapsible, EditableField, FileInput, IconButton, Input, IpCalendar,
 LoadingSpinner, Modal, PlusButton, ProgressBar, RowInfoTile, Select, Slider,
-Table, Tabs (with Tab items), TextBox, TimePicker, Toggle and VisibilityToggle.
-Each exposes an `Hx` field with optional get, post, target, swap and trigger.
-Absent fields emit no HTMX attributes. Use same-origin crown proxy URLs, ordinary
-HTMX triggers and delegated data seats, not JavaScript expressions or fragment
-initializers. Toast is deferred until the crown receiver and K0b are available;
-there is no guest Toast builder in this release.
+Table, Tabs (with Tab items), TextBox, TimePicker, Toggle and VisibilityToggle,
+plus typed Toast requests. The visual component builders expose an `Hx` field
+with optional get, post, target, swap and trigger. Absent fields emit no HTMX
+attributes. Use same-origin crown proxy URLs, ordinary HTMX triggers and
+delegated data seats, not JavaScript expressions or fragment initializers. A
+Toast has no `Hx` field: the crown constructs the visible toast, and the guest
+never builds the toast element or script. Prefer a nonempty message; an empty
+message emits no toast request.
+
+```rust
+use xenia_kit::{Fragment, html, ux::{Toast, ToastKind, ToastTimeout}};
+
+let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
+    .with_toast(
+        Toast::new(ToastKind::Success, "Saved & <ready>")
+            .with_timeout(ToastTimeout::new(4_000)?),
+    );
+# Ok::<(), String>(())
+```
 
 ## Five household files
 
