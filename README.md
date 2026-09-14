@@ -17,6 +17,8 @@ Toast has no `Hx` field: the crown constructs the visible toast, and the guest
 never builds the toast element or script. Prefer a nonempty message; an empty
 message emits no toast request.
 
+Cards compose other kit builders without exposing crown classes; typed badges go in `Card::header_badges` and builder-produced `html!` output goes in `CardBody::Markup`. A self-refreshing pane uses `Fragment::with_hx` to put typed `Hx` get, trigger, target, and swap attributes on the fragment root section.
+
 ```rust
 use xenia_kit::{Fragment, html, ux::{Toast, ToastKind, ToastTimeout}};
 

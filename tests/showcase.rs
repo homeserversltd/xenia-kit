@@ -1,7 +1,7 @@
 use std::fmt::Write as _;
 
 use xenia_kit::ux::*;
-use xenia_kit::{Markup, Render};
+use xenia_kit::{html, Fragment, Markup, Render};
 
 fn rendered(parts: Vec<Markup>) -> Vec<u8> {
     let mut output = String::new();
@@ -297,6 +297,68 @@ fn card_matches_showcase_fixture() {
             }
             .render(),
         ]),
+    );
+}
+
+#[test]
+fn card_composes_markup_and_header_badges() {
+    let progress = ProgressBar {
+        kind: ProgressKind::Memory,
+        label: "Memory".into(),
+        right: Some("42%".into()),
+        aria_label: "Memory use".into(),
+        value: Some(42),
+        fill_text: None,
+        styled_labels: false,
+        default_fill: false,
+        hx: Hx::default(),
+    };
+    let row = RowInfoTile {
+        kind: RowKind::Info {
+            icon: "📺".into(),
+            name: "arch-tv".into(),
+            detail: Some("Online".into()),
+            badges: vec![],
+        },
+        hx: Hx::default(),
+    };
+    let card = Card {
+        body: CardBody::Markup(html! { (progress) (row) }),
+        header: Some("arch-tv".into()),
+        header_badges: vec![
+            Badge {
+                text: "tv".into(),
+                tone: Some(Tone::Info),
+                ..Badge::default()
+            },
+            Badge {
+                text: "online".into(),
+                tone: Some(Tone::Success),
+                ..Badge::default()
+            },
+        ],
+        ..Card::default()
+    };
+    assert_eq!(
+        card.render().into_string(),
+        "<div class=\"ui-card\"><div class=\"ui-card__header\">arch-tv<span class=\"ui-badge ui-badge--info\">tv</span><span class=\"ui-badge ui-badge--success\">online</span></div><div class=\"ui-card__body\"><div class=\"ui-progress-bar ui-progress-bar--memory\"><div class=\"ui-progress-bar__labels\"><span>Memory</span><span>42%</span></div><div class=\"ui-progress-bar__container\" role=\"meter\" aria-label=\"Memory use\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"42\"><div class=\"ui-progress-bar__fill ui-progress-bar__fill--memory\" style=\"width:42%\"></div></div></div><div class=\"row-info-tile\"><span>📺</span><strong>arch-tv</strong><span>Online</span></div></div></div>"
+    );
+}
+
+#[test]
+fn fragment_composes_typed_root_hx_attributes() {
+    const ROOT_OPEN: &str = "<section class=\"pane\" data-pane-panel=\"x\" data-view-panel=\"x\"";
+    let fragment = Fragment::new("x", html! {}).with_hx(Hx {
+        get: Some("/api/tabs/x/fragment".into()),
+        trigger: Some("every 15s".into()),
+        swap: Some(Swap::OuterHtml),
+        ..Hx::default()
+    });
+    let rendered = fragment.render().into_string();
+    assert!(rendered.starts_with(ROOT_OPEN));
+    assert_eq!(
+        rendered,
+        "<section class=\"pane\" data-pane-panel=\"x\" data-view-panel=\"x\" hx-get=\"/api/tabs/x/fragment\" hx-swap=\"outerHTML\" hx-trigger=\"every 15s\"></section>"
     );
 }
 

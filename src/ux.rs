@@ -35,7 +35,7 @@ pub struct Hx {
     pub trigger: Option<String>,
 }
 impl Hx {
-    fn apply(&self, mut markup: Markup) -> Markup {
+    pub(crate) fn apply(&self, mut markup: Markup) -> Markup {
         let mut attrs = String::new();
         for (key, value) in [
             ("hx-get", self.get.as_deref()),
@@ -261,6 +261,7 @@ renderer!(Button, s, {
 pub enum CardBody {
     Text(String),
     Paragraph(String),
+    Markup(Markup),
 }
 impl Default for CardBody {
     fn default() -> Self {
@@ -272,6 +273,7 @@ impl Render for CardBody {
         match self {
             Self::Text(t) => html! {(t)},
             Self::Paragraph(t) => html! {p {(t)}},
+            Self::Markup(markup) => markup.clone(),
         }
     }
 }
@@ -285,6 +287,7 @@ pub enum CardState {
 pub struct Card {
     pub body: CardBody,
     pub header: Option<String>,
+    pub header_badges: Vec<Badge>,
     pub footer: Vec<Button>,
     pub body_wrapper: bool,
     pub state: Option<CardState>,
@@ -303,8 +306,13 @@ renderer!(Card, s, {
         html! {button class=(class){(&s.body)}}
     } else {
         html! {div class=(class){
-            @if let Some(header)=&s.header {div class="ui-card__header"{(header)}}
-            @if s.body_wrapper || s.header.is_some() || !s.footer.is_empty(){div class="ui-card__body"{(&s.body)}}@else{(&s.body)}
+            @if s.header.is_some() || !s.header_badges.is_empty() {
+                div class="ui-card__header"{
+                    @if let Some(header)=&s.header {(header)}
+                    @for badge in &s.header_badges {(badge)}
+                }
+            }
+            @if s.body_wrapper || s.header.is_some() || !s.header_badges.is_empty() || !s.footer.is_empty(){div class="ui-card__body"{(&s.body)}}@else{(&s.body)}
             @if !s.footer.is_empty(){div class="ui-card__footer"{@for action in &s.footer{(action)}}}
         }}
     }
