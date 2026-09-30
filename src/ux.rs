@@ -33,9 +33,14 @@ pub struct Hx {
     pub target: Option<String>,
     pub swap: Option<Swap>,
     pub trigger: Option<String>,
+    pub vals: Option<String>,
+    pub include: Option<String>,
+    pub confirm: Option<String>,
+    pub indicator: Option<String>,
+    pub disabled_elt: Option<String>,
 }
 impl Hx {
-    pub(crate) fn apply(&self, mut markup: Markup) -> Markup {
+    fn attributes(&self) -> String {
         let mut attrs = String::new();
         for (key, value) in [
             ("hx-get", self.get.as_deref()),
@@ -43,19 +48,64 @@ impl Hx {
             ("hx-target", self.target.as_deref()),
             ("hx-swap", self.swap.map(Swap::name)),
             ("hx-trigger", self.trigger.as_deref()),
+            ("hx-vals", self.vals.as_deref()),
+            ("hx-include", self.include.as_deref()),
+            ("hx-confirm", self.confirm.as_deref()),
+            ("hx-indicator", self.indicator.as_deref()),
+            ("hx-disabled-elt", self.disabled_elt.as_deref()),
         ] {
             if let Some(value) = value {
                 attrs.push_str(&format!(" {key}=\"{}\"", html! {(value)}.0));
             }
         }
+        attrs
+    }
+
+    fn apply_at(&self, mut markup: Markup, tag: Option<&str>) -> Markup {
+        let attrs = self.attributes();
         if !attrs.is_empty() {
-            if let Some(at) = markup.0.find('>') {
+            let at = if let Some(tag) = tag {
+                let marker = format!("<{tag}");
+                markup.0.find(&marker).and_then(|start| {
+                    markup.0[start..]
+                        .find('>')
+                        .map(|relative_end| start + relative_end)
+                })
+            } else {
+                markup.0.find('>')
+            };
+            if let Some(at) = at {
                 markup.0.insert_str(at, &attrs);
             }
         }
         markup
     }
+
+    pub(crate) fn apply(&self, markup: Markup) -> Markup {
+        self.apply_at(markup, None)
+    }
+
+    pub(crate) fn apply_to_control(&self, markup: Markup, tag: &str) -> Markup {
+        self.apply_at(markup, Some(tag))
+    }
 }
+
+#[derive(Clone)]
+pub struct Form {
+    pub method_post: bool,
+    pub hx: Hx,
+    pub body: Markup,
+}
+impl Render for Form {
+    fn render(&self) -> Markup {
+        self.hx.apply(html! {
+            form method=(if self.method_post { "post" } else { "get" }) {
+                (self.body.clone())
+            }
+        })
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum Size {
     Small,
@@ -207,6 +257,17 @@ macro_rules! renderer {
         }
     };
 }
+macro_rules! control_renderer {
+    ($t:ty,$s:ident,$body:block,$tag:literal) => {
+        impl Render for $t {
+            fn render(&self) -> Markup {
+                let $s = self;
+                let body: Markup = $body;
+                $s.hx.apply_to_control(body, $tag)
+            }
+        }
+    };
+}
 
 #[derive(Clone, Default)]
 pub struct Badge {
@@ -320,6 +381,8 @@ renderer!(Card, s, {
 #[derive(Clone, Default)]
 pub struct Toggle {
     pub label: Option<String>,
+    pub name: Option<String>,
+    pub value: Option<String>,
     pub size: Option<Size>,
     pub checked: bool,
     pub disabled: bool,
@@ -327,9 +390,14 @@ pub struct Toggle {
     pub delegated: bool,
     pub hx: Hx,
 }
-renderer!(Toggle, s, {
-    html! {label class=(classes("ui-toggle",&[s.size.map(Size::name),s.disabled.then_some("disabled")])) {span class="ui-toggle__switch" {input class="ui-toggle__input" type="checkbox" checked[s.checked] disabled[s.disabled] aria-label=[s.aria_label.as_deref()] data-ui-toggle[s.delegated];span class="ui-toggle__slider"{}} @if let Some(label)=&s.label {span class="ui-toggle__label"{(label)}}}}
-});
+control_renderer!(
+    Toggle,
+    s,
+    {
+        html! {label class=(classes("ui-toggle",&[s.size.map(Size::name),s.disabled.then_some("disabled")])) {span class="ui-toggle__switch" {input class="ui-toggle__input" type="checkbox" name=[s.name.as_deref()] value=[s.value.as_deref()] checked[s.checked] disabled[s.disabled] aria-label=[s.aria_label.as_deref()] data-ui-toggle[s.delegated];span class="ui-toggle__slider"{}} @if let Some(label)=&s.label {span class="ui-toggle__label"{(label)}}}}
+    },
+    "input"
+);
 #[derive(Clone)]
 pub enum Cell {
     Text(String),
@@ -358,15 +426,22 @@ renderer!(Table, s, {
 #[derive(Clone, Default)]
 pub struct Checkbox {
     pub label: String,
+    pub name: Option<String>,
+    pub value: Option<String>,
     pub size: Option<Size>,
     pub checked: bool,
     pub disabled: bool,
     pub delegated: bool,
     pub hx: Hx,
 }
-renderer!(Checkbox, s, {
-    html! {label class=(classes("ui-checkbox",&[s.size.map(Size::name)])){input type="checkbox" checked[s.checked] disabled[s.disabled] data-ui-checkbox[s.delegated];(&s.label)}}
-});
+control_renderer!(
+    Checkbox,
+    s,
+    {
+        html! {label class=(classes("ui-checkbox",&[s.size.map(Size::name)])){input type="checkbox" name=[s.name.as_deref()] value=[s.value.as_deref()] checked[s.checked] disabled[s.disabled] data-ui-checkbox[s.delegated];(&s.label)}}
+    },
+    "input"
+);
 #[derive(Clone, Default)]
 pub struct Collapsible {
     pub summary: String,
@@ -393,6 +468,7 @@ renderer!(EditableField, s, {
 #[derive(Clone, Default)]
 pub struct Input {
     pub label: Option<String>,
+    pub name: Option<String>,
     pub value: Option<String>,
     pub placeholder: Option<String>,
     pub kind: Option<String>,
@@ -405,27 +481,46 @@ pub struct Input {
     pub delegated: bool,
     pub hx: Hx,
 }
-renderer!(Input, s, {
-    let field = html! {input class=(classes("ui-input",&[s.error.as_ref().map(|_|"error"),s.display.then_some("display"),s.size.map(Size::name)])) type=[s.kind.as_deref()] required[s.required] placeholder=[s.placeholder.as_deref()] value=[s.value.as_deref()] disabled[s.disabled] readonly[s.readonly] data-ui-input[s.delegated];};
-    if let Some(label) = &s.label {
-        html! {label class="ui-input-label"{(label)(field)@if let Some(error)=&s.error{span class="ui-input__error"{(error)}}}}
-    } else {
-        field
-    }
-});
+control_renderer!(
+    Input,
+    s,
+    {
+        let field = html! {input class=(classes("ui-input",&[s.error.as_ref().map(|_|"error"),s.display.then_some("display"),s.size.map(Size::name)])) type=[s.kind.as_deref()] name=[s.name.as_deref()] required[s.required] placeholder=[s.placeholder.as_deref()] value=[s.value.as_deref()] disabled[s.disabled] readonly[s.readonly] data-ui-input[s.delegated];};
+        if let Some(label) = &s.label {
+            html! {label class="ui-input-label"{(label)(field)@if let Some(error)=&s.error{span class="ui-input__error"{(error)}}}}
+        } else {
+            field
+        }
+    },
+    "input"
+);
+#[derive(Clone, Default)]
+pub struct SelectOption {
+    pub value: String,
+    pub label: String,
+    pub selected: bool,
+    pub disabled: bool,
+}
 #[derive(Clone, Default)]
 pub struct Select {
     pub label: String,
     pub options: Vec<String>,
+    pub choices: Vec<SelectOption>,
+    pub name: Option<String>,
     pub required: bool,
     pub disabled: bool,
     pub delegated: bool,
     pub error: Option<String>,
     pub hx: Hx,
 }
-renderer!(Select, s, {
-    html! {label class=(if s.error.is_some(){"ui-select-label ui-select--error"}else{"ui-select-label"}){(&s.label)select class="ui-select" data-ui-select[s.delegated] required[s.required] disabled[s.disabled]{@for option in &s.options{option{(option)}}}@if let Some(error)=&s.error{span class="ui-input__error"{(error)}}}}
-});
+control_renderer!(
+    Select,
+    s,
+    {
+        html! {label class=(if s.error.is_some(){"ui-select-label ui-select--error"}else{"ui-select-label"}){(&s.label)select class="ui-select" name=[s.name.as_deref()] data-ui-select[s.delegated] required[s.required] disabled[s.disabled]{@if s.choices.is_empty(){@for option in &s.options{option{(option)}}}@else{@for choice in &s.choices{option value=(&choice.value) selected[choice.selected] disabled[choice.disabled]{(&choice.label)}}}}@if let Some(error)=&s.error{span class="ui-input__error"{(error)}}}}
+    },
+    "select"
+);
 #[derive(Clone, Default)]
 pub struct PlusButton {
     pub size: Option<Size>,

@@ -9,9 +9,9 @@ The initial kit supplies Badge, Breadcrumbs, Button, Calendar, Card, Checkbox,
 Collapsible, EditableField, FileInput, IconButton, Input, IpCalendar,
 LoadingSpinner, Modal, PlusButton, ProgressBar, RowInfoTile, Select, Slider,
 Table, Tabs (with Tab items), TextBox, TimePicker, Toggle and VisibilityToggle,
-plus typed Toast requests. The visual component builders expose an `Hx` field
-with optional get, post, target, swap and trigger. Absent fields emit no HTMX
-attributes. Use same-origin crown proxy URLs, ordinary HTMX triggers and
+plus typed Toast requests. The visual component builders expose an `Hx` field with optional get, post,
+target, swap, trigger, vals, include, confirm, indicator and disabled_elt.
+Absent fields emit no HTMX attributes. Use same-origin crown proxy URLs, ordinary HTMX triggers and
 delegated data seats, not JavaScript expressions or fragment initializers. A
 Toast has no `Hx` field: the crown constructs the visible toast, and the guest
 never builds the toast element or script. Prefer a nonempty message; an empty
@@ -28,6 +28,59 @@ let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
             .with_timeout(ToastTimeout::new(4_000)?),
     );
 # Ok::<(), String>(())
+```
+
+## Posting a form
+
+HTMX includes named controls from an enclosing form in a non-GET request. Put
+this request on the submit button; the form's named fields are submitted with it.
+Use typed kit controls rather than guest JavaScript or crown class names:
+
+```rust
+use xenia_kit::{html, ux::{Button, ButtonTone, Hx, Input, Select}, Form, SelectOption};
+
+let id = "my-tab";
+let form = Form {
+    method_post: true,
+    hx: Hx::default(),
+    body: html! {
+        (Select {
+            label: "Deployable".into(),
+            name: Some("deployable".into()),
+            choices: vec![
+                SelectOption {
+                    value: "service-a".into(),
+                    label: "Service A".into(),
+                    selected: true,
+                    disabled: false,
+                },
+                SelectOption {
+                    value: "service-b".into(),
+                    label: "Service B".into(),
+                    selected: false,
+                    disabled: false,
+                },
+            ],
+            ..Select::default()
+        })
+        (Input {
+            label: Some("Body ID".into()),
+            name: Some("body_id".into()),
+            ..Input::default()
+        })
+        (Button {
+            tone: Some(ButtonTone::Danger),
+            hx: Hx {
+                post: Some(format!("/api/tabs/{id}/...")),
+                target: Some("closest [data-pane-panel]".into()),
+                confirm: Some("Remove this guest?".into()),
+                disabled_elt: Some("this".into()),
+                ..Hx::default()
+            },
+            ..Button::new("Remove")
+        })
+    },
+};
 ```
 
 ## Five household files
@@ -200,6 +253,6 @@ that face. Comments and quoted strings are not property references. For example,
 `--accent` is admitted and `--theme-primary` is not. This is a variable-boundary
 lint, not a general CSS parser, sanitizer or color-policy validator.
 
-The kit's release declaration records the frozen face source and leaves
-requires_face null. No publication, lineage band, runtime deployment or showcase
-equality is implied by that declaration.
+The kit's release declaration requires the crown face band `>=0.0.1, <1.0.0`.
+No publication, runtime deployment or showcase equality is implied by that
+declaration.
