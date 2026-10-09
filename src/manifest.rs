@@ -204,6 +204,18 @@ fn validate_node(value: &Value, rule: &Value, path: &str) -> Result<()> {
     Ok(())
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Style {
+    pub mode: StyleMode,
+    pub sheet: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StyleMode {
+    Extend,
+    Replace,
+}
+
 #[derive(Clone, Debug)]
 pub struct Manifest {
     raw: Value,
@@ -217,10 +229,33 @@ impl Manifest {
     }
     pub fn from_value(raw: Value, schemas: &Schemas) -> Result<Self> {
         schemas.manifest.validate(&raw, Some("manifest"))?;
-        Ok(Self { raw })
+        let manifest = Self { raw };
+        manifest.style()?;
+        Ok(manifest)
     }
     pub fn raw(&self) -> &Value {
         &self.raw
+    }
+    pub fn style(&self) -> Result<Option<Style>> {
+        let Some(value) = self.raw.get("style") else {
+            return Ok(None);
+        };
+        let object = value.as_object().ok_or("style: expected an object")?;
+        let mode = object
+            .get("mode")
+            .and_then(Value::as_str)
+            .ok_or("style.mode: expected a string")?;
+        let mode = match mode {
+            "extend" => StyleMode::Extend,
+            "replace" => StyleMode::Replace,
+            _ => return Err("style.mode: expected 'extend' or 'replace'".into()),
+        };
+        let sheet = object
+            .get("sheet")
+            .and_then(Value::as_str)
+            .ok_or("style.sheet: expected a string")?
+            .to_owned();
+        Ok(Some(Style { mode, sheet }))
     }
     pub fn into_raw(self) -> Value {
         self.raw

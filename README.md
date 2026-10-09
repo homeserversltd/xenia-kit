@@ -93,10 +93,11 @@ let form = Form {
 
 Cargo generates Cargo.lock. Optional `src/events.rs` can own application event
 composition; `Events::router()` already mounts GET /events and POST
-/events/renew. Optional `static/pack.css` belongs to the household, is served by
-its process and linked through `/api/tabs/<id>/static/pack.css` from the fragment.
-The crown still serves the shared library and skin. Do not add guest JavaScript,
-a systemd unit, sudoers or a Harmonia module.
+/events/renew. Optional `static/pack.css` may extend the crown's styles when declared in the
+manifest; the crown delivers that sheet at admission. Compose crown classes
+with kit builders by default. A cartridge without `style` needs no sheet. Never
+link the sheet from a guest fragment. Do not add guest JavaScript, a systemd
+unit, sudoers or a Harmonia module.
 
 ### cartridge.json
 
@@ -125,6 +126,28 @@ face or staff lineage is invented here.
   "content_inventory_digest": "0000000000000000000000000000000000000000000000000000000000000000"
 }
 ```
+
+The sample above has no `style` block, so it needs no stylesheet and uses the
+crown's library and skin through the kit's markup. Compose crown classes with
+the kit builders by default. To add CSS, declare an extension in `cartridge.json`
+and serve it from that clone-relative path:
+
+```json
+"style": { "mode": "extend", "sheet": "static/pack.css" }
+```
+
+The crown fetches and delivers the declared sheet at admission; the guest
+fragment must not carry a `<link rel="stylesheet">`. `replace` is a recognized
+manifest mode but is not built yet: Caduceus admission refuses it until the crown
+can honor replacement rather than silently treating it as an extension.
+
+`Manifest::style() -> manifest::Result<Option<Style>>` reads only the raw
+manifest: absent style returns `None`; a valid block returns its `Extend` or
+`Replace` mode and sheet string. A present block must be an object with a
+recognized string `mode` and string `sheet`; errors identify `style`,
+`style.mode`, or `style.sheet`. `Manifest::from_value` performs the same check,
+so malformed present style blocks fail manifest loading/startup. Unknown style
+keys and other raw fields remain preserved by `raw()` and `into_raw()`.
 
 ### Cargo.toml
 
@@ -247,11 +270,12 @@ socket substitute. `bind_under` takes a scratch root for a parent hand-walk.
 It rejects nonloopback addresses and unsafe path components.
 
 `Theme::ALL` exposes the 39 shallow author-face names. `Theme::Accent.variable()`
-is `var(--accent)`. `theme::lint(css)` uses CSS tokenization, including identifier
-escape decoding and nested functions, and refuses any custom property outside
-that face. Comments and quoted strings are not property references. For example,
-`--accent` is admitted and `--theme-primary` is not. This is a variable-boundary
-lint, not a general CSS parser, sanitizer or color-policy validator.
+is `var(--accent)`. `theme::lint(css)` remains the guest's CSS-variable lint:
+it uses CSS tokenization, including identifier escape decoding and nested
+functions, and refuses any custom property outside that face. Comments and
+quoted strings are not property references. For example, `--accent` is admitted
+and `--theme-primary` is not. This is a variable-boundary lint, not a general CSS
+parser, sanitizer or color-policy validator.
 
 The kit's release declaration requires the crown face band `>=0.0.1, <1.0.0`.
 No publication, runtime deployment or showcase equality is implied by that

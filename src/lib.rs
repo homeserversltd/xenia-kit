@@ -7,6 +7,6 @@ pub mod theme;
 pub mod transport;
 pub mod ux;
 pub use fragment::Fragment;
-pub use manifest::{Manifest, Schemas};
+pub use manifest::{Manifest, Schemas, Style, StyleMode};
 pub use maud::{html, Markup, Render};
 pub use ux::{Form, SelectOption};
