@@ -19,6 +19,8 @@ message emits no toast request.
 
 Cards compose other kit builders without exposing crown classes; typed badges go in `Card::header_badges` and builder-produced `html!` output goes in `CardBody::Markup`. A self-refreshing pane uses `Fragment::with_hx` to put typed `Hx` get, trigger, target, and swap attributes on the fragment root section.
 
+Build a guest-owned loading shape with `Skeleton::new("my-guest", "1")?.with_children(vec![SkeletonChild::Slot(Slot::new("summary", "summary", html! {})?.with_children(vec![SkeletonChild::Line(SkeletonLine::Medium)]))])`. `Row`, `Stack`, `Avatar`, and `Block`, plus full/medium/short lines, are typed shapes; placeholder and fill are optional, and timeouts are validated to 1-30,000 ms. Use `Slot::from_segments("details", ["section", "summary"], html! {})` to bind nested slots to their own guest path, or `Slot::ready(name, content)` for the ready `Render` form. Pending slots have no standalone `Render`; the crown owns status, `Retry`, and lifecycle, so no CSS, JavaScript, or class names are needed.
+
 ```rust
 use xenia_kit::{Fragment, html, ux::{Toast, ToastKind, ToastTimeout}};
 

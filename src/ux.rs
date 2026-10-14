@@ -919,3 +919,268 @@ pub struct Tabs {
 renderer!(Tabs, s, {
     html! {div class="ui-tab-group"{@for tab in &s.tabs{(tab)}}}
 });
+
+#[derive(Clone, Copy, Debug)]
+pub enum SkeletonLine {
+    Full,
+    Medium,
+    Short,
+}
+
+#[derive(Clone)]
+pub enum SkeletonChild {
+    Row(Vec<SkeletonChild>),
+    Stack(Vec<SkeletonChild>),
+    Line(SkeletonLine),
+    Avatar,
+    Block,
+    Slot(Slot),
+    ReadySlot(ReadySlot),
+}
+
+#[derive(Clone)]
+pub struct Skeleton {
+    guest_id: String,
+    version: String,
+    label: Option<String>,
+    children: Vec<SkeletonChild>,
+}
+
+impl Skeleton {
+    pub fn new(guest_id: impl Into<String>, version: impl Into<String>) -> Result<Self, String> {
+        let guest_id = guest_id.into();
+        if !valid_scaffold_guest_id(&guest_id) {
+            return Err("guest id must match ^[a-z0-9][a-z0-9-]*$".into());
+        }
+        let version = version.into();
+        if version.is_empty() {
+            return Err("skeleton version must not be empty".into());
+        }
+        Ok(Self {
+            guest_id,
+            version,
+            label: None,
+            children: Vec::new(),
+        })
+    }
+
+    pub fn with_label(mut self, label: impl Into<String>) -> Self {
+        self.label = Some(label.into());
+        self
+    }
+
+    pub fn with_children(mut self, children: Vec<SkeletonChild>) -> Self {
+        self.children = children;
+        self
+    }
+}
+
+fn valid_scaffold_guest_id(guest_id: &str) -> bool {
+    let mut chars = guest_id.chars();
+    matches!(chars.next(), Some(first) if first.is_ascii_lowercase() || first.is_ascii_digit())
+        && chars.all(|ch| ch.is_ascii_lowercase() || ch.is_ascii_digit() || ch == '-')
+}
+
+impl Render for Skeleton {
+    fn render(&self) -> Markup {
+        html! {
+            div class="ui-skeleton" data-scaffold-root data-guest-id=(&self.guest_id)
+                data-scaffold-version=(&self.version) aria-label=[self.label.as_deref()] {
+                @for child in &self.children {
+                    (render_skeleton_child(child, &self.guest_id))
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct SlotTimeout(u32);
+
+impl SlotTimeout {
+    pub fn new(milliseconds: u32) -> Result<Self, String> {
+        if !(1..=30_000).contains(&milliseconds) {
+            return Err("slot timeout must be between 1 and 30000 milliseconds".into());
+        }
+        Ok(Self(milliseconds))
+    }
+}
+
+#[derive(Clone)]
+pub struct Slot {
+    name: String,
+    parts: Vec<String>,
+    content: Markup,
+    placeholder: Option<String>,
+    fill: Option<String>,
+    timeout: Option<SlotTimeout>,
+    children: Vec<SkeletonChild>,
+}
+
+impl Slot {
+    pub fn new(
+        name: impl Into<String>,
+        part: impl AsRef<str>,
+        content: Markup,
+    ) -> Result<Self, String> {
+        Self::from_segments(name, std::iter::once(part.as_ref().to_owned()), content)
+    }
+
+    pub fn from_segments(
+        name: impl Into<String>,
+        parts: impl IntoIterator<Item = impl AsRef<str>>,
+        content: Markup,
+    ) -> Result<Self, String> {
+        let name = valid_scaffold_slot_name(name.into())?;
+        let parts = parts
+            .into_iter()
+            .map(|part| part.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        if parts.is_empty() {
+            return Err("slot path must contain at least one segment".into());
+        }
+        if parts.iter().any(|part| !valid_scaffold_path_segment(part)) {
+            return Err("slot path segments must be non-empty ASCII unreserved path segments".into());
+        }
+        Ok(Self {
+            name,
+            parts,
+            content,
+            placeholder: None,
+            fill: None,
+            timeout: None,
+            children: Vec::new(),
+        })
+    }
+
+    pub fn ready(name: impl Into<String>, content: Markup) -> Result<ReadySlot, String> {
+        Ok(ReadySlot {
+            name: valid_scaffold_slot_name(name.into())?,
+            content,
+            placeholder: None,
+            fill: None,
+        })
+    }
+
+    pub fn with_placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = Some(placeholder.into());
+        self
+    }
+
+    pub fn with_fill(mut self, fill: impl Into<String>) -> Self {
+        self.fill = Some(fill.into());
+        self
+    }
+
+    pub fn with_timeout(mut self, timeout: SlotTimeout) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    pub fn with_children(mut self, children: Vec<SkeletonChild>) -> Self {
+        self.children = children;
+        self
+    }
+
+    fn render_pending(&self, guest_id: &str) -> Markup {
+        let href = format!("/api/tabs/{guest_id}/{}", self.parts.join("/"));
+        let request = self
+            .timeout
+            .map(|timeout| format!(r#"{{"timeout":{}}}"#, timeout.0));
+        html! {
+            div class="ui-slot" data-scaffold-slot=(&self.name)
+                data-scaffold-placeholder=[self.placeholder.as_deref()]
+                data-scaffold-fill=[self.fill.as_deref()]
+                data-scaffold-state="pending" aria-busy="true"
+                hx-get=(href.as_str()) hx-trigger="load" hx-request=[request.as_deref()] {
+                (self.content.clone())
+                @for child in &self.children {
+                    (render_skeleton_child(child, guest_id))
+                }
+            }
+        }
+    }
+}
+
+fn valid_scaffold_slot_name(name: String) -> Result<String, String> {
+    if name.trim().is_empty() {
+        return Err("slot name must not be empty or whitespace-only".into());
+    }
+    Ok(name)
+}
+
+fn valid_scaffold_path_segment(segment: &str) -> bool {
+    !segment.is_empty()
+        && segment != "."
+        && segment != ".."
+        && !segment.contains('/')
+        && !segment.contains('\\')
+        && segment.as_bytes().iter().all(|byte| {
+            byte.is_ascii_alphanumeric() || matches!(*byte, b'-' | b'_' | b'.' | b'~')
+        })
+}
+
+#[derive(Clone)]
+pub struct ReadySlot {
+    name: String,
+    content: Markup,
+    placeholder: Option<String>,
+    fill: Option<String>,
+}
+
+impl ReadySlot {
+    pub fn with_placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = Some(placeholder.into());
+        self
+    }
+
+    pub fn with_fill(mut self, fill: impl Into<String>) -> Self {
+        self.fill = Some(fill.into());
+        self
+    }
+}
+
+impl Render for ReadySlot {
+    fn render(&self) -> Markup {
+        html! {
+            div class="ui-slot" data-scaffold-slot=(&self.name)
+                data-scaffold-placeholder=[self.placeholder.as_deref()]
+                data-scaffold-fill=[self.fill.as_deref()]
+                data-scaffold-state="ready" aria-busy="false" {
+                (self.content.clone())
+            }
+        }
+    }
+}
+
+fn render_skeleton_child(child: &SkeletonChild, guest_id: &str) -> Markup {
+    match child {
+        SkeletonChild::Row(children) => html! {
+            div class="ui-skeleton__row" {
+                @for child in children {
+                    (render_skeleton_child(child, guest_id))
+                }
+            }
+        },
+        SkeletonChild::Stack(children) => html! {
+            div class="ui-skeleton__stack" {
+                @for child in children {
+                    (render_skeleton_child(child, guest_id))
+                }
+            }
+        },
+        SkeletonChild::Line(SkeletonLine::Full) => {
+            html! { span class="ui-skeleton__line" {} }
+        }
+        SkeletonChild::Line(SkeletonLine::Medium) => {
+            html! { span class="ui-skeleton__line ui-skeleton__line--medium" {} }
+        }
+        SkeletonChild::Line(SkeletonLine::Short) => {
+            html! { span class="ui-skeleton__line ui-skeleton__line--short" {} }
+        }
+        SkeletonChild::Avatar => html! { span class="ui-skeleton__avatar" {} },
+        SkeletonChild::Block => html! { div class="ui-skeleton__block" {} },
+        SkeletonChild::Slot(slot) => slot.render_pending(guest_id),
+        SkeletonChild::ReadySlot(slot) => slot.render(),
+    }
+}

@@ -10,3 +10,4 @@ pub use fragment::Fragment;
 pub use manifest::{Manifest, Schemas, Style, StyleMode};
 pub use maud::{html, Markup, Render};
 pub use ux::{Form, SelectOption};
+pub use ux::{ReadySlot, Skeleton, SkeletonChild, SkeletonLine, Slot, SlotTimeout};
