@@ -936,6 +936,7 @@ pub enum SkeletonChild {
     Block,
     Slot(Slot),
     ReadySlot(ReadySlot),
+    LifecycleSlot(ScaffoldSlot),
 }
 
 #[derive(Clone)]
@@ -1182,5 +1183,117 @@ fn render_skeleton_child(child: &SkeletonChild, guest_id: &str) -> Markup {
         SkeletonChild::Block => html! { div class="ui-skeleton__block" {} },
         SkeletonChild::Slot(slot) => slot.render_pending(guest_id),
         SkeletonChild::ReadySlot(slot) => slot.render(),
+        SkeletonChild::LifecycleSlot(slot) => slot.render(),
+    }
+}
+
+/// A visible notification element, distinct from a toast request.
+#[derive(Clone, Debug)]
+pub struct VisibleToast {
+    pub kind: ToastKind,
+    pub message: String,
+}
+
+impl Render for VisibleToast {
+    fn render(&self) -> Markup {
+        let (kind, icon) = match self.kind {
+            ToastKind::Info => ("info", "ℹ️"),
+            ToastKind::Success => ("success", "✅"),
+            ToastKind::Warning => ("warning", "⚠️"),
+            ToastKind::Error => ("error", "❌"),
+        };
+        html! {
+            div class=(format!("toast {kind}")) data-coronatio-toast="" role="alert" {
+                span class="toast-icon" aria-hidden="true" { (icon) }
+                span class="toast-message" { (&self.message) }
+            }
+        }
+    }
+}
+
+/// A rendered slot lifecycle state; nested children may issue requests.
+#[derive(Clone)]
+pub enum SlotLifecycle {
+    Pending {
+        children: Vec<SkeletonChild>,
+        message: String,
+    },
+    Ready {
+        updated_at: Option<u64>,
+        content: Markup,
+    },
+    Fault {
+        error: String,
+        children: Vec<SkeletonChild>,
+        message: String,
+        retry_guest: String,
+        retry_key: String,
+    },
+}
+
+/// The visible state of a scaffold slot.
+#[derive(Clone)]
+pub struct ScaffoldSlot {
+    guest_id: String,
+    pub name: String,
+    pub placeholder: Option<String>,
+    pub fill: Option<String>,
+    pub state: SlotLifecycle,
+}
+
+impl ScaffoldSlot {
+    /// Create a lifecycle slot with a validated guest identity and slot name.
+    pub fn new(
+        guest_id: impl Into<String>,
+        name: impl Into<String>,
+        state: SlotLifecycle,
+    ) -> Result<Self, String> {
+        let guest_id = guest_id.into();
+        if !valid_scaffold_guest_id(&guest_id) {
+            return Err("guest id must match ^[a-z0-9][a-z0-9-]*$".into());
+        }
+        Ok(Self {
+            guest_id,
+            name: valid_scaffold_slot_name(name.into())?,
+            placeholder: None,
+            fill: None,
+            state,
+        })
+    }
+}
+
+impl Render for ScaffoldSlot {
+    fn render(&self) -> Markup {
+        let (state, updated, error, busy, invalid) = match &self.state {
+            SlotLifecycle::Pending { .. } => ("pending", None, None, "true", None),
+            SlotLifecycle::Ready { updated_at, .. } => {
+                ("ready", *updated_at, None, "false", None)
+            }
+            SlotLifecycle::Fault { error, .. } => {
+                ("fault", None, Some(error.as_str()), "false", Some("true"))
+            }
+        };
+        html! {
+            div class="ui-slot" data-scaffold-slot=(&self.name)
+                data-scaffold-placeholder=[self.placeholder.as_deref()]
+                data-scaffold-fill=[self.fill.as_deref()]
+                data-scaffold-state=(state) data-scaffold-updated-at=[updated]
+                data-scaffold-error=[error] aria-busy=(busy) aria-invalid=[invalid] {
+                @match &self.state {
+                    SlotLifecycle::Pending { children, message } => {
+                        @for child in children { (render_skeleton_child(child, &self.guest_id)) }
+                        div class="scaffold-slot-pending" data-scaffold-status="pending" role="status" { (message) }
+                    }
+                    SlotLifecycle::Ready { content, .. } => { (content.clone()) }
+                    SlotLifecycle::Fault { children, message, retry_guest, retry_key, .. } => {
+                        @for child in children { (render_skeleton_child(child, &self.guest_id)) }
+                        div class="scaffold-slot-fault" data-scaffold-status="fault" role="alert" {
+                            span { (message) }
+                            button type="button" class="scaffold-slot-retry" data-scaffold-retry=(retry_guest) data-scaffold-read-key=(retry_key) { "Retry" }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

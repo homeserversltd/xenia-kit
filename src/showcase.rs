@@ -1,7 +1,6 @@
 //! Builder-generated examples of the crown's primitive specimens.
 //!
-//! Toast requests and scaffold states use the kit's public builders; the
-//! crown owns visible toasts and scaffold lifecycle states.
+//! Specimens use the kit's public builders, including visible lifecycle states.
 use crate::ux::*;
 use crate::{html, Markup, Render};
 use maud::PreEscaped;
@@ -1159,45 +1158,56 @@ pub fn visibility_toggle() -> Markup {
     ])
 }
 
-/// Render a loading skeleton using the public builders.
+fn scaffold_example(name: &str, placeholder: &str, fill: &str, state: SlotLifecycle) -> ScaffoldSlot {
+    let mut slot = ScaffoldSlot::new("test", name, state).expect("valid slot");
+    slot.placeholder = Some(placeholder.into());
+    slot.fill = Some(fill.into());
+    slot
+}
+
+fn sample_slots() -> Vec<ScaffoldSlot> {
+    let pending_lines = || vec![SkeletonChild::Stack(vec![SkeletonChild::Line(SkeletonLine::Full), SkeletonChild::Line(SkeletonLine::Medium)])];
+    let pending = |message: &str| SlotLifecycle::Pending { children: pending_lines(), message: message.into() };
+    let ready = |content| SlotLifecycle::Ready { updated_at: Some(1791993183924), content };
+    let fault = |name: &str, error: &str, message: &str, children| SlotLifecycle::Fault { error: error.into(), children, message: message.into(), retry_guest: "test".into(), retry_key: name.into() };
+    vec![
+        scaffold_example("showcase-skeleton-pending", "summary", "summary", pending("Waiting for the summary…")),
+        scaffold_example("showcase-skeleton-ready", "summary", "summary", ready(html! { strong { "Summary ready" } p { "Three regions arrived independently." } })),
+        scaffold_example("showcase-skeleton-fault", "summary", "summary", fault("showcase-skeleton-fault", "Read timed out", "Read timed out.", vec![SkeletonChild::Stack(vec![SkeletonChild::Line(SkeletonLine::Short)])])),
+        scaffold_example("showcase-slot-pending", "portal details", "details", pending("Loading portal details…")),
+        scaffold_example("showcase-slot-ready", "portal details", "details", ready(html! { strong { "Portal details loaded." } p { "Ready content occupies the same slot frame." } })),
+        scaffold_example("showcase-slot-fault", "portal details", "details", fault("showcase-slot-fault", "Read failed (HTTP 503)", "Read failed (HTTP 503).", vec![])),
+    ]
+}
+
+/// Render all three skeleton lifecycle specimens.
 pub fn skeleton() -> Markup {
-    let pending = Slot::new("showcase-skeleton-pending", "summary", html! {})
-        .expect("valid slot")
-        .with_placeholder("summary")
-        .with_fill("summary")
-        .with_children(vec![SkeletonChild::Stack(vec![
-            SkeletonChild::Line(SkeletonLine::Full),
-            SkeletonChild::Line(SkeletonLine::Medium),
-        ])]);
-    Skeleton::new("test", "1")
-        .expect("valid skeleton")
-        .with_label("Pending summary skeleton")
-        .with_children(vec![
-            SkeletonChild::Row(vec![
-                SkeletonChild::Avatar,
-                SkeletonChild::Stack(vec![
-                    SkeletonChild::Line(SkeletonLine::Medium),
-                    SkeletonChild::Line(SkeletonLine::Short),
-                ]),
-            ]),
-            SkeletonChild::Slot(pending),
-        ])
-        .render()
+    let slots = sample_slots();
+    let labels = ["Pending summary skeleton", "Ready summary frame", "Summary frame with local fault"];
+    rendered(labels.into_iter().enumerate().map(|(index, label)| {
+        let mut children = Vec::new();
+        if index == 0 {
+            children.push(SkeletonChild::Row(vec![SkeletonChild::Avatar, SkeletonChild::Stack(vec![SkeletonChild::Line(SkeletonLine::Medium), SkeletonChild::Line(SkeletonLine::Short)])]));
+        }
+        children.push(SkeletonChild::LifecycleSlot(slots[index].clone()));
+        Skeleton::new("test", "1").expect("valid skeleton").with_label(label).with_children(children).render()
+    }).collect())
 }
-/// Render a ready slot using the public builder.
+
+/// Render all six scaffold lifecycle specimens.
 pub fn slot() -> Markup {
-    Slot::ready("showcase-slot-ready", html! { strong { "Portal details loaded." } p { "Ready content occupies the same slot frame." } })
-        .expect("valid slot").with_placeholder("portal details").with_fill("details").render()
+    rendered(sample_slots().into_iter().map(|slot| slot.render()).collect())
 }
-/// Render toast requests; the crown constructs visible toast elements.
+
+/// Render visible toast specimens without emitting toast requests.
 pub fn toast() -> Markup {
-    rendered(vec![
-        Toast::new(ToastKind::Info, "Information notification").render(),
-        Toast::new(ToastKind::Success, "Settings saved").render(),
-        Toast::new(ToastKind::Warning, "Review this appliance setting").render(),
-        Toast::new(ToastKind::Error, "The requested action failed").render(),
-        Toast::new(ToastKind::Info, "Stack item").render(),
-    ])
+    rendered([
+        (ToastKind::Info, "Information notification"),
+        (ToastKind::Success, "Settings saved"),
+        (ToastKind::Warning, "Review this appliance setting"),
+        (ToastKind::Error, "The requested action failed"),
+        (ToastKind::Info, "Stack item"),
+    ].into_iter().map(|(kind, message)| VisibleToast { kind, message: message.into() }.render()).collect())
 }
 
 /// Specimen names in the crown specimen index order.

@@ -13,9 +13,10 @@ plus typed Toast requests. The visual component builders expose an `Hx` field wi
 target, swap, trigger, vals, include, confirm, indicator and disabled_elt.
 Absent fields emit no HTMX attributes. Use same-origin crown proxy URLs, ordinary HTMX triggers and
 delegated data seats, not JavaScript expressions or fragment initializers. A
-Toast has no `Hx` field: the crown constructs the visible toast, and the guest
-never builds the toast element or script. Prefer a nonempty message; an empty
-message emits no toast request.
+Toast has no `Hx` field: the crown constructs visible notifications in response
+to guest requests. Guests send a `Toast` request instead of constructing the
+visible element or a script. Prefer a nonempty message; an empty message emits
+no toast request.
 
 Cards compose other kit builders without exposing crown classes; typed badges go in `Card::header_badges` and builder-produced `html!` output goes in `CardBody::Markup`. A self-refreshing pane uses `Fragment::with_hx` to put typed `Hx` get, trigger, target, and swap attributes on the fragment root section.
 
@@ -35,8 +36,16 @@ let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
 ## The showcase
 
 `xenia_kit::showcase::all()` renders the named builder specimens in the crown
-specimen index order. The crown Test tab integration is a separate upcoming step;
-the crown owns visible toasts and scaffold lifecycle states.
+specimen index order. The crown Test tab integration is a separate upcoming
+Stage 2; the crown owns visible toasts and scaffold lifecycle states.
+
+`VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
+`ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
+`SlotLifecycle::Pending` renders child shapes and a status message; `Ready`
+renders content and an optional update time; `Fault` renders child shapes, an
+error message, and retry details. `SkeletonChild::LifecycleSlot` composes a
+lifecycle slot into a skeleton. The slot itself does not start a request, but
+children can contain requesting slots.
 
 ## Posting a form
 
