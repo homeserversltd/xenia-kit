@@ -32,6 +32,12 @@ let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
 # Ok::<(), String>(())
 ```
 
+## The showcase
+
+`xenia_kit::showcase::all()` renders the named builder specimens in the crown
+specimen index order. The crown Test tab integration is a separate upcoming step;
+the crown owns visible toasts and scaffold lifecycle states.
+
 ## Posting a form
 
 HTMX includes named controls from an enclosing form in a non-GET request. Put
@@ -153,8 +159,8 @@ keys and other raw fields remain preserved by `raw()` and `into_raw()`.
 
 ### Cargo.toml
 
-Select an actually published kit commit; the placeholder below is deliberately
-not an invented release tag. A local checkout may instead use a path dependency.
+This example pins an existing kit commit. Update the revision to a later admitted
+commit to use newer builders. A local checkout may instead use a path dependency.
 
 ```toml
 [package]
@@ -163,7 +169,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-xenia-kit = { git = "https://github.com/HOMESERVERSLTD/xenia-kit", rev = "<admitted-kit-commit>" }
+xenia-kit = { git = "https://github.com/homeserversltd/xenia-kit", rev = "3294ebd9ddf7122c6d813faa1639074b2533f4d5" }
 axum = "0.8"
 maud = "0.27"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

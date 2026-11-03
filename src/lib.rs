@@ -3,6 +3,7 @@ pub mod events;
 pub mod fragment;
 pub mod health;
 pub mod manifest;
+pub mod showcase;
 pub mod theme;
 pub mod transport;
 pub mod ux;
