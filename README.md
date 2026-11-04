@@ -36,8 +36,11 @@ let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
 ## The showcase
 
 `xenia_kit::showcase::all()` renders the named builder specimens in the crown
-specimen index order. The crown Test tab integration is a separate upcoming
-Stage 2; the crown owns visible toasts and scaffold lifecycle states.
+specimen index order. Layout builders compose a cartridge's own panes; crown
+integration is separate, and the crown owns visible toasts and scaffold lifecycle
+states.
+
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -46,6 +49,116 @@ renders content and an optional update time; `Fault` renders child shapes, an
 error message, and retry details. `SkeletonChild::LifecycleSlot` composes a
 lifecycle slot into a skeleton. The slot itself does not start a request, but
 children can contain requesting slots.
+
+## Layout parts
+
+`layout::TabChoice` declares a labelled, selected or unselected tab.
+`layout::TabDepth` selects document, panel or category nesting.
+`layout::TabStrip` renders a delegated tab group at a chosen nesting depth.
+`layout::Tablet` combines a scoped tab strip and panels.
+`layout::Showcase` combines category tabs and category panels.
+`layout::Panel` renders a named tab panel around composed content.
+`layout::ShowcaseGrid` arranges showcase items.
+`layout::ShowcaseItem` labels one composed item.
+`layout::ShowcaseCategory` groups a named category and its content.
+`layout::SubpanelHeader` renders a subpanel's labels and optional trailing content.
+`layout::ToastSpawn` renders a host-delegated notification button.
+`layout::PortalCard` renders a service face with an image and state.
+`layout::PortalGrid` arranges service portals and their add control.
+`layout::ServiceNotice` renders a script-managed service notice.
+`layout::ConfigPattern` renders a labelled configuration card.
+`layout::HealthReadout` renders a labelled service-health state.
+`layout::AnimationSpecimen` wraps a motion stage and an optional play control.
+`layout::ServicePortal` wraps a portal card with visibility and service identity.
+`layout::ServiceAction` renders an individual service control.
+`layout::ServiceActions` groups service controls into rows.
+`layout::StatusDot` renders an up, down or unknown indicator.
+`layout::ResolverOption` describes an upstream DNS choice.
+`layout::UpstreamResolvers` composes provider, custom and encrypted-DNS controls.
+`layout::HealthViewport` wraps a labelled health view and its contents.
+`layout::AnimationBand` groups named animation content.
+`layout::MotionStage` renders a labelled motion stage.
+`layout::StillnessControl` renders a delegated stop-motion control.
+`layout::AddPortalCard` renders the delegated portal-creation control.
+`layout::ResolverSpecimen` supplies the delegated resolver scope.
+`layout::HealthDot` renders a health-summary indicator.
+`motion::MotionAtomSpecimen` composes a labelled motion atom and play control.
+`motion::MotionDetailStage` selects a detailed composed stage.
+`motion::StableCardStage` provides a fixed hit area with a raised face.
+`motion::MotionLifecycleStage` renders a phase readout and lifecycle control.
+`motion::ReducedMotionGroup` pairs ordinary and reduced-motion examples.
+`upload::DirectoryCrumb` describes a directory breadcrumb.
+`upload::DirectoryLocation` renders breadcrumbs and selected-directory readout.
+`upload::DirectoryEntry` describes a selectable tree row.
+`upload::DirectoryTree` renders selectable directory rows.
+`upload::DirectoryBrowser` combines directory controls, location and tree.
+`upload::UploadControls` renders file selection and upload controls.
+`upload::UploadPercent` represents a bounded progress value.
+`upload::UploadProgress` renders a single status row.
+`upload::UploadProgressList` groups upload status rows.
+`upload::UploadPack` combines status rows, directory browser and file controls.
+`status::ReadbackEntry` describes a configuration label and value.
+`status::ReadbackSection` renders labelled configuration entries.
+`status::ConfigChoice` describes a selector choice.
+`status::ConfigEditor` renders an editable configuration form body.
+`status::SettingsRow` describes a four-column settings row.
+`status::SettingsTable` renders a typed settings grid.
+`status::ViewLayout` arranges configuration, health or animation cards.
+`status::HealthDependency` describes one dependency state.
+`status::HealthSummary` renders a score and dependency list.
+`status::TimelineEntry` describes a diagnostic event.
+`status::HealthTimeline` renders ordered diagnostic events.
+`status::ResultCount` describes a diagnostic count.
+`status::HealthResults` renders diagnostic counts.
+`status::HealthOutput` renders an escaped diagnostic readout.
+`status::HealthCheck` renders the delegated health-check action.
+`present::Text` wraps composed inline content in a semantic text element.
+`present::Paragraph` renders escaped paragraph text.
+`present::ShowcaseRow` arranges controls, optionally as a modal catalog.
+`present::ShowcaseBox` wraps an unlabelled showcase item.
+`present::ShowcaseArticle` renders a labelled showcase article.
+`present::List` renders ordered or unordered content entries.
+`present::CatalogGrid` renders a marked visibility, spinner, toast or upload catalog.
+`present::SliderValue` renders a delegated slider readout.
+`specimen::DriveChoice` describes one grouped drive checkbox.
+`specimen::DeviceChoices` renders a device with grouped checkboxes.
+`specimen::VisibilityCard` renders a delegated visible or dimmed element.
+`specimen::VisibilityTab` describes one tab in a visibility comparison.
+`specimen::VisibilityTabSet` renders visibility and admin-only tabs.
+`specimen::PortalRemoveSimulator` renders a portal-removal specimen.
+`specimen::VisibilityNote` renders a marked explanation of a visibility update.
+`specimen::LoadingFrame` renders a delegated loading-state frame.
+`specimen::LoadingView` renders a full-view loading state.
+`specimen::LoadingButton` renders a busy action with a spinner.
+`specimen::ScaffoldGrid` scopes scaffold examples to a guest and version.
+`specimen::ProgressGroup` renders a marked progress specimen.
+`specimen::BreadcrumbReadout` renders a delegated path readout and reset.
+`specimen::FileSelectionReadout` renders a selection readout and action.
+`specimen::SliderLabels` renders two slider endpoint labels.
+`specimen::AddressBoundaryReadouts` renders delegated address-boundary readouts.
+`specimen::CalendarReadout` renders a weekly calendar readout.
+`specimen::TimeReadout` renders a time selection readout.
+`specimen::MonthlyCalendarItem` wraps a marked monthly calendar.
+`specimen::AddressCalendarItem` wraps a marked network address calendar.
+
+The associated choices for these builders are:
+`layout::PanelKind`: Basic, Services, Configuration, Health, Animations.
+`layout::ToastSpawnKind`: Info, Success, Warning, Error, Stack.
+`layout::PortalState`: Up, Down, Partial, Unknown.
+`layout::ConfigKind`: Readback, Form, Table.
+`layout::HealthState`: Healthy, Partial, Down, Unknown.
+`layout::HealthViewKind`: Summary, Services, Diagnostics.
+`layout::MotionKind`: Plain, Fade, Slide, Scale, Color, Height, ReducedSlide.
+`motion::MotionAtom`: Fade, Slide, Scale, Color, Height.
+`motion::MotionPhase`: Rest, Enter, Hold, Exit.
+`present::TextKind`: Paragraph, MutedParagraph, Strong, Code, Span, Div, Heading3, Heading4, Heading5.
+`present::CatalogKind`: Visibility, Spinner, Toast, UploadLibrary.
+`specimen::VisibilityNoteKind`: ElementsChanged, LiveMorph.
+`specimen::ProgressGroupKind`: Basic, Sizes, Variants, Indeterminate.
+`status::ViewLayoutKind`: Configuration, Health, Animation.
+`upload::DirectoryExpansion`: Leaf, Expanded, Collapsed.
+`upload::UploadStatus`: Pending, Uploading, Completed, Error.
+`upload::UploadProgressPlacement`: DomainPack, ProgressPanel.
 
 ## Posting a form
 

@@ -2,10 +2,18 @@
 pub mod events;
 pub mod fragment;
 pub mod health;
+pub mod layout;
 pub mod manifest;
+pub mod motion;
+pub mod present;
 pub mod showcase;
+pub mod specimen;
+pub mod status;
+pub mod test_tab;
+pub use test_tab::test_tab;
 pub mod theme;
 pub mod transport;
+pub mod upload;
 pub mod ux;
 pub use fragment::Fragment;
 pub use manifest::{Manifest, Schemas, Style, StyleMode};

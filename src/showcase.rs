@@ -3,6 +3,7 @@
 //! Specimens use the kit's public builders, including visible lifecycle states.
 use crate::ux::*;
 use crate::{html, Markup, Render};
+pub use crate::test_tab::test_tab;
 use maud::PreEscaped;
 
 fn rendered(parts: Vec<Markup>) -> Markup {
