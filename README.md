@@ -40,7 +40,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches and empty states categories.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches, empty states and setting rows categories.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -59,6 +59,12 @@ children can contain requesting slots.
 - `composite::EmptyState` explains what is missing and the next step.
 - `composite::SubTab` describes one in-place sub-view.
 - `composite::SubTabs` renders a scoped nested tab group.
+- `composite::SettingState` selects unset, ok, error or saving.
+- `composite::SettingField` describes a write-only password field.
+- `composite::SettingForm` describes a POST form and its delegated seats.
+- `composite::SettingRowSeats` binds the status and feedback lines to delegated data.
+- `composite::SettingRow` renders a setting's text and optional controls.
+- `composite::SettingRows` groups settings in a labelled list.
 - `composite::DEFAULT_THRESHOLD` is the default stat-tile warning threshold.
 
 ## Layout parts

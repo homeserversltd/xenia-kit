@@ -231,3 +231,103 @@ impl Render for SubTabs {
         }
     }
 }
+
+/// The status of a write-only setting.
+#[derive(Clone, Copy, Default)]
+pub enum SettingState {
+    #[default]
+    Unset,
+    Ok,
+    Error,
+    Saving,
+}
+
+impl SettingState {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Unset => "unset",
+            Self::Ok => "ok",
+            Self::Error => "error",
+            Self::Saving => "saving",
+        }
+    }
+}
+
+/// A write-only password field; no stored value is accepted or rendered.
+#[derive(Clone, Default)]
+pub struct SettingField {
+    pub name: String,
+    pub minlength: Option<u16>,
+    pub maxlength: Option<u16>,
+    pub new_password: bool,
+}
+
+/// An optional POST form and its delegated root attributes.
+#[derive(Clone, Default)]
+pub struct SettingForm {
+    pub action: String,
+    pub seats: Vec<DataSeat>,
+}
+
+/// Delegated attributes for the status and feedback lines.
+#[derive(Clone, Default)]
+pub struct SettingRowSeats {
+    pub status: Vec<DataSeat>,
+    pub feedback: Vec<DataSeat>,
+}
+
+/// A setting label, status, feedback and optional write-only control.
+#[derive(Clone, Default)]
+pub struct SettingRow {
+    pub label: String,
+    pub status: Option<String>,
+    pub state: SettingState,
+    pub field: Option<SettingField>,
+    pub action: Option<Button>,
+    pub form: Option<SettingForm>,
+    pub seats: SettingRowSeats,
+}
+
+impl Render for SettingRow {
+    fn render(&self) -> Markup {
+        let mut action = self.action.clone();
+        if let Some(button) = &mut action { button.button_type = false; }
+        let contents = html! {
+            div class="ui-setting-row__text" {
+                span class="ui-setting-row__label" { (&self.label) }
+                (seat(html! { p class="ui-setting-row__status" role="status" aria-live="polite" { (self.status.as_deref().unwrap_or("")) } }, &self.seats.status))
+                (seat(html! { p class="ui-setting-row__feedback" role="status" aria-live="polite" {} }, &self.seats.feedback))
+            }
+            div class="ui-setting-row__control" {
+                @if let Some(field) = &self.field {
+                    input class="ui-input ui-setting-row__field" type="password" name=(&field.name)
+                        aria-label=(&self.label) required minlength=[field.minlength] maxlength=[field.maxlength]
+                        autocomplete=(if field.new_password { "new-password" } else { "off" });
+                }
+                @if let Some(button) = &action { (button) }
+            }
+        };
+        if let Some(form) = &self.form {
+            seat(html! { form class="ui-setting-row" data-state=(self.state.name()) method="post" action=(&form.action) autocomplete="off" { (contents) } }, &form.seats)
+        } else {
+            html! { div class="ui-setting-row" data-state=(self.state.name()) { (contents) } }
+        }
+    }
+}
+
+/// A labelled list of setting rows.
+#[derive(Clone, Default)]
+pub struct SettingRows {
+    pub label: String,
+    pub rows: Vec<SettingRow>,
+}
+
+impl Render for SettingRows {
+    fn render(&self) -> Markup {
+        html! {
+            ul class="ui-setting-rows" aria-label=(&self.label) {
+                @for row in &self.rows { li class="ui-setting-rows__item" { (row) } }
+            }
+        }
+    }
+}

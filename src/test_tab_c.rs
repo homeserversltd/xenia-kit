@@ -3,7 +3,8 @@
 //! Stat tiles, the switch row, the empty state and in-place sub-tabs, each with
 //! every state working. No HTML element tags or class values are authored here.
 use crate::{
-    composite::{EmptyState, StatTile, StatTiles, Switch, SubTab, SubTabs},
+    composite::{EmptyState, SettingField, SettingForm, SettingRow, SettingRows, SettingRowSeats, SettingState, StatTile, StatTiles, Switch, SubTab, SubTabs},
+    fragment::DataSeat,
     layout::{ShowcaseGrid, ShowcaseItem},
     present::Paragraph,
     ux::{Button, ButtonTone},
@@ -140,6 +141,35 @@ fn sub_tabs() -> Markup {
     grid([item("In-place sub-views", outer.render())])
 }
 
+fn setting_rows() -> Markup {
+    let row = |label: &str, status: &str, state: SettingState| SettingRow {
+        label: label.into(),
+        status: Some(status.into()),
+        state,
+        field: Some(SettingField { name: "secret".into(), maxlength: Some(256), ..SettingField::default() }),
+        action: Some(Button { disabled: true, ..Button::new("Set") }),
+        ..SettingRow::default()
+    };
+    let mut connected = row("Forgejo token", "Connected to git.home.arpa", SettingState::Ok);
+    connected.form = Some(SettingForm {
+        action: "#".into(),
+        seats: vec![DataSeat::new("data-setting-form", None).expect("valid seat")],
+    });
+    connected.seats = SettingRowSeats {
+        status: vec![DataSeat::new("data-setting-status", None).expect("valid seat")],
+        ..SettingRowSeats::default()
+    };
+    let mut password = row("Dashboard password", "Not set", SettingState::Unset);
+    password.field = Some(SettingField { name: "dashboard_password".into(), minlength: Some(12), maxlength: Some(256), new_password: true });
+    grid([
+        item("Connected", SettingRows { label: "Connected setting".into(), rows: vec![connected] }.render()),
+        item("Unset", SettingRows { label: "Unset setting".into(), rows: vec![row("API token", "Not set", SettingState::Unset)] }.render()),
+        item("Error", SettingRows { label: "Refused setting".into(), rows: vec![row("Forgejo token", "The box refused this token.", SettingState::Error)] }.render()),
+        item("Saving", SettingRows { label: "Saving setting".into(), rows: vec![row("API token", "Saving", SettingState::Saving)] }.render()),
+        item("Secrets", SettingRows { label: "Secrets".into(), rows: vec![password, row("Forgejo token", "Connected to git.home.arpa", SettingState::Ok), row("API token", "Not set", SettingState::Unset)] }.render()),
+    ])
+}
+
 /// The content of one category C showcase section, by id.
 pub fn section(id: &str) -> Option<Markup> {
     Some(match id {
@@ -147,6 +177,7 @@ pub fn section(id: &str) -> Option<Markup> {
         "switches" => switches(),
         "empty-states" => empty_states(),
         "sub-tabs" => sub_tabs(),
+        "setting-rows" => setting_rows(),
         _ => return None,
     })
 }
