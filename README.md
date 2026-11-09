@@ -40,7 +40,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches and empty states categories.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -49,6 +49,17 @@ renders content and an optional update time; `Fault` renders child shapes, an
 error message, and retry details. `SkeletonChild::LifecycleSlot` composes a
 lifecycle slot into a skeleton. The slot itself does not start a request, but
 children can contain requesting slots.
+
+## Composite parts
+
+- `composite::StatTile` renders a labelled reading with an optional meter and detail.
+- `composite::StatTileSeats` binds a tile, reading, meter and detail to delegated data.
+- `composite::StatTiles` arranges readings in a labelled grid.
+- `composite::Switch` renders a labelled immediate on/off control.
+- `composite::EmptyState` explains what is missing and the next step.
+- `composite::SubTab` describes one in-place sub-view.
+- `composite::SubTabs` renders a scoped nested tab group.
+- `composite::DEFAULT_THRESHOLD` is the default stat-tile warning threshold.
 
 ## Layout parts
 

@@ -187,6 +187,7 @@ impl SubTabs {
     fn selected_id(&self) -> Option<&str> {
         self.selected
             .as_deref()
+            .filter(|id| self.tabs.iter().any(|tab| !tab.hidden && tab.id == *id))
             .or_else(|| self.tabs.iter().find(|t| !t.hidden).map(|t| t.id.as_str()))
     }
 }
