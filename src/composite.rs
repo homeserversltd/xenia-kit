@@ -8,7 +8,7 @@
 use maud::{html, Markup, Render};
 
 use crate::fragment::{seat, DataSeat};
-use crate::ux::Button;
+use crate::ux::{Button, ButtonTone};
 
 /// The reading at or above which a tile takes the warning state, unless set.
 pub const DEFAULT_THRESHOLD: u8 = 90;
@@ -17,7 +17,8 @@ pub const DEFAULT_THRESHOLD: u8 = 90;
 ///
 /// A tile with a `percent` draws a native `meter` whose `high` mark is the
 /// threshold, so the fill takes the warning colour past it, and the `flag` word
-/// shows with it. A tile without a `percent` (temperature, uptime) draws no bar.
+/// shows with it. A tile without a `percent` draws no bar unless its meter is
+/// seated, in which case it renders a valueless meter for later binding.
 #[derive(Clone, Default)]
 pub struct StatTile {
     pub label: String,
@@ -62,12 +63,12 @@ impl Render for StatTile {
         let threshold = self.threshold();
         let state = if self.warning() { "warning" } else { "normal" };
         let flag = self.flag.as_deref().unwrap_or("High");
-        let meter = self.percent.map(|value| {
-            seat(
-                html! {meter class="ui-stat-tile__meter" min="0" max="100" low=(threshold) high=(threshold) optimum="0" value=(value.min(100)) aria-label=(&self.label) {}},
+        let meter = if self.percent.is_some() || !self.seats.meter.is_empty() {
+            Some(seat(
+                html! {meter class="ui-stat-tile__meter" min="0" max="100" low=(threshold) high=(threshold) optimum="0" value=[self.percent.map(|v| v.min(100))] aria-label=(&self.label) {}},
                 &self.seats.meter,
-            )
-        });
+            ))
+        } else { None };
         let tile = html! {
             article class="ui-stat-tile" data-stat-tile data-state=(state) {
                 div class="ui-stat-tile__head" {
@@ -329,5 +330,151 @@ impl Render for SettingRows {
                 @for row in &self.rows { li class="ui-setting-rows__item" { (row) } }
             }
         }
+    }
+}
+
+/// Delegated seats on an update card and its content.
+#[derive(Clone, Default)]
+pub struct UpdateCardSeats {
+    pub card: Vec<DataSeat>,
+    pub path: Vec<DataSeat>,
+    pub sentence: Vec<DataSeat>,
+    pub diff: Vec<DataSeat>,
+    pub feedback: Vec<DataSeat>,
+}
+
+/// An interactable file, its optional description and unified diff.
+#[derive(Clone, Default)]
+pub struct UpdateCard {
+    pub id: String,
+    pub path: String,
+    pub sentence: Option<String>,
+    pub diff: Option<String>,
+    pub silenced: bool,
+    pub seats: UpdateCardSeats,
+}
+
+fn update_action(label: &str, action: &str, primary: bool) -> Markup {
+    let button = Button { button_type: true, tone: primary.then_some(ButtonTone::Primary), ..Button::new(label) };
+    let attr = DataSeat::new("data-update-action", Some(action.into())).expect("fixed data seat");
+    seat(button.render(), &[attr])
+}
+
+impl Render for UpdateCard {
+    fn render(&self) -> Markup {
+        let card = html! {
+            article class="ui-update-card" data-state=(if self.silenced { "silenced" } else { "waiting" }) data-update-id=(&self.id) {
+                (seat(html! { h4 class="ui-update-card__path" { (&self.path) } }, &self.seats.path))
+                @if self.sentence.is_some() || !self.seats.sentence.is_empty() {
+                    (seat(html! { p class="ui-update-card__sentence" { (self.sentence.as_deref().unwrap_or("")) } }, &self.seats.sentence))
+                }
+                @if let Some(diff) = &self.diff {
+                    (seat(html! { pre class="ui-update-card__diff" {
+                        @for (index, line) in diff.lines().enumerate() {
+                            @if index > 0 { "\n" }
+                            @let kind = if line.starts_with("+++") || line.starts_with("---") { "context" } else if line.starts_with('+') { "added" } else if line.starts_with('-') { "removed" } else { "context" };
+                            span class=(format!("ui-update-card__line ui-update-card__line--{kind}")) { (line) }
+                        }
+                    } }, &self.seats.diff))
+                } @else { p class="ui-update-card__diff-missing" { "Diff unavailable" } }
+                div class="ui-update-card__actions" {
+                    @if self.silenced { (update_action("Unsilence", "unsilence", false)) }
+                    @else { (update_action("Silence", "silence", false)) (update_action("Yes", "run", true)) }
+                }
+                (seat(html! { p class="ui-update-card__feedback" role="status" aria-live="polite" {} }, &self.seats.feedback))
+            }
+        };
+        seat(card, &self.seats.card)
+    }
+}
+
+/// A labelled list, with silenced files grouped after waiting files.
+#[derive(Clone, Default)]
+pub struct UpdateCards {
+    pub label: String,
+    pub cards: Vec<UpdateCard>,
+}
+
+impl Render for UpdateCards {
+    fn render(&self) -> Markup {
+        html! {
+            section class="ui-update-cards" aria-label=(&self.label) {
+                ul class="ui-update-cards__list" {
+                    @for card in self.cards.iter().filter(|c| !c.silenced) { li class="ui-update-cards__item" { (card) } }
+                }
+                @if self.cards.iter().any(|c| c.silenced) {
+                    h3 class="ui-update-cards__group" { "Silenced" }
+                    ul class="ui-update-cards__list ui-update-cards__list--silenced" {
+                        @for card in self.cards.iter().filter(|c| c.silenced) { li class="ui-update-cards__item" { (card) } }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// The presentation state of a usage bar.
+#[derive(Clone, Copy, Default)]
+pub enum UsageBarState { #[default] Filled, Empty, Total }
+
+/// Delegated seats on a usage bar and its readings.
+#[derive(Clone, Default)]
+pub struct UsageBarSeats {
+    pub bar: Vec<DataSeat>,
+    pub name: Vec<DataSeat>,
+    pub reading: Vec<DataSeat>,
+    pub meter: Vec<DataSeat>,
+    pub detail: Vec<DataSeat>,
+}
+
+/// One tagged native meter with an optional detail and action.
+#[derive(Clone, Default)]
+pub struct UsageBar {
+    pub tag: String,
+    pub name: String,
+    pub reading: String,
+    pub value: u32,
+    pub max: u32,
+    pub detail: Option<String>,
+    pub state: UsageBarState,
+    pub action: Option<Button>,
+    pub seats: UsageBarSeats,
+}
+
+impl Render for UsageBar {
+    fn render(&self) -> Markup {
+        let max = self.max.max(1);
+        let state = match self.state { UsageBarState::Filled => "filled", UsageBarState::Empty => "empty", UsageBarState::Total => "total" };
+        let action = self.action.as_ref().map(|button| { let mut button = button.clone(); button.button_type = true; button });
+        let bar = html! {
+            li class="ui-usage-bar" data-state=(state) {
+                span class="ui-usage-bar__tag" { (&self.tag) }
+                div class="ui-usage-bar__body" {
+                    div class="ui-usage-bar__head" {
+                        (seat(html! { span class="ui-usage-bar__name" { (&self.name) } }, &self.seats.name))
+                        (seat(html! { span class="ui-usage-bar__reading" { (&self.reading) } }, &self.seats.reading))
+                    }
+                    (seat(html! { meter class="ui-usage-bar__meter" min="0" max=(max) value=(self.value.min(max)) aria-label=(&self.tag) {} }, &self.seats.meter))
+                    @if self.detail.is_some() || !self.seats.detail.is_empty() {
+                        (seat(html! { span class="ui-usage-bar__detail" { (self.detail.as_deref().unwrap_or("")) } }, &self.seats.detail))
+                    }
+                }
+                @if let Some(button) = &action { (button) }
+            }
+        };
+        seat(bar, &self.seats.bar)
+    }
+}
+
+/// A labelled list of usage bars.
+#[derive(Clone, Default)]
+pub struct UsageBars {
+    pub label: String,
+    pub bars: Vec<UsageBar>,
+}
+
+impl Render for UsageBars {
+    fn render(&self) -> Markup {
+        html! { ul class="ui-usage-bars" aria-label=(&self.label) { @for bar in &self.bars { (bar) } } }
     }
 }

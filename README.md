@@ -40,7 +40,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches, empty states and setting rows categories.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches, empty states, setting rows, Update Cards and Usage Bars categories.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -52,7 +52,7 @@ children can contain requesting slots.
 
 ## Composite parts
 
-- `composite::StatTile` renders a labelled reading with an optional meter and detail.
+- `composite::StatTile` renders a labelled reading with an optional meter and detail; a seated meter without a percent has no value until bound.
 - `composite::StatTileSeats` binds a tile, reading, meter and detail to delegated data.
 - `composite::StatTiles` arranges readings in a labelled grid.
 - `composite::Switch` renders a labelled immediate on/off control.
@@ -65,6 +65,13 @@ children can contain requesting slots.
 - `composite::SettingRowSeats` binds the status and feedback lines to delegated data.
 - `composite::SettingRow` renders a setting's text and optional controls.
 - `composite::SettingRows` groups settings in a labelled list.
+- `composite::UpdateCardSeats` binds an update card and its path, sentence, diff and feedback.
+- `composite::UpdateCard` renders an interactable file and its diff and actions.
+- `composite::UpdateCards` groups waiting and silenced file cards.
+- `composite::UsageBarState` selects filled, empty or total.
+- `composite::UsageBarSeats` binds a bar and its name, reading, meter and detail.
+- `composite::UsageBar` renders a tagged native meter and optional action.
+- `composite::UsageBars` groups usage bars in a labelled list.
 - `composite::DEFAULT_THRESHOLD` is the default stat-tile warning threshold.
 
 ## Layout parts

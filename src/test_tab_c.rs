@@ -3,7 +3,7 @@
 //! Stat tiles, the switch row, the empty state and in-place sub-tabs, each with
 //! every state working. No HTML element tags or class values are authored here.
 use crate::{
-    composite::{EmptyState, SettingField, SettingForm, SettingRow, SettingRows, SettingRowSeats, SettingState, StatTile, StatTiles, Switch, SubTab, SubTabs},
+    composite::{EmptyState, SettingField, SettingForm, SettingRow, SettingRows, SettingRowSeats, SettingState, StatTile, StatTiles, Switch, SubTab, SubTabs, UpdateCard, UpdateCards, UsageBar, UsageBars, UsageBarState},
     fragment::DataSeat,
     layout::{ShowcaseGrid, ShowcaseItem},
     present::Paragraph,
@@ -170,6 +170,38 @@ fn setting_rows() -> Markup {
     ])
 }
 
+fn update_cards() -> Markup {
+    let waiting = UpdateCard {
+        id: "hermes-config".into(), path: "/etc/hermes/config.yaml".into(),
+        sentence: Some("Your file differs from the default.".into()),
+        diff: Some("--- current\n+++ default\n-old: true\n+new: true\n unchanged".into()),
+        ..UpdateCard::default()
+    };
+    let missing = UpdateCard { id: "missing".into(), path: "/etc/hermes/other.yaml".into(), ..UpdateCard::default() };
+    let silenced = UpdateCard { id: "silenced".into(), path: "/etc/hermes/silenced.yaml".into(), silenced: true, diff: Some("-old\n+new".into()), ..UpdateCard::default() };
+    let list = |label: &str, cards| UpdateCards { label: label.into(), cards }.render();
+    grid([
+        item("Waiting", list("Waiting file", vec![waiting.clone()])),
+        item("No diff", list("File without diff", vec![missing.clone()])),
+        item("Silenced", list("Silenced file", vec![silenced.clone()])),
+        item("File list", list("Updates", vec![waiting, UpdateCard { diff: Some("-before\n+after".into()), ..missing }, silenced])),
+    ])
+}
+
+fn usage_bars() -> Markup {
+    let bar = |tag: &str, name: &str, reading: &str, value: u32, detail: Option<&str>, state, action| UsageBar {
+        tag: tag.into(), name: name.into(), reading: reading.into(), value, max: 16,
+        detail: detail.map(Into::into), state, action, ..UsageBar::default()
+    };
+    let gpu = UsageBars { label: "GPU memory".into(), bars: vec![
+        bar("BRAIN", "ornith-1.5-9b-q6-k", "7 of 16 blocks", 7, Some("7 GiB · 7 blocks · port 8085"), UsageBarState::Filled, Some(Button { button_type: true, ..Button::new("Eject") })),
+        bar("EMBED", "granite-embedding", "3 of 16 blocks", 3, Some("3 GiB · 3 blocks · port 8081"), UsageBarState::Filled, None),
+        bar("EAR", "Empty", "0 of 16 blocks", 0, None, UsageBarState::Empty, None),
+        bar("USED", "Used", "10 of 16 · 62%", 10, None, UsageBarState::Total, None),
+    ] };
+    grid([item("GPU · 16 GiB", gpu.render())])
+}
+
 /// The content of one category C showcase section, by id.
 pub fn section(id: &str) -> Option<Markup> {
     Some(match id {
@@ -178,6 +210,8 @@ pub fn section(id: &str) -> Option<Markup> {
         "empty-states" => empty_states(),
         "sub-tabs" => sub_tabs(),
         "setting-rows" => setting_rows(),
+        "update-cards" => update_cards(),
+        "usage-bars" => usage_bars(),
         _ => return None,
     })
 }
