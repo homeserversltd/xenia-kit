@@ -27,6 +27,30 @@ impl DataSeat {
         }
         Ok(Self { name, value })
     }
+
+    /// The escaped ` name="value"` text this seat adds to an element.
+    pub(crate) fn attribute(&self) -> String {
+        let mut attr = format!(" {}", self.name);
+        if let Some(value) = &self.value {
+            attr.push_str("=\"");
+            attr.push_str(&html! {(value)}.0);
+            attr.push('"');
+        }
+        attr
+    }
+}
+
+/// Insert seat attributes into the first element of `markup`.
+pub(crate) fn seat(mut markup: Markup, seats: &[DataSeat]) -> Markup {
+    if seats.is_empty() {
+        return markup;
+    }
+    let attrs: String = seats.iter().map(DataSeat::attribute).collect();
+    if let Some(at) = markup.0.find('>') {
+        let at = if markup.0[..at].ends_with('/') { at - 1 } else { at };
+        markup.0.insert_str(at, &attrs);
+    }
+    markup
 }
 pub struct Fragment {
     pub pane: String,
@@ -62,16 +86,7 @@ impl Fragment {
 impl Render for Fragment {
     fn render(&self) -> Markup {
         let mut result = html! {section class="pane" data-pane-panel=(&self.pane) data-view-panel=(&self.view){(&self.content)}};
-        let mut attrs = String::new();
-        for seat in &self.data {
-            attrs.push(' ');
-            attrs.push_str(&seat.name);
-            if let Some(value) = &seat.value {
-                attrs.push_str("=\"");
-                attrs.push_str(&html! {(value)}.0);
-                attrs.push('"');
-            }
-        }
+        let attrs: String = self.data.iter().map(DataSeat::attribute).collect();
         if let Some(at) = result.0.find('>') {
             result.0.insert_str(at, &attrs);
         }

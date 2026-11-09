@@ -1,4 +1,5 @@
 //! Household cartridges compose the crown's markup and load public seats at startup.
+pub mod composite;
 pub mod events;
 pub mod fragment;
 pub mod health;

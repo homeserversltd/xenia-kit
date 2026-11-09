@@ -1,5 +1,6 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
+#[path="test_tab_c.rs"] mod categories_c;
 use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, ux::Badge};
 
 /// Render the complete Test tab from typed kit components.
@@ -17,10 +18,12 @@ pub fn test_tab() -> Markup {
         ("progress-bar","Progress Bar","Progress Bar",&["progress-bar"]), ("loading-spinner","Loading / Spinner","Loading / Spinner",&["loading-spinner"]),
         ("skeleton-slot","Skeleton & Slot","Skeleton & Slot",&["skeleton","slot"]), ("table","Table","Table",&["table"]),
         ("collapsible","Collapsible","Collapsible",&["collapsible"]), ("modals","Modals","Modals",&["modal"]), ("toasts","Toasts / Notifications","Toasts / Notifications",&[]),
+        ("stat-tiles","Stat Tiles","Stat Tiles",&["stat-tile"]), ("sub-tabs","Sub-tabs","In-place Sub-tabs",&["sub-tabs"]),
+        ("switches","Switches","Switch Rows",&["switch"]), ("empty-states","Empty States","Empty States",&["empty-state"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["buttons","toggles","tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals"];
-    let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).expect("named showcase category")})}};
+    let section_order=["buttons","toggles","tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states"];
+    let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:true,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let portal_data=[("Home Server","Primary appliance web service","systemd",PortalState::Up),("Matrix Chat","Private household messaging","systemd",PortalState::Down),("Backup Sweep","Scheduled storage snapshot script","script",PortalState::Partial),("Search","Household metasearch portal","link",PortalState::Up),("Documentation","External reference with no health probe","link",PortalState::Unknown),("AI Worker","Administrative inference service","systemd",PortalState::Down),("Update Scanner","One update source unavailable","script",PortalState::Partial)];
     let services=Panel{id:"services".into(),active:false,kind:PanelKind::Services,catalog_specimen:Some("test-services-portal-grid".into()),content:html!{
