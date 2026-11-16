@@ -33,6 +33,36 @@ let fragment = Fragment::new("hello-world", html! { p { "Saved" } })
 # Ok::<(), String>(())
 ```
 
+## Guest dialogs
+
+Choose a size and share a validated dialog id with its opener. The crown opens
+and closes the dialog; this requires a crown that carries the guest dialog opener.
+The body keeps its id across an inner swap, so a button can refresh just that body:
+
+```rust
+use xenia_kit::{html, ux::{Button, Dialog, DialogId, DialogSize, Hx, Swap}};
+
+let id = DialogId::new("choices")?;
+let opener = Button {
+    crown_dialog_open: Some(id.clone()),
+    ..Button::new("Choose")
+};
+let refresh = Button {
+    button_type: true,
+    hx: Hx {
+        get: Some("/api/tabs/my-tab/choices".into()),
+        target: Some(format!("#{}-body", id.as_str())),
+        swap: Some(Swap::InnerHtml),
+        ..Hx::default()
+    },
+    ..Button::new("Load choices")
+};
+let mut dialog = Dialog::new(id, "Choices", DialogSize::Medium, html! { (refresh) });
+dialog.actions = Some(html! { (Button::dismiss("Cancel")) });
+let content = html! { (opener) (dialog) };
+# Ok::<(), String>(())
+```
+
 ## The showcase
 
 `xenia_kit::showcase::all()` renders the named builder specimens in the crown

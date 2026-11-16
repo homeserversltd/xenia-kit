@@ -299,6 +299,8 @@ pub struct Button {
     pub right_icon: Option<String>,
     pub button_type: bool,
     pub modal_open: Option<String>,
+    pub crown_dialog_open: Option<DialogId>,
+    pub modal_dismiss: bool,
     pub interaction_result: Option<String>,
     pub hx: Hx,
 }
@@ -309,14 +311,80 @@ impl Button {
             ..Self::default()
         }
     }
+
+    /// A non-submitting control dismissed by the crown's dialog listener.
+    pub fn dismiss(text: impl Into<String>) -> Self {
+        Self { modal_dismiss: true, ..Self::new(text) }
+    }
 }
 renderer!(Button, s, {
-    html! {button type=[s.button_type.then_some("button")] class=(classes("ui-button",&[s.tone.map(ButtonTone::name),s.loading.then_some("loading"),s.size.map(Size::name)])) aria-busy=[s.loading.then_some("true")] disabled[s.disabled] data-ux-modal-open=[s.modal_open.as_deref()] data-interaction-result=[s.interaction_result.as_deref()] {
+    html! {button type=[(s.button_type || s.crown_dialog_open.is_some() || s.modal_dismiss).then_some("button")] class=(classes("ui-button",&[s.tone.map(ButtonTone::name),s.loading.then_some("loading"),s.size.map(Size::name)])) aria-busy=[s.loading.then_some("true")] disabled[s.disabled] data-ux-modal-open=[s.modal_open.as_deref()] data-crown-dialog-open=[s.crown_dialog_open.as_ref().map(DialogId::as_str)] data-modal-dismiss[s.modal_dismiss] data-interaction-result=[s.interaction_result.as_deref()] {
         @if let Some(icon)=&s.left_icon {span class="ui-button__icon ui-button__icon--left" {(icon)}}
         (&s.text)
         @if let Some(icon)=&s.right_icon {" " span class="ui-button__icon ui-button__icon--right" {(icon)}}
     }}
 });
+
+/// A non-empty ASCII token shared by a guest dialog and its opener.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DialogId(String);
+
+impl DialogId {
+    pub fn new(id: impl Into<String>) -> Result<Self, String> {
+        let id = id.into();
+        if id.is_empty() || !id.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'-' || c == b'_') {
+            return Err("dialog id must be a non-empty ASCII token (letters, digits, hyphen, underscore)".into());
+        }
+        Ok(Self(id))
+    }
+
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+
+/// The crown's four dialog dimensions; callers must choose one explicitly.
+#[derive(Clone, Copy, Debug)]
+pub enum DialogSize { Small, Medium, Large, Full }
+
+impl DialogSize {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Small => "small", Self::Medium => "medium",
+            Self::Large => "large", Self::Full => "full",
+        }
+    }
+}
+
+/// A guest dialog. The crown opens and closes it; the guest supplies its contents.
+#[derive(Clone)]
+pub struct Dialog {
+    pub id: DialogId,
+    pub title: String,
+    pub size: DialogSize,
+    pub body: Markup,
+    pub actions: Option<Markup>,
+    pub close_label: String,
+}
+
+impl Dialog {
+    pub fn new(id: DialogId, title: impl Into<String>, size: DialogSize, body: Markup) -> Self {
+        Self { id, title: title.into(), size, body, actions: None, close_label: "Close".into() }
+    }
+}
+
+impl Render for Dialog {
+    fn render(&self) -> Markup {
+        let title_id = format!("{}-title", self.id.as_str());
+        let body_id = format!("{}-body", self.id.as_str());
+        html! {
+            dialog class="crown-dialog" id=(self.id.as_str()) data-size=(self.size.name()) aria-labelledby=(&title_id) {
+                button type="button" class="crown-dialog__close" data-modal-dismiss aria-label=(&self.close_label) { "×" }
+                h2 class="crown-dialog__title" id=(&title_id) { (&self.title) }
+                div class="crown-dialog__body" id=(&body_id) { (self.body.clone()) }
+                @if let Some(actions) = &self.actions { div class="crown-dialog__actions" { (actions.clone()) } }
+            }
+        }
+    }
+}
 
 #[derive(Clone)]
 pub enum CardBody {
