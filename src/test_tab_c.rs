@@ -117,7 +117,7 @@ fn sub_tabs() -> Markup {
     let text = |line: &str| Paragraph { text: line.into() }.render();
     let inner = SubTabs {
         scope: "sub-tabs-specimen-nested".into(),
-        label: "Nested sub-views".into(),
+        label: "Depth 2 — nested sub-views".into(),
         depth: 2,
         selected: None,
         tabs: vec![
@@ -127,7 +127,7 @@ fn sub_tabs() -> Markup {
     };
     let outer = SubTabs {
         scope: "sub-tabs-specimen".into(),
-        label: "Admin sub-views".into(),
+        label: "Depth 1 — admin sub-views".into(),
         depth: 1,
         selected: None,
         tabs: vec![

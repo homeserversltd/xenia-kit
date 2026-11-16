@@ -16,7 +16,7 @@ pub struct TabChoice {
 #[derive(Clone, Copy, Debug)]
 pub enum TabDepth { Document, Panel, Category }
 impl TabDepth {
-    fn number(self) -> u8 { match self { Self::Document => 1, Self::Panel => 2, Self::Category => 3 } }
+    fn number(self) -> u8 { match self { Self::Document => 0, Self::Panel => 1, Self::Category => 2 } }
 }
 
 /// A delegated tab strip. Panel is a pane section; Category is a category.
@@ -31,13 +31,13 @@ pub struct TabStrip {
 impl Render for TabStrip {
     fn render(&self) -> Markup {
         html! {
-            div class="ui-tab-group" role="tablist" aria-label=(&self.label) {
+            div class=(if self.categories { "ui-tab-group ui-tab-group--chips" } else { "ui-tab-group" }) data-tab-depth=(self.depth.number()) role="tablist" aria-label=(&self.label) {
                 @for tab in &self.tabs {
                     button type="button"
                         class=(if tab.active { "ui-tab ui-tab--active active" } else if self.categories { "ui-tab " } else { "ui-tab" })
                         data-tab-id=(&tab.id)
                         data-category-chip=[self.categories.then_some(tab.id.as_str())]
-                        aria-selected=(tab.active.to_string()) data-depth=(self.depth.number()) {
+                        aria-selected=(tab.active.to_string()) {
                         span class="ui-tab__content" { span class="ui-tab__label" { (&tab.label) } }
                     }
                 }

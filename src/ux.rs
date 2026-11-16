@@ -944,6 +944,7 @@ pub struct Tab {
     pub hidden: bool,
     pub admin_only: bool,
     pub size: Option<Size>,
+    /// Retained for source compatibility; this field no longer emits markup.
     pub depth: Option<u8>,
     pub visibility: Option<VisibilityToggle>,
     pub starred: Option<bool>,
@@ -976,7 +977,7 @@ renderer!(Tab, s, {
             @if let Some(starred)=s.starred{div class="ui-tab__star-column"{button type="button" class=(if starred{"ui-tab__star-button ui-tab__star-button--starred fas fa-star"}else{"ui-tab__star-button far fa-star"}) aria-pressed=(starred.to_string()) aria-label=[s.star_label.as_deref()] title=[s.star_label.as_deref()] {}}}
         }}
     } else {
-        html! {button type="button" class=(class) disabled[s.disabled] data-depth=[s.depth]{(s.content())}}
+        html! {button type="button" class=(class) disabled[s.disabled]{(s.content())}}
     }
 });
 #[derive(Clone, Default)]

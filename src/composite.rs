@@ -170,7 +170,7 @@ pub struct SubTab {
     pub content: Markup,
 }
 
-/// An underline tab group that switches its own sub-views in place.
+/// A nested slab tab group that switches its own sub-views in place.
 ///
 /// The group owns one `data-tab-scope`; the host's delegated switcher selects
 /// within that scope only, so groups nest to any depth. The first visible tab
@@ -199,7 +199,7 @@ impl Render for SubTabs {
         let scope = &self.scope;
         html! {
             div class="ui-sub-tabs" data-tab-scope=(scope) data-tab-depth=(self.depth.max(1)) {
-                div class="ui-tab-group ui-tab-group--underline" role="tablist" aria-label=(&self.label) {
+                div class="ui-tab-group" data-tab-depth=(self.depth.max(1)) role="tablist" aria-label=(&self.label) {
                     @for tab in &self.tabs {
                         @let on = selected == Some(tab.id.as_str());
                         button type="button" role="tab"

@@ -5,6 +5,7 @@
 //! No HTML element tags or class values are authored here.
 use crate::{
     html, Markup, Render,
+    composite::{SubTab, SubTabs},
     specimen::{DeviceChoices, DriveChoice, CalendarReadout, TimeReadout, AddressCalendarItem, MonthlyCalendarItem, PortalRemoveSimulator,VisibilityCard,VisibilityTab,VisibilityTabSet,VisibilityNote,VisibilityNoteKind},
     present::{Text, TextKind,Paragraph,CatalogGrid,CatalogKind,ShowcaseArticle,ShowcaseRow,ShowcaseBox},
     layout::{ResolverOption, ResolverSpecimen, ShowcaseGrid, ShowcaseItem, StatusDot},
@@ -182,16 +183,25 @@ fn category_tabs() -> Markup {
             ..Tab::default()
         }])]),
     ]);
-    let nested=ShowcaseBox{content:html!{
-        (tabs(vec![Tab { label: "Depth 1 — document tab".into(), active: true, depth: Some(1), ..Tab::default() }, Tab { label: "Sibling".into(), depth: Some(1), ..Tab::default() }]))
-        (tabs(vec![Tab { label: "Depth 2 — pane section".into(), active: true, depth: Some(2), ..Tab::default() }, Tab { label: "Sibling".into(), depth: Some(2), ..Tab::default() }]))
-        (tabs(vec![Tab { label: "Depth 3 — category chip".into(), active: true, depth: Some(3), ..Tab::default() }, Tab { label: "Sibling".into(), depth: Some(3), ..Tab::default() }]))
-    }};
+    let inner = SubTabs {
+        scope: "tabs-depth-inner".into(), label: "Depth 2 sections".into(), depth: 2, selected: None,
+        tabs: vec![
+            SubTab { id: "first".into(), label: "Depth 2 — first".into(), content: html! { "First nested panel" }, ..SubTab::default() },
+            SubTab { id: "second".into(), label: "Depth 2 — second".into(), content: html! { "Second nested panel" }, ..SubTab::default() },
+        ],
+    };
+    let nested=ShowcaseBox{content:SubTabs {
+        scope: "tabs-depth-outer".into(), label: "Depth 1 sections".into(), depth: 1, selected: None,
+        tabs: vec![
+            SubTab { id: "nested".into(), label: "Depth 1 — nested".into(), content: inner.render(), ..SubTab::default() },
+            SubTab { id: "other".into(), label: "Depth 1 — other".into(), content: html! { "Other panel" }, ..SubTab::default() },
+        ],
+    }.render()};
     let overflow=ShowcaseBox{content:tabs([
         "Upload", "Stats", "backBlaze", "DHCP", "Firewall", "Wake on LAN", "Linker", "Test", "testing",
     ].into_iter().enumerate().map(|(index, label)| Tab { label: label.into(), active: index == 0, ..Tab::default() }).collect())};
     html!{(intro)(rows)(Text{kind:TextKind::Heading4,content:html!{"Nested depth"}})
-        (Paragraph{text:"The document tab bar, in-pane sections, and category chips are the same component at three depths — only the left-edge indicator weight changes.".into()})(nested)
+        (Paragraph{text:"Crown navigation is depth 0. A pane group is depth 1, and a group inside its panel is depth 2. The category strip above shows wrapping chips.".into()})(nested)
         (Text{kind:TextKind::Heading4,content:html!{"Overflow"}})(Paragraph{text:"The group wraps instead of clipping once a row runs out of width.".into()})(overflow)}
 }
 
