@@ -10,6 +10,7 @@ pub mod present;
 pub mod showcase;
 pub mod specimen;
 pub mod status;
+pub mod style;
 pub mod test_tab;
 pub use test_tab::test_tab;
 pub mod theme;

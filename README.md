@@ -1,9 +1,15 @@
 # xenia-kit
 
-Build a household cartridge in Rust from the crown's typed UI components. The
-crown supplies the library CSS, JavaScript behavior and operator skin; this crate
-ships none of those assets. Builders implement `maud::Render`, so composition is
-ordinary `html! { (component) }`. Text and attribute values are escaped.
+Build a household cartridge in Rust from the crown's typed UI components. Builders
+implement `maud::Render`, so composition is ordinary `html! { (component) }`.
+Text and attribute values are escaped. The crown supplies JavaScript behavior
+and the operator skin.
+
+## Shared style
+
+`xenia_kit::style` provides the shared sheets in crown order, lookup by path,
+the theme catalog, and author-face names. A guest cartridge still ships no
+stylesheet beyond a declared `pack.css` and no JavaScript of its own.
 
 The initial kit supplies Badge, Breadcrumbs, Button, Calendar, Card, Checkbox,
 Collapsible, EditableField, FileInput, IconButton, Input, IpCalendar,
