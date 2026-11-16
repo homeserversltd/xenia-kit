@@ -991,9 +991,9 @@ pub fn tabs() -> Markup {
         ..Tab::default()
     }]));
     for (depth, active, sibling) in [
-        (1, "Depth 1 — document tab", "Sibling"),
-        (2, "Depth 2 — pane section", "Sibling"),
-        (3, "Depth 3 — category chip", "Sibling"),
+        (0, "Depth 0 — crown navigation", "Sibling"),
+        (1, "Depth 1 — pane group", "Sibling"),
+        (2, "Depth 2 — group inside a panel", "Sibling"),
     ] {
         parts.push(group(vec![
             Tab {
