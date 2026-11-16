@@ -1,0 +1,26 @@
+:root { --nested-button-depth: 3px; --nested-button-gap: 6px; }
+.ui-nested-button {
+  --nested-button-lip: var(--theme-component-keycap-lip-base, color-mix(in srgb, var(--background) 55%, var(--text)));
+  --nested-button-edge: var(--theme-component-keycap-edge, color-mix(in srgb, var(--theme-surface-3) 40%, var(--theme-surface-0)));
+  position: relative; min-block-size: 30px; padding: 4px 6px; margin: 0;
+  border: 1px solid var(--theme-outline); border-radius: 6px;
+  background: var(--theme-surface-3); color: var(--text);
+  font: inherit; font-size: 0.85rem; font-weight: 500; line-height: 1; cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 var(--nested-button-depth) 0 var(--nested-button-lip);
+  transition: transform 90ms ease, box-shadow 90ms ease, background-color 90ms ease;
+}
+.ui-nested-button::after { content: ''; position: absolute; inset: calc(-1px - var(--nested-button-depth)) -1px -1px -1px; }
+.ui-nested-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) {
+  .ui-nested-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--theme-surface-3) 88%, var(--text));
+    transform: translateY(calc(var(--nested-button-depth) / 2));
+    box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 calc(var(--nested-button-depth) / 2) 0 var(--nested-button-lip);
+  }
+}
+.ui-nested-button:active:not(:disabled) {
+  transform: translateY(var(--nested-button-depth));
+  box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 0 0 var(--nested-button-lip);
+}
+.ui-nested-button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .ui-nested-button { transition: none; } }

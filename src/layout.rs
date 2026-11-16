@@ -328,7 +328,7 @@ pub struct ServiceAction {
     pub title: String,
 }
 impl Render for ServiceAction {
-    fn render(&self) -> Markup { html! { button title=(&self.title) { (&self.label) } } }
+    fn render(&self) -> Markup { html! { button type="button" class="ui-nested-button" title=(&self.title) { (&self.label) } } }
 }
 
 /// Rows of service actions inside a portal's metadata area.

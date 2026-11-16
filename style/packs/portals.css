@@ -161,55 +161,22 @@
   min-height: auto;
 }
 
-.portals-tablet .admin-controls button {
-  flex: 1;
-  border: none;
-  border-radius: 6px;
-  background: var(--primary);
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 4px 6px;
-  min-height: 30px;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.admin-controls button::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.admin-controls button:hover::after {
-  opacity: 1;
+.admin-controls {
+  padding-bottom: var(--nested-button-depth);
 }
 
 /* Button group layout */
 .admin-controls-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.1rem;
+  gap: var(--nested-button-gap);
   min-height: 30px;
 }
 
 /* Add big margin to any admin-controls-row that follows another one */
 .admin-controls-row + .admin-controls-row {
-  margin-top: 0.1rem;
+  margin-top: calc(var(--nested-button-gap) + var(--nested-button-depth));
 }
-
-
-/* Hover hierarchy */
-.admin-controls button:hover {
-  background: var(--primaryHover);
-  transform: translateY(-1px);
-  transition-delay: 0.05s;
-}
-
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
@@ -516,19 +483,6 @@
 /* Adjust admin controls spacing */
 .admin-controls {
   margin-top: 0.5rem;
-}
-
-/* Styling for disabled buttons (script-managed services) */
-.admin-controls button.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--background-alt);
-  color: var(--text-muted);
-}
-
-.admin-controls button.disabled:hover {
-  background: var(--background-alt);
-  transform: none;
 }
 
 /* Script management notice styling */

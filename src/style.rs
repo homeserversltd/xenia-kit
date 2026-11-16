@@ -71,6 +71,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_modal.css"),
     },
     Sheet {
+        path: "library/_nested-button.css",
+        css: include_str!("../style/library/_nested-button.css"),
+    },
+    Sheet {
         path: "library/_plus-button.css",
         css: include_str!("../style/library/_plus-button.css"),
     },
