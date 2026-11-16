@@ -14,6 +14,12 @@ stylesheet beyond a declared `pack.css` and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
 `default-features = false`; the default `builders` feature retains the full kit.
 
+The script exposes `window.CrownTheme.current()`, `names()`, and `set(name)`.
+Before the catalog loads, `current()` returns `null` and `names()` is empty;
+`set` returns `false` without changing anything for an unknown name. Every
+application dispatches `crown-theme-change` on `document` with `{ name, names }`
+in its detail, after the theme has been saved.
+
 The initial kit supplies Badge, Breadcrumbs, Button, Calendar, Card, Checkbox,
 Collapsible, EditableField, FileInput, IconButton, Input, IpCalendar,
 LoadingSpinner, Modal, PlusButton, ProgressBar, RowInfoTile, Select, Slider,

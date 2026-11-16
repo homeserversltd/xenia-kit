@@ -2,6 +2,8 @@
 (() => {
   'use strict';
 
+  if ('CrownTheme' in window) return;
+
   const headerStateKey = 'coronatio.flask-react-header.v1';
   const preferredThemeKey = 'preferred-theme';
   const themeDataKey = 'themeData';
@@ -10,7 +12,19 @@
   const savedPreferredTheme = localStorage.getItem(preferredThemeKey);
   let themeCatalog;
   let themes = [];
+  let appliedTheme = null;
   const headerState = { theme: savedPreferredTheme || savedHeaderState?.theme };
+
+  window.CrownTheme = {
+    current: () => appliedTheme,
+    names: () => themes.slice(),
+    set: name => {
+      if (!themes.includes(name)) return false;
+      headerState.theme = name;
+      applyTheme();
+      return true;
+    },
+  };
 
   function saveHeaderState() {
     localStorage.setItem(headerStateKey, JSON.stringify({ theme: headerState.theme }));
@@ -80,6 +94,10 @@
       if (span) span.textContent = label;
       themeButton.title = 'Current theme: ' + label + '. Click to switch theme.';
     }
+    appliedTheme = headerState.theme;
+    document.dispatchEvent(new CustomEvent('crown-theme-change', {
+      detail: { name: appliedTheme, names: themes.slice() },
+    }));
   }
 
   function cycleTheme() {
