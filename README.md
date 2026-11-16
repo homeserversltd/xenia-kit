@@ -10,6 +10,8 @@ and the operator skin.
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
 the theme catalog, and author-face names. A guest cartridge still ships no
 stylesheet beyond a declared `pack.css` and no JavaScript of its own.
+A face that only needs shared style can depend on `xenia-kit` with
+`default-features = false`; the default `builders` feature retains the full kit.
 
 The initial kit supplies Badge, Breadcrumbs, Button, Calendar, Card, Checkbox,
 Collapsible, EditableField, FileInput, IconButton, Input, IpCalendar,
