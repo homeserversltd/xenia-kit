@@ -170,3 +170,4 @@ pub fn sheet(path: &str) -> Option<&'static str> {
 
 pub const THEME_CATALOG: &str = include_str!("../style/theme/catalog.json");
 pub const AUTHOR_FACE: &str = include_str!("../style/author-face.json");
+pub const THEME_SCRIPT: &str = include_str!("../style/theme.js");

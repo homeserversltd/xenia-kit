@@ -8,7 +8,8 @@ and the operator skin.
 ## Shared style
 
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
-the theme catalog, and author-face names. A guest cartridge still ships no
+the theme catalog, author-face names, and the shared theme switcher script
+as `THEME_SCRIPT`. A guest cartridge still ships no
 stylesheet beyond a declared `pack.css` and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
 `default-features = false`; the default `builders` feature retains the full kit.
