@@ -48,11 +48,31 @@
     return style;
   }
 
+  let themeSheet;
+
+  function applyThemeStyles(css) {
+    if (themeSheet === undefined) {
+      themeSheet = null;
+      if (typeof CSSStyleSheet === 'function' && 'adoptedStyleSheets' in document &&
+          typeof CSSStyleSheet.prototype.replaceSync === 'function') {
+        try {
+          const sheet = new CSSStyleSheet();
+          document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+          themeSheet = sheet;
+        } catch (_) {
+          // Fall back when constructable stylesheets cannot be adopted.
+        }
+      }
+    }
+    if (themeSheet) themeSheet.replaceSync(css);
+    else ensureThemeStyleElement().textContent = css;
+  }
+
   function applyTheme() {
     if (!themes.includes(headerState.theme)) headerState.theme = themeCatalog.default || themes[0];
     const theme = themeCatalog.themes[headerState.theme];
     document.documentElement.dataset.theme = headerState.theme;
-    ensureThemeStyleElement().textContent = themeToCss(theme);
+    applyThemeStyles(themeToCss(theme));
     saveHeaderState();
     if (themeButton) {
       const label = headerState.theme;
