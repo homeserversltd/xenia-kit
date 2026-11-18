@@ -91,15 +91,6 @@
               var(--theme-component-keycap-hover-shadow, 0 5px 6px color-mix(in srgb, var(--text) 22%, transparent));
 }
 
-@media (hover: hover) {
-  .portal-element:not([data-visible="false"]) > .portal-card[data-portal-card]:hover > .portal-card-face {
-    transform: translateY(calc(var(--portal-keycap-depth) / 2));
-    box-shadow: inset 0 1px 0 var(--portal-keycap-edge),
-                0 calc(var(--portal-keycap-depth) / 2) 0 var(--portal-keycap-lip),
-                var(--theme-component-keycap-hover-shadow, 0 5px 6px color-mix(in srgb, var(--text) 22%, transparent));
-  }
-}
-
 /* Active descendants propagate :active to the card, so explicitly exclude controls. */
 .portal-element:not([data-visible="false"]) > .portal-card[data-portal-card]:active:not(:has(:is(button, a, input, select, textarea):active)) > .portal-card-face {
   transform: translateY(var(--portal-keycap-depth));

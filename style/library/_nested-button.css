@@ -7,19 +7,18 @@
   background: var(--theme-surface-3); color: var(--text);
   font: inherit; font-size: 0.85rem; font-weight: 500; line-height: 1; cursor: pointer;
   box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 var(--nested-button-depth) 0 var(--nested-button-lip);
-  transition: transform 90ms ease, box-shadow 90ms ease, background-color 90ms ease;
+  transition: box-shadow 90ms ease, background-color 90ms ease;
 }
-.ui-nested-button::after { content: ''; position: absolute; inset: calc(-1px - var(--nested-button-depth)) -1px -1px -1px; }
+.ui-nested-button::after { content: ''; position: absolute; inset: calc(-1px - (var(--nested-button-gap) + var(--nested-button-depth)) / 2) calc(-1px - var(--nested-button-gap) / 2); }
 .ui-nested-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (hover: hover) {
   .ui-nested-button:hover:not(:disabled) {
     background: color-mix(in srgb, var(--theme-surface-3) 88%, var(--text));
-    transform: translateY(calc(var(--nested-button-depth) / 2));
     box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 calc(var(--nested-button-depth) / 2) 0 var(--nested-button-lip);
   }
 }
 .ui-nested-button:active:not(:disabled) {
-  transform: translateY(var(--nested-button-depth));
+  background: color-mix(in srgb, var(--theme-surface-3) 88%, var(--background));
   box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 0 0 var(--nested-button-lip);
 }
 .ui-nested-button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
