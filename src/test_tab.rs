@@ -36,7 +36,7 @@ pub fn test_tab() -> Markup {
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![
-        GuideLine{lead:None,text:"Everything on this site is built from a small set of pieces. A tab is those pieces arranged for one job. This tab shows the pieces and says what each one is for.".into()},
+        GuideLine{lead:None,text:"This site is built from a small set of pieces that repeat from tab to tab. A tab is those pieces arranged for one job. This tab shows the pieces on their own.".into()},
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
     ]}.render());
@@ -45,8 +45,8 @@ pub fn test_tab() -> Markup {
         (Exhibit{name:"Portal tile".into(),piece:portal.render(),admin:true,words:vec![
             "A door to a service on your HomeServer, or to a link. On the Portals tab, press a tile and it opens in a new browser tab. The one shown here is for looking at: it opens nothing and its controls change nothing.".into(),
             "The coloured edge tells you whether the service is running: green when it is up, red when it is down, amber when only part of it is up, and a muted edge when it cannot be checked, as with a plain link.".into(),
-            "Guests see the portal's name and a larger picture, and no controls. This one is drawn as you see it in Admin Mode. The eye at the top left hides the tile from guests or shows it again. The six keys start, stop and restart the service, turn it on or off at startup, and show its status.".into(),
-            "A service run by a script shows a note in place of the keys, because it changes only when the system restarts.".into(),
+            "Guests see the portal's name and a larger picture, and no controls. In Admin Mode a tile shows the controls drawn here. The eye at the top left hides the tile from guests or shows it again. The six keys start, stop and restart the service, turn it on or off at startup, and show its status.".into(),
+            "A service run by a script shows a note in place of the keys: it is managed by its script, and a change to it needs a system restart.".into(),
             "You will meet it on the Portals tab.".into(),
         ]})
     });
