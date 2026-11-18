@@ -6,7 +6,7 @@
 use crate::{
     html, Markup, Render,
     composite::{SubTab, SubTabs},
-    specimen::{DeviceChoices, DriveChoice, CalendarReadout, TimeReadout, AddressCalendarItem, MonthlyCalendarItem, PortalRemoveSimulator,VisibilityCard,VisibilityTab,VisibilityTabSet,VisibilityNote,VisibilityNoteKind},
+    specimen::{DeviceChoices, DriveChoice, CalendarReadout, TimeReadout, AddressCalendarItem, MonthlyCalendarItem, VisibilityCard,VisibilityTab,VisibilityTabSet,VisibilityNote,VisibilityNoteKind},
     present::{Text, TextKind,Paragraph,CatalogGrid,CatalogKind,ShowcaseArticle,ShowcaseRow,ShowcaseBox},
     layout::{ResolverOption, ResolverSpecimen, ShowcaseGrid, ShowcaseItem, StatusDot},
     ux::{
@@ -230,7 +230,6 @@ fn category_cards() -> Markup {
         item("Clickable Card", vec![Card { body: CardBody::Text("Click this card to interact.".into()), state: Some(CardState::Clickable), ..Card::default() }.render()]),
         item("Active Card", vec![Card { body: CardBody::Text("This card indicates an active state.".into()), state: Some(CardState::Active), ..Card::default() }.render()]),
         item("Error Card", vec![Card { body: CardBody::Text("This card indicates an error state.".into()), state: Some(CardState::Error), ..Card::default() }.render()]),
-        item("Portal remove simulator",vec![Text{kind:TextKind::MutedParagraph,content:html!{"Simulator only — this control never changes a portal."}}.render(),PortalRemoveSimulator{name:"Simulator portal".into(),description:"Quiet remove-control specimen".into(),visible:true,visibility_label:"Hide simulator portal".into(),delete_label:"Delete simulator portal".into()}.render()]),
     ])
 }
 
