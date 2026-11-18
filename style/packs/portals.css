@@ -409,16 +409,24 @@
 }
 
 .portals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
   width: 100%;
 }
 
+.portals-grid > * {
+  flex: 1 1 300px;
+  max-width: 380px;
+  min-width: 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .portals-grid {
-    grid-template-columns: 1fr;
+  .portals-grid > * {
+    flex-basis: 100%;
+    max-width: none;
   }
   
   .portal-card {
