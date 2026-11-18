@@ -179,3 +179,36 @@ pub fn sheet(path: &str) -> Option<&'static str> {
 pub const THEME_CATALOG: &str = include_str!("../style/theme/catalog.json");
 pub const AUTHOR_FACE: &str = include_str!("../style/author-face.json");
 pub const THEME_SCRIPT: &str = include_str!("../style/theme.js");
+
+/// The catalog-derived theme properties for pages that paint before it loads.
+#[cfg(feature = "builders")]
+pub fn theme_css() -> &'static str {
+    use std::fmt::Write;
+    use std::sync::OnceLock;
+
+    static CSS: OnceLock<String> = OnceLock::new();
+    CSS.get_or_init(|| {
+        let catalog: serde_json::Value =
+            serde_json::from_str(THEME_CATALOG).expect("kit theme catalog is valid JSON");
+        let themes = catalog["themes"].as_object().expect("kit themes are an object");
+        let mut css = String::new();
+        for (name, theme) in themes {
+            let values = theme.as_object().expect("kit theme is an object");
+            writeln!(css, "[data-theme=\"{name}\"] {{").unwrap();
+            for (key, value) in values {
+                writeln!(css, "  --theme-{key}: {};", value.as_str().expect("kit theme value is a string")).unwrap();
+            }
+            writeln!(css, "  --theme-accent-soft: color-mix(in srgb, var(--theme-accent) 16%, transparent);").unwrap();
+            for key in ["primary", "background"] {
+                let value = values.get(key).and_then(|v| v.as_str()).unwrap_or("");
+                if let Some(hex) = value.strip_prefix('#').filter(|v| v.len() == 6 && v.is_ascii()) {
+                    if let Ok(rgb) = u32::from_str_radix(hex, 16) {
+                        writeln!(css, "  --theme-{key}-rgb: {}, {}, {};", (rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255).unwrap();
+                    }
+                }
+            }
+            writeln!(css, "}}\n").unwrap();
+        }
+        css
+    }).as_str()
+}
