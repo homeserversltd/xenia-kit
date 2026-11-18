@@ -1,6 +1,20 @@
 //! Typed library markup. Text is escaped by maud; no caller-supplied classes.
 use maud::{html, Markup, Render};
 
+/// A small portal service key with optional caller-owned data seats.
+#[derive(Clone, Debug)]
+pub struct NestedButton {
+    pub label: String,
+    pub title: String,
+    pub disabled: bool,
+    pub seats: Vec<crate::fragment::DataSeat>,
+}
+impl Render for NestedButton {
+    fn render(&self) -> Markup {
+        crate::fragment::seat(html! { button type="button" class="ui-nested-button" title=(&self.title) disabled[self.disabled] { (&self.label) } }, &self.seats)
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub enum Swap {
     InnerHtml,

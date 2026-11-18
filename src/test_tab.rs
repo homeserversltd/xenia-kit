@@ -1,7 +1,27 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, ux::Badge};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, pages::PortalsPage, ux::{Badge, NestedButton}};
+
+type Sample = (&'static str, &'static str, &'static str, PortalState);
+const PORTALS: [Sample; 7] = [("Home Server","Primary appliance web service","systemd",PortalState::Up),("Matrix Chat","Private household messaging","systemd",PortalState::Down),("Backup Sweep","Scheduled storage snapshot script","script",PortalState::Partial),("Search","Household metasearch portal","link",PortalState::Up),("Documentation","External reference with no health probe","link",PortalState::Unknown),("AI Worker","Administrative inference service","systemd",PortalState::Down),("Update Scanner","One update source unavailable","script",PortalState::Partial)];
+
+fn eye(visible: bool) -> PortalEye { PortalEye { visible, label: if visible {"Hide portal"} else {"Show portal"}.into(), gate: None, seats: vec![] } }
+fn delete() -> PortalDelete { PortalDelete { gate: None, hidden: false, name: None, title: "Delete portal".into(), label: "Delete portal".into(), seats: vec![] } }
+fn add() -> AddPortalCard { AddPortalCard { accessible_label:"Add new portal".into(), title:"Add Portal".into(), description:"Create a new portal for your services".into(), gate:None, opener:None, seats:vec![] } }
+fn actions() -> Markup {
+    let rows = [[("Start","Start service"),("Stop","Stop service"),("Restart","Restart service")],[("Enable","Enable service at boot"),("Disable","Disable service at boot"),("Status","Check service status")]].into_iter().map(|row| row.into_iter().map(|(label,title)| ServiceAction { label:label.into(), title:title.into(), action:None }).collect()).collect();
+    ServiceActions { rows, gate:None, services_json:None }.render()
+}
+fn notice() -> Markup { ServiceNotice { title:"System restart required for changes to take effect. Script-managed services are controlled through system scripts rather than direct service commands.".into(), text:"Script-managed Service — system restart required".into(), gate:None }.render() }
+fn tile((name,description,kind,state): Sample, admin: bool, visible: bool) -> Markup {
+    let chrome = if admin { html! { (eye(visible)) (delete()) } } else { html! {} };
+    let controls = if admin && kind == "systemd" { actions() } else if admin && kind == "script" { notice() } else { html! {} };
+    PortalCard { name:name.into(), description:description.into(), image:format!("/api/portals/images/{name}.png"), state, visible, show_name:!admin, link:None, chrome, controls, seats:PortalSeats::default() }.render()
+}
+fn guest_tiles() -> Markup { html! { @for state in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown] { (tile(*PORTALS.iter().find(|p| p.3 == state).expect("sample state"), false, true)) } } }
+fn hidden_tile() -> Markup { tile(("Hidden portal","Visible to administrators","link",PortalState::Unknown), true, false) }
+fn shelf(id: &str, active: bool, content: Markup) -> Panel { Panel { id:id.into(), active, kind:PanelKind::Basic, catalog_specimen:None, content } }
 
 /// Render the complete Test tab from typed kit components.
 pub fn test_tab() -> Markup {
@@ -26,24 +46,42 @@ pub fn test_tab() -> Markup {
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
     let section_order=["buttons","toggles","tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
-    let showcase=Panel{id:"showcase".into(),active:true,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
-    let portal_data=[("Home Server","Primary appliance web service","systemd",PortalState::Up),("Matrix Chat","Private household messaging","systemd",PortalState::Down),("Backup Sweep","Scheduled storage snapshot script","script",PortalState::Partial),("Search","Household metasearch portal","link",PortalState::Up),("Documentation","External reference with no health probe","link",PortalState::Unknown),("AI Worker","Administrative inference service","systemd",PortalState::Down),("Update Scanner","One update source unavailable","script",PortalState::Partial)];
-    let services=Panel{id:"services".into(),active:false,kind:PanelKind::Services,catalog_specimen:Some("test-services-portal-grid".into()),content:html!{
-        (SubpanelHeader{kicker:"Services specimen".into(),title:"Service Portals".into(),description:"Portal-card states, service types, and appliance controls.".into(),trailing:Badge::new("7 services").render()})
-        (crate::present::Paragraph{text:"Guest view".into()})
-        (PortalGrid{seats:vec![],content:html!{@for (name,description,_,state) in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown].into_iter().filter_map(|wanted| portal_data.into_iter().find(|(_,_,_,state)| *state == wanted)) {
-            (PortalCard{name:name.into(),description:description.into(),image:format!("/api/portals/images/{name}.png"),state,visible:true,show_name:true,link:None,chrome:html!{},controls:html!{},seats:PortalSeats::default()})
-        }}})
-        (crate::present::Paragraph{text:"Admin view".into()})
+    let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
+    let pages=shelf("pages",true,html! {
+        (crate::present::Paragraph{text:"Portals page — guest view".into()})
+        (PortalsPage{tiles:guest_tiles(),extra_cards:html!{},add_portal:None,frame_seats:vec![],grid_seats:vec![]})
+        (crate::present::Paragraph{text:"Portals page — admin view".into()})
         div data-admin-mode="true" {
-            (PortalGrid{seats:vec![],content:html!{@for (name,description,service_type,state) in portal_data {
-                @let controls=if service_type=="systemd" {let rows=[[ ("Start","Start service"),("Stop","Stop service"),("Restart","Restart service") ].as_slice(),[("Enable","Enable service at boot"),("Disable","Disable service at boot"),("Status","Check service status")].as_slice()].into_iter().map(|row|row.iter().map(|(label,title)|ServiceAction{label:(*label).into(),title:(*title).into(),action:None}).collect()).collect(); ServiceActions{rows,gate:None,services_json:None}.render()} else if service_type=="script" {ServiceNotice{title:"System restart required for changes to take effect. Script-managed services are controlled through system scripts rather than direct service commands.".into(),text:"Script-managed Service — system restart required".into(),gate:None}.render()} else {html!{}};
-                (PortalCard{name:name.into(),description:description.into(),image:format!("/api/portals/images/{name}.png"),state,visible:true,show_name:false,link:None,chrome:html!{},controls,seats:PortalSeats::default()})
-            }
-            (PortalCard{name:"Hidden portal".into(),description:"Visible to administrators".into(),image:"/api/portals/images/default.png".into(),state:PortalState::Unknown,visible:false,show_name:false,link:None,chrome:html!{},controls:html!{},seats:PortalSeats::default()})
-            (AddPortalCard{accessible_label:"Add new portal".into(),title:"Add Portal".into(),description:"Create a new portal for your services".into(),gate:None,opener:None,seats:vec![]})}})
+            (PortalsPage{tiles:html!{@for portal in PORTALS {(tile(portal,true,true))} (hidden_tile())},extra_cards:html!{},add_portal:Some(add()),frame_seats:vec![],grid_seats:vec![]})
         }
-    }};
+    });
+    let sections=shelf("sections",false,html! {
+        (crate::present::Paragraph{text:"Header row".into()})
+        (SubpanelHeader{kicker:"Services specimen".into(),title:"Service Portals".into(),description:"Portal states, service types, and appliance controls.".into(),trailing:Badge::new("7 services").render()})
+        (crate::present::Paragraph{text:"Portal tile grid — guest view".into()})
+        (PortalGrid{content:guest_tiles(),seats:vec![]})
+    });
+    let tiles=shelf("tiles",false,html! {
+        @for state in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown] {
+            (crate::present::Paragraph{text:format!("Portal tile — {state:?}")})
+            (tile(*PORTALS.iter().find(|p| p.3 == state).expect("sample state"),false,true))
+        }
+        div data-admin-mode="true" {
+            (crate::present::Paragraph{text:"Portal tile — six service keys".into()}) (tile(PORTALS[0],true,true))
+            (crate::present::Paragraph{text:"Portal tile — script-managed service".into()}) (tile(PORTALS[2],true,true))
+            (crate::present::Paragraph{text:"Hidden portal — visible only to an admin viewer".into()}) (hidden_tile())
+            (crate::present::Paragraph{text:"Add Portal card".into()}) (add())
+        }
+    });
+    let controls=shelf("controls",false,html! {
+        (crate::present::Paragraph{text:"Small key — rest".into()}) (NestedButton{label:"Start".into(),title:"Start service".into(),disabled:false,seats:vec![]})
+        (crate::present::Paragraph{text:"Small key — disabled".into()}) (NestedButton{label:"Start".into(),title:"Start service".into(),disabled:true,seats:vec![]})
+        div data-admin-mode="true" {
+            (crate::present::Paragraph{text:"Portal eye — visible".into()}) (eye(true))
+            (crate::present::Paragraph{text:"Portal eye — hidden".into()}) (eye(false))
+            (crate::present::Paragraph{text:"Portal delete button".into()}) (delete())
+        }
+    });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
     let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","Services"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
     let table=SettingsTable{headings:["Setting".into(),"Value".into(),"Source".into(),"Status".into()],rows:[("Default tab","showcase","shell","Active"),("Health interval","30s","profile","Active"),("External actions","disabled","catalog","Specimen")].into_iter().map(|(setting,value,source,status)|SettingsRow{setting:setting.into(),value:value.into(),source:source.into(),status:status.into()}).collect()};
@@ -78,7 +116,7 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("showcase","Component Showcase"),("services","Services"),("config","Configuration"),("health","Health Status"),("animations","Animations")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(showcase)(services)(config)(health)(animations)}};
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("pages","Pages"),("sections","Sections"),("tiles","Tiles"),("controls","Controls"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(pages)(sections)(tiles)(controls)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }

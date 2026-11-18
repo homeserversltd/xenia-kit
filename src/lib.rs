@@ -14,6 +14,8 @@ pub mod manifest;
 #[cfg(feature = "markup")]
 pub mod motion;
 #[cfg(feature = "markup")]
+pub mod pages;
+#[cfg(feature = "markup")]
 pub mod present;
 #[cfg(feature = "markup")]
 pub mod showcase;

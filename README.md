@@ -87,7 +87,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) composes the complete five-panel Test tab from kit builders, including the stat tiles, sub-tabs, switches, empty states, setting rows, Update Cards and Usage Bars categories.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on the Pages, Sections, Tiles and Controls shelves, followed by Motion and the remaining Component Showcase, Configuration and Health Status panels. The portal family occupies all four shelves; other families remain in their existing panels.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -136,6 +136,8 @@ children can contain requesting slots.
 `layout::ToastSpawn` renders a host-delegated notification button.
 `layout::PortalCard` renders the complete portal element; `PortalLink` supplies optional destination and JSON services, and `PortalSeats` binds the article, icon, name and description. Chrome and controls are composed markup.
 `layout::PortalGrid` arranges service portals and their add control, with caller-owned data seats.
+`pages::PortalsPage` composes tiles, extra cards and an optional Add Portal card inside a seated frame and grid.
+`ux::NestedButton` renders a small service key with label, title, disabled state and data seats.
 `layout::PortalEye` renders the tile's visibility control with optional gate and data seats.
 `layout::PortalDelete` renders the tile's delete control with optional gate, hidden state, identity and data seats.
 `layout::AdminGate` scopes optional controls to a caller-named viewport.
