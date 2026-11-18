@@ -67,8 +67,8 @@ pub fn test_tab() -> Markup {
                 (Toggle{label:Some(label.into()),size:Some(Size::Medium),checked,..Toggle::default()})
             }
         }},words:vec![
-            "A switch shows whether one thing is on or off. Pressing it asks for the other state. The ones shown here flip and change nothing else.".into(),
-            "On the DNS tab, Ad blocking takes effect as soon as you press it, and the switch goes back if the HomeServer cannot make the change. Encrypted DNS, further down the same tab, takes effect when you press Save resolver. On the DHCP tab, Anonymize hides device names and part of each ID tag on your screen, for screenshots; nothing changes on your network.".into(),
+            "A switch shows whether one thing is on or off. Press it to flip it. The ones shown here flip and change nothing else.".into(),
+            "On the DNS tab, Ad blocking takes effect as soon as you press it. Encrypted DNS, further down the same tab, takes effect when you press Save resolver. On the DHCP tab, Anonymize hides device names and part of each ID tag on your screen, for screenshots; nothing changes on your network.".into(),
             "In Admin Mode you will meet it on the DNS and DHCP tabs.".into(),
         ]})
         (Exhibit{name:"Icon button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
