@@ -134,15 +134,15 @@ children can contain requesting slots.
 `layout::ShowcaseCategory` groups a named category and its content.
 `layout::SubpanelHeader` renders a subpanel's labels and optional trailing content.
 `layout::ToastSpawn` renders a host-delegated notification button.
-`layout::PortalCard` renders a service face with an image and state.
+`layout::PortalCard` renders the complete portal element; `PortalLink` supplies optional destination and JSON services, and `PortalSeats` binds the article, icon, name and description. Chrome and controls are composed markup.
 `layout::PortalGrid` arranges service portals and their add control.
+`layout::AdminGate` scopes optional controls to a caller-named viewport.
 `layout::ServiceNotice` renders a script-managed service notice.
 `layout::ConfigPattern` renders a labelled configuration card.
 `layout::HealthReadout` renders a labelled service-health state.
 `layout::AnimationSpecimen` wraps a motion stage and an optional play control.
-`layout::ServicePortal` wraps a portal card with visibility and service identity.
-`layout::ServiceAction` renders an individual service control.
-`layout::ServiceActions` groups service controls into rows.
+`layout::ServiceAction` renders an individual service control with an optional delegated action.
+`layout::ServiceActions` groups service controls into rows with optional gate and service list.
 `layout::StatusDot` renders an up, down or unknown indicator.
 `layout::ResolverOption` describes an upstream DNS choice.
 `layout::UpstreamResolvers` composes provider, custom and encrypted-DNS controls.

@@ -201,30 +201,52 @@ impl Render for ToastSpawn {
 #[derive(Clone, Copy, Debug)]
 pub enum PortalState { Up, Down, Partial, Unknown }
 
-/// Service portal face with host-owned controls supplied as composable markup.
+/// Optional link facts supplied by a host page.
+#[derive(Clone, Debug)]
+pub struct PortalLink { pub url: String, pub services_json: Option<String> }
+
+/// Additional host bindings on each part of the portal tile.
+#[derive(Clone, Default)]
+pub struct PortalSeats {
+    pub article: Vec<crate::fragment::DataSeat>,
+    pub icon: Vec<crate::fragment::DataSeat>,
+    pub name: Vec<crate::fragment::DataSeat>,
+    pub description: Vec<crate::fragment::DataSeat>,
+}
+
+/// The complete portal element, including optional caller-composed chrome and controls.
 #[derive(Clone)]
 pub struct PortalCard {
     pub name: String,
     pub description: String,
     pub image: String,
     pub state: PortalState,
-    pub details: Markup,
+    pub visible: bool,
+    pub show_name: bool,
+    pub link: Option<PortalLink>,
+    pub chrome: Markup,
+    pub controls: Markup,
+    pub seats: PortalSeats,
 }
 impl Render for PortalCard {
     fn render(&self) -> Markup {
+        use crate::fragment::seat;
         let state = match self.state { PortalState::Up => "up", PortalState::Down => "down", PortalState::Partial => "partial", PortalState::Unknown => "unknown" };
-        html! {
-            article class=(format!("portal-card {state}")) {
+        let icon = seat(html! { img src=(&self.image) alt=(format!("{} icon", self.name)) class="portal-icon"; }, &self.seats.icon);
+        let name = seat(html! { h2 class="portal-name" { (&self.name) } }, &self.seats.name);
+        let description = seat(html! { p class="portal-description" { (&self.description) } }, &self.seats.description);
+        let article = seat(html! {
+            article class=(format!("portal-card {state}")) data-portal-card data-portal-name=(&self.name)
+                data-portal-url=[self.link.as_ref().map(|link| link.url.as_str())]
+                data-portal-services=[self.link.as_ref().and_then(|link| link.services_json.as_deref())]
+                role=[self.link.as_ref().map(|_| "link")] tabindex=[self.link.as_ref().map(|_| "0")] {
                 div class="portal-card-face" {
-                    div class="portal-card-header" {
-                        img src=(&self.image) alt=(format!("{} icon", self.name)) class="portal-icon";
-                        h4 class="portal-name" { (&self.name) }
-                        p class="portal-description" { (&self.description) }
-                    }
-                    div class="portal-meta" { (self.details.clone()) }
+                    div class="portal-card-header" { (icon) @if self.show_name { (name) } (description) }
+                    div class="portal-meta" { (self.controls.clone()) }
                 }
             }
-        }
+        }, &self.seats.article);
+        html! { div class="portal-element" data-portal-element data-visible=(self.visible.to_string()) { (self.chrome.clone()) (article) } }
     }
 }
 
@@ -282,12 +304,20 @@ impl Render for PortalGrid {
     fn render(&self) -> Markup { html! { div class="portals-grid" data-test-services-grid { (self.content.clone()) } } }
 }
 
+/// Optional admin gate, scoped to a caller-named viewport.
+#[derive(Clone, Debug)]
+pub struct AdminGate { pub viewport: String }
+
 /// A notice for a service managed by a script.
 #[derive(Clone, Debug)]
-pub struct ServiceNotice { pub title: String, pub text: String }
+pub struct ServiceNotice { pub title: String, pub text: String, pub gate: Option<AdminGate> }
 impl Render for ServiceNotice {
-    fn render(&self) -> Markup { html! { div class="admin-controls script-management-notice" { span class="script-notice-text" title=(&self.title) { (&self.text) } } } }
+    fn render(&self) -> Markup { html! { div class="admin-controls script-management-notice" data-admin-only[self.gate.is_some()] data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())] { span class="script-notice-text" title=(&self.title) { (&self.text) } } } }
 }
+
+/// Which delegated opener, if any, the host supplies for Add Portal.
+#[derive(Clone, Copy, Debug)]
+pub enum AddPortalOpener { Page, Specimen }
 
 /// The delegated portal-creation card.
 #[derive(Clone, Debug)]
@@ -295,10 +325,16 @@ pub struct AddPortalCard {
     pub accessible_label: String,
     pub title: String,
     pub description: String,
+    pub gate: Option<AdminGate>,
+    pub opener: Option<AddPortalOpener>,
 }
 impl Render for AddPortalCard {
     fn render(&self) -> Markup {
-        html! { button type="button" class="portal-card add-portal-card" data-test-add-portal aria-label=(&self.accessible_label) {
+        html! { div class="portal-card add-portal-card" data-admin-only[self.gate.is_some()]
+            data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())]
+            data-add-portal-open[matches!(self.opener, Some(AddPortalOpener::Page))]
+            data-test-add-portal[matches!(self.opener, Some(AddPortalOpener::Specimen))]
+            role="button" tabindex="0" aria-label=(&self.accessible_label) {
             div class="portal-card-face" { div class="add-portal-content" {
                 div class="add-portal-icon" { i class="fas fa-plus" {} }
                 h3 class="add-portal-title" { (&self.title) }
@@ -308,37 +344,29 @@ impl Render for AddPortalCard {
     }
 }
 
-/// Service portal collection. Each card's surrounding element retains its own visibility and service kind.
-#[derive(Clone)]
-pub struct ServicePortal {
-    pub visible: bool,
-    pub service_type: String,
-    pub card: PortalCard,
-}
-impl Render for ServicePortal {
-    fn render(&self) -> Markup {
-        html! { div class="portal-element" data-visible=(self.visible.to_string()) data-service-type=(&self.service_type) { (&self.card) } }
-    }
-}
-
 /// An individual service action control, such as Start or Status.
 #[derive(Clone, Debug)]
 pub struct ServiceAction {
     pub label: String,
     pub title: String,
+    pub action: Option<String>,
 }
 impl Render for ServiceAction {
-    fn render(&self) -> Markup { html! { button type="button" class="ui-nested-button" title=(&self.title) { (&self.label) } } }
+    fn render(&self) -> Markup { html! { button type="button" class="ui-nested-button" data-service-action=[self.action.as_deref()] title=(&self.title) { (&self.label) } } }
 }
 
 /// Rows of service actions inside a portal's metadata area.
 #[derive(Clone, Default)]
 pub struct ServiceActions {
     pub rows: Vec<Vec<ServiceAction>>,
+    pub gate: Option<AdminGate>,
+    pub services_json: Option<String>,
 }
 impl Render for ServiceActions {
     fn render(&self) -> Markup {
-        html! { div class="admin-controls" { @for row in &self.rows { div class="admin-controls-row" { @for action in row { (action) } } } } }
+        html! { div class="admin-controls" data-admin-only[self.gate.is_some()]
+            data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())]
+            data-portal-services=[self.services_json.as_deref()] { @for row in &self.rows { div class="admin-controls-row" { @for action in row { (action) } } } } }
     }
 }
 
