@@ -10,9 +10,9 @@ use crate::{
     present::{Text, TextKind,Paragraph,CatalogGrid,CatalogKind,ShowcaseArticle,ShowcaseRow,ShowcaseBox},
     layout::{ResolverOption, ResolverSpecimen, ShowcaseGrid, ShowcaseItem, StatusDot},
     ux::{
-        Button, ButtonTone, Calendar, CalendarMode, Card, CardBody, CardState,
+        Badge, Button, ButtonTone, Calendar, CalendarMode, Card, CardBody, CardState,
         Checkbox, EditableField, EditableSize, Input, IpCalendar, Size,
-        Tab, Tabs, TimePicker, VisibilityToggle,
+        Tab, Tabs, TimePicker, Tone, VisibilityToggle,
     },
 };
 
@@ -26,6 +26,10 @@ fn item(title: &str, parts: Vec<Markup>) -> Markup {
 
 fn grid(items: Vec<Markup>) -> Markup {
     ShowcaseGrid { content: compose(items) }.render()
+}
+
+fn badge(text: &str, tone: Option<Tone>, size: Option<Size>) -> Markup {
+    Badge { text: text.into(), tone, size, ..Badge::default() }.render()
 }
 
 fn checkbox(label: &str, size: Option<Size>, checked: bool, disabled: bool, delegated: bool) -> Markup {
@@ -139,6 +143,22 @@ fn category_cards() -> Markup {
         item("Clickable Card", vec![Card { body: CardBody::Text("Click this card to interact.".into()), state: Some(CardState::Clickable), ..Card::default() }.render()]),
         item("Active Card", vec![Card { body: CardBody::Text("This card indicates an active state.".into()), state: Some(CardState::Active), ..Card::default() }.render()]),
         item("Error Card", vec![Card { body: CardBody::Text("This card indicates an error state.".into()), state: Some(CardState::Error), ..Card::default() }.render()]),
+    ])
+}
+
+fn category_badges() -> Markup {
+    grid(vec![
+        item("Badge Variants", vec![ShowcaseRow{modal_controls:false,content:html!{
+            (badge("Primary", Some(Tone::Primary), None)) (badge("Secondary", Some(Tone::Secondary), None))
+            (badge("Success", Some(Tone::Success), None)) (badge("Warning", Some(Tone::Warning), None))
+            (badge("Danger", Some(Tone::Danger), None)) (badge("Info", Some(Tone::Info), None))
+        }}.render()]),
+        item("Badge Sizes", vec![badge("Small", None, Some(Size::Small)), badge("Medium", None, Some(Size::Medium)), badge("Large", None, Some(Size::Large))]),
+        item("Badge Usage Examples", vec![
+            Text{kind:TextKind::Div,content:html! { "Status: " (badge("Online", Some(Tone::Success), None)) }}.render(),
+            Text{kind:TextKind::Div,content:html! { "Count: " (badge("42", Some(Tone::Primary), None)) }}.render(),
+            Text{kind:TextKind::Div,content:html! { "Alert: " (badge("Critical", Some(Tone::Danger), None)) }}.render(),
+        ]),
     ])
 }
 
@@ -264,6 +284,7 @@ pub fn section(id: &str) -> Option<Markup> {
         "tabs" => Some(category_tabs()),
         "inputs" => Some(category_inputs()),
         "cards" => Some(category_cards()),
+        "badges" => Some(category_badges()),
         "checkboxes" => Some(category_checkboxes()),
         "utilities" => Some(category_utilities()),
         "visibility-system" => Some(category_visibility_system()),

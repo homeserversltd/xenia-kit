@@ -1,7 +1,7 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Tone, Size, IconButton, Icon, Shape}};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape}};
 
 fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 
@@ -16,7 +16,7 @@ pub fn test_tab() -> Markup {
     let categories: &[(&str,&str,&str,&[&str])] = &[
 
         ("tabs","Tabs","Tab Navigation",&["tabs"]), ("inputs","Inputs","Input Fields",&["input"]),
-        ("cards","Cards","Cards",&["card"]),
+        ("cards","Cards","Cards",&["card"]), ("badges","Badges","Badges",&["badge"]),
         ("checkboxes","Checkboxes","Checkboxes",&["checkbox"]), ("utilities","Utilities","Utility Components",&["plus-button","editable-field"]),
         ("visibility-system","Visibility System","Visibility System",&["visibility-toggle"]), ("calendar-time","Calendar & Time","Calendar & Time Picker",&["calendar","time-picker"]),
         ("lan-ip-calendar","LAN IP Calendar","LAN IP Calendar",&["ip-calendar"]), ("upstream-resolvers","Upstream Resolvers","Upstream Resolvers",&[]),
@@ -32,14 +32,14 @@ pub fn test_tab() -> Markup {
         ("update-cards","Update Cards","Update Cards",&["update-card"]), ("usage-bars","Usage Bars","Usage Bars",&["usage-bar"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["tabs","inputs","cards","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
+    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="tabs",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![
         GuideLine{lead:None,text:"This site is built from a small set of pieces that repeat from tab to tab. A tab is those pieces arranged for one job. This tab shows the pieces on their own.".into()},
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
-        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button does one thing; a switch turns one thing on or off. They are in the Buttons & switches room, with the badge and the icon button.".into()},
+        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button does one thing; a switch shows whether one thing is on or off and changes it. They are in the Buttons & switches room, with the icon button.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
     let tiles=room("tiles",false,html! {
@@ -58,35 +58,26 @@ pub fn test_tab() -> Markup {
             }
         }},words:vec![
             "A button does one thing when you press it, and its label says what. The ones shown here are for looking at: pressing them does nothing.".into(),
-            "A filled button is the main action where it stands, such as Save, Pin or Upload Selected Files. An outlined button is a lesser step, such as Cancel, Refresh or Check for updates. A red button removes something or switches the HomeServer off: Remove, Unpin, Clear History, Shutdown.".into(),
-            "A dimmed button cannot be pressed yet. Upload Selected Files stays dimmed until you choose a file to send. Inside a list or a table a button is drawn smaller.".into(),
-            "You will meet it on the Upload, Backups, DHCP, Firewall, DNS and Admin tabs.".into(),
+            "A filled button is the main action where it stands, such as Save, Apply or Upload Selected Files. An outlined button is any other action, such as Cancel, Refresh or Check for updates. A red button removes something or switches the HomeServer off: Remove this name, Unpin, Clear History, Shutdown. Not every button that removes something is red, so read the label.".into(),
+            "A dimmed button cannot be pressed yet: something it needs is missing, such as a file to upload.".into(),
+            "You will meet it on the Upload tab, and in Admin Mode on the Backups, DHCP, Firewall, DNS and Admin tabs.".into(),
         ]})
         (Exhibit{name:"On/off switch".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
             @for (label,checked) in [("Ad blocking",true),("Anonymize",false)] {
                 (Toggle{label:Some(label.into()),size:Some(Size::Medium),checked,..Toggle::default()})
             }
         }},words:vec![
-            "A switch turns one thing on or off. Press it and it changes side. The ones shown here flip and change nothing else.".into(),
-            "On the DNS tab, Ad blocking and Encrypted DNS are switches. On the DHCP tab, Anonymize hides device names and ID tags on your screen, for screenshots; nothing changes on your network. On the Admin tab one switch turns Samba file sharing on or off and another does the same for SSH sign-in by password.".into(),
-            "You will meet it on the DNS, DHCP and Admin tabs.".into(),
-        ]})
-        (Exhibit{name:"Badge".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
-            @for (text,tone) in [("Pinned",Tone::Success),("Available to pin",Tone::Info)] {
-                (Badge{text:text.into(),tone:Some(tone),pill:true,outline:true,..Badge::default()})
-            }
-        }},words:vec![
-            "A badge is a small label that tells you the state of the thing beside it. It is read, not pressed.".into(),
-            "On the DHCP tab each device's address carries one: Pinned when that address is kept for the device, Available to pin when it is not.".into(),
-            "You will meet it on the DHCP tab.".into(),
+            "A switch shows whether one thing is on or off, and pressing it changes that. The ones shown here flip and change nothing else.".into(),
+            "Ad blocking on the DNS tab takes effect as soon as you press it. Encrypted DNS, beside it, takes effect when you press Save resolver. On the DHCP tab, Anonymize hides device names and ID tags on your screen, for screenshots; nothing changes on your network. On the Admin tab two switches show and change Samba file sharing and SSH sign-in by password. If the HomeServer cannot make a change, the switch goes back.".into(),
+            "In Admin Mode you will meet it on the DNS, DHCP and Admin tabs.".into(),
         ]})
         (Exhibit{name:"Icon button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
             (IconButton{icon:Icon::Text("×"),size:Size::Small,shape:Shape::Circle,label:"Remove upload".into(),disabled:false,ghost:true,danger:true,hx:Default::default()})
             (IconButton{icon:Icon::Text("›"),size:Size::Large,shape:Shape::Square,label:"Device details".into(),disabled:false,ghost:true,danger:false,hx:Default::default()})
         }},words:vec![
-            "An icon button is a small button that shows a symbol and no words. The ones shown here do nothing.".into(),
-            "On the Upload tab the × beside a file takes that upload off the list, and the × beside a blacklist entry removes the entry. On the DHCP tab the › at the end of a device's row opens that device's details.".into(),
-            "You will meet it on the Upload and DHCP tabs.".into(),
+            "An icon button is a button that shows a symbol and no words. The ones shown here do nothing.".into(),
+            "On the Upload tab the × beside a file takes that upload off the list. In Admin Mode the × beside a blacklist entry takes it out of the list, and Submit saves the change. On the DHCP tab the › at the end of a device's row opens that device's details.".into(),
+            "You will meet it on the Upload tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
     });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
