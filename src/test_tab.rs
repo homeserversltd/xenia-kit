@@ -39,7 +39,7 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:None,text:"This site is built from a small set of pieces that repeat from tab to tab. A tab is those pieces arranged for one job. This tab shows the pieces on their own.".into()},
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
-        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button does one thing; a switch shows whether one thing is on or off and changes it. They are in the Buttons & switches room, with the icon button.".into()},
+        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off. They are in the Buttons & switches room, with the icon button.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
     let tiles=room("tiles",false,html! {
@@ -57,9 +57,9 @@ pub fn test_tab() -> Markup {
                 (Button{text:label.into(),tone:Some(tone),disabled,button_type:true,..Button::default()})
             }
         }},words:vec![
-            "A button does one thing when you press it, and its label says what. The ones shown here are for looking at: pressing them does nothing.".into(),
-            "A filled button is the main action where it stands, such as Save, Apply or Upload Selected Files. An outlined button is any other action, such as Cancel, Refresh or Check for updates. A red button removes something or switches the HomeServer off: Remove this name, Unpin, Clear History, Shutdown. Not every button that removes something is red, so read the label.".into(),
-            "A dimmed button cannot be pressed yet: something it needs is missing, such as a file to upload.".into(),
+            "A button is for one action, and its label names that action. The ones shown here are for looking at: pressing them does nothing.".into(),
+            "A filled button is the main action where it stands, such as Save, Apply or Upload Selected Files. An outlined button is a lesser action, such as Cancel, Refresh or Check for updates. Red marks an action to think twice about, such as Remove this name or Unpin. Not every button that removes something is red, so read the label.".into(),
+            "A dimmed button cannot be pressed for now. It may be waiting for something, such as a file to upload or a change that is still being saved.".into(),
             "You will meet it on the Upload tab, and in Admin Mode on the Backups, DHCP, Firewall, DNS and Admin tabs.".into(),
         ]})
         (Exhibit{name:"On/off switch".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
@@ -67,9 +67,9 @@ pub fn test_tab() -> Markup {
                 (Toggle{label:Some(label.into()),size:Some(Size::Medium),checked,..Toggle::default()})
             }
         }},words:vec![
-            "A switch shows whether one thing is on or off, and pressing it changes that. The ones shown here flip and change nothing else.".into(),
-            "Ad blocking on the DNS tab takes effect as soon as you press it. Encrypted DNS, beside it, takes effect when you press Save resolver. On the DHCP tab, Anonymize hides device names and ID tags on your screen, for screenshots; nothing changes on your network. On the Admin tab two switches show and change Samba file sharing and SSH sign-in by password. If the HomeServer cannot make a change, the switch goes back.".into(),
-            "In Admin Mode you will meet it on the DNS, DHCP and Admin tabs.".into(),
+            "A switch shows whether one thing is on or off. Pressing it asks for the other state. The ones shown here flip and change nothing else.".into(),
+            "On the DNS tab, Ad blocking takes effect as soon as you press it, and the switch goes back if the HomeServer cannot make the change. Encrypted DNS, further down the same tab, takes effect when you press Save resolver. On the DHCP tab, Anonymize hides device names and part of each ID tag on your screen, for screenshots; nothing changes on your network.".into(),
+            "In Admin Mode you will meet it on the DNS and DHCP tabs.".into(),
         ]})
         (Exhibit{name:"Icon button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
             (IconButton{icon:Icon::Text("×"),size:Size::Small,shape:Shape::Circle,label:"Remove upload".into(),disabled:false,ghost:true,danger:true,hx:Default::default()})
