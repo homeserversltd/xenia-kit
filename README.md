@@ -9,7 +9,7 @@ and the operator skin.
 
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
 the theme catalog, author-face names, and the shared theme switcher script
-as `THEME_SCRIPT`. A guest cartridge still ships no
+as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css` for guides and exhibits. A guest cartridge still ships no
 stylesheet beyond a declared `pack.css` and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
 `default-features = false`. Add `features = ["markup"]` for the markup
@@ -87,7 +87,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on the Pages, Sections, Tiles and Controls shelves, followed by Motion and the remaining Component Showcase, Configuration and Health Status panels. The portal family occupies all four shelves; other families remain in their existing panels.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on How it works, followed by Tiles, Motion, Component Showcase, Configuration and Health Status. The guide explains the pieces; Tiles exhibits one portal tile and the Add Portal card. Other families remain in their existing panels.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -104,6 +104,8 @@ children can contain requesting slots.
 - `composite::StatTiles` arranges readings in a labelled grid.
 - `composite::Switch` renders a labelled immediate on/off control.
 - `composite::EmptyState` explains what is missing and the next step.
+- `composite::GuideLine` describes a paragraph with an optional emphasized lead; `composite::Guide` groups guide paragraphs.
+- `composite::Exhibit` places a composed piece beside its name and plain explanation; the piece can be shown in admin form.
 - `composite::SubTab` describes one in-place sub-view.
 - `composite::SubTabs` renders a scoped nested tab group.
 - `composite::SettingState` selects unset, ok, error or saving.

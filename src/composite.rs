@@ -159,6 +159,50 @@ impl Render for EmptyState {
     }
 }
 
+/// One guide paragraph, optionally beginning with an emphasized lead.
+#[derive(Clone, Default)]
+pub struct GuideLine {
+    pub lead: Option<String>,
+    pub text: String,
+}
+
+/// A block of plain guide paragraphs.
+#[derive(Clone, Default)]
+pub struct Guide {
+    pub lines: Vec<GuideLine>,
+}
+
+impl Render for Guide {
+    fn render(&self) -> Markup {
+        html! { div class="ui-guide" {
+            @for line in &self.lines {
+                p { @if let Some(lead) = &line.lead { strong { (lead) } } (&line.text) }
+            }
+        } }
+    }
+}
+
+/// One composed piece beside its name and always-visible explanation.
+#[derive(Clone, Default)]
+pub struct Exhibit {
+    pub name: String,
+    pub piece: Markup,
+    pub admin: bool,
+    pub words: Vec<String>,
+}
+
+impl Render for Exhibit {
+    fn render(&self) -> Markup {
+        html! { div class="ui-exhibit" {
+            div class="ui-exhibit__piece" data-admin-mode=[self.admin.then_some("true")] { (self.piece.clone()) }
+            div class="ui-exhibit__words" {
+                h4 class="ui-exhibit__name" { (&self.name) }
+                @for paragraph in &self.words { p { (paragraph) } }
+            }
+        } }
+    }
+}
+
 /// One sub-view of an in-place tab group.
 #[derive(Clone, Default)]
 pub struct SubTab {

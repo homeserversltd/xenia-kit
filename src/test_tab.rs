@@ -1,27 +1,16 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, pages::PortalsPage, ux::{Badge, NestedButton}};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::Badge};
 
-type Sample = (&'static str, &'static str, &'static str, PortalState);
-const PORTALS: [Sample; 7] = [("Home Server","Primary appliance web service","systemd",PortalState::Up),("Matrix Chat","Private household messaging","systemd",PortalState::Down),("Backup Sweep","Scheduled storage snapshot script","script",PortalState::Partial),("Search","Household metasearch portal","link",PortalState::Up),("Documentation","External reference with no health probe","link",PortalState::Unknown),("AI Worker","Administrative inference service","systemd",PortalState::Down),("Update Scanner","One update source unavailable","script",PortalState::Partial)];
-
-fn eye(visible: bool) -> PortalEye { PortalEye { visible, label: if visible {"Hide portal"} else {"Show portal"}.into(), gate: None, seats: vec![] } }
+fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 fn delete() -> PortalDelete { PortalDelete { gate: None, hidden: false, name: None, title: "Delete portal".into(), label: "Delete portal".into(), seats: vec![] } }
 fn add() -> AddPortalCard { AddPortalCard { accessible_label:"Add new portal".into(), title:"Add Portal".into(), description:"Create a new portal for your services".into(), gate:None, opener:None, seats:vec![] } }
 fn actions() -> Markup {
     let rows = [[("Start","Start service"),("Stop","Stop service"),("Restart","Restart service")],[("Enable","Enable service at boot"),("Disable","Disable service at boot"),("Status","Check service status")]].into_iter().map(|row| row.into_iter().map(|(label,title)| ServiceAction { label:label.into(), title:title.into(), action:None }).collect()).collect();
     ServiceActions { rows, gate:None, services_json:None }.render()
 }
-fn notice() -> Markup { ServiceNotice { title:"System restart required for changes to take effect. Script-managed services are controlled through system scripts rather than direct service commands.".into(), text:"Script-managed Service — system restart required".into(), gate:None }.render() }
-fn tile((name,description,kind,state): Sample, admin: bool, visible: bool) -> Markup {
-    let chrome = if admin { html! { (eye(visible)) (delete()) } } else { html! {} };
-    let controls = if admin && kind == "systemd" { actions() } else if admin && kind == "script" { notice() } else { html! {} };
-    PortalCard { name:name.into(), description:description.into(), image:format!("/api/portals/images/{name}.png"), state, visible, show_name:!admin, link:None, chrome, controls, seats:PortalSeats::default() }.render()
-}
-fn guest_tiles() -> Markup { html! { @for state in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown] { (tile(*PORTALS.iter().find(|p| p.3 == state).expect("sample state"), false, true)) } } }
-fn hidden_tile() -> Markup { tile(("Hidden portal","Visible to administrators","link",PortalState::Unknown), true, false) }
-fn shelf(id: &str, active: bool, content: Markup) -> Panel { Panel { id:id.into(), active, kind:PanelKind::Basic, catalog_specimen:None, content } }
+fn room(id: &str, active: bool, content: Markup) -> Panel { Panel { id:id.into(), active, kind:PanelKind::Basic, catalog_specimen:None, content } }
 
 /// Render the complete Test tab from typed kit components.
 pub fn test_tab() -> Markup {
@@ -47,40 +36,27 @@ pub fn test_tab() -> Markup {
     let section_order=["buttons","toggles","tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
-    let pages=shelf("pages",true,html! {
-        (crate::present::Paragraph{text:"Portals page — guest view".into()})
-        (PortalsPage{tiles:guest_tiles(),extra_cards:html!{},add_portal:None,frame_seats:vec![],grid_seats:vec![]})
-        (crate::present::Paragraph{text:"Portals page — admin view".into()})
-        div data-admin-mode="true" {
-            (PortalsPage{tiles:html!{@for portal in PORTALS {(tile(portal,true,true))} (hidden_tile())},extra_cards:html!{},add_portal:Some(add()),frame_seats:vec![],grid_seats:vec![]})
-        }
-    });
-    let sections=shelf("sections",false,html! {
-        (crate::present::Paragraph{text:"Header row".into()})
-        (SubpanelHeader{kicker:"Services specimen".into(),title:"Service Portals".into(),description:"Portal states, service types, and appliance controls.".into(),trailing:Badge::new("7 services").render()})
-        (crate::present::Paragraph{text:"Portal tile grid — guest view".into()})
-        (PortalGrid{content:guest_tiles(),seats:vec![]})
-    });
-    let tiles=shelf("tiles",false,html! {
-        (crate::present::Paragraph{text:"Portal tiles, left to right: up, down, partial, unknown".into()})
-        (PortalGrid{content:guest_tiles(),seats:vec![]})
-        div data-admin-mode="true" {
-            (crate::present::Paragraph{text:"Left to right: six service keys, script-managed service, hidden portal, Add Portal. The hidden portal shows only to an admin viewer.".into()})
-            (PortalGrid{content:html!{(tile(PORTALS[0],true,true))(tile(PORTALS[2],true,true))(hidden_tile())(add())},seats:vec![]})
-        }
-    });
-    let controls=shelf("controls",false,html! {
-        (crate::present::Paragraph{text:"Small key — rest".into()}) (NestedButton{label:"Start".into(),title:"Start service".into(),disabled:false,seats:vec![]})
-        (crate::present::Paragraph{text:"Small key — disabled".into()}) (NestedButton{label:"Start".into(),title:"Start service".into(),disabled:true,seats:vec![]})
-        div data-admin-mode="true" {
-            (crate::present::Paragraph{text:"Portal eye — visible".into()}) (eye(true))
-            (crate::present::Paragraph{text:"Portal eye — hidden".into()}) (eye(false))
-            (crate::present::Paragraph{text:"The delete button appears at the tile's top right while the pointer is over the tile.".into()})
-            (PortalGrid{content:html!{(PortalCard{name:PORTALS[0].0.into(),description:PORTALS[0].1.into(),image:format!("/api/portals/images/{}.png",PORTALS[0].0),state:PORTALS[0].3,visible:true,show_name:false,link:None,chrome:delete().render(),controls:html!{},seats:PortalSeats::default()})},seats:vec![]})
-        }
+    let guide=room("how-it-works",true,Guide{lines:vec![
+        GuideLine{lead:None,text:"Everything on this site is built from a small set of pieces. A tab is those pieces arranged for one job. This tab shows each piece once and says what it is for.".into()},
+        GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles, one tile for each service on your HomeServer. Press a tile and the service opens in a new browser tab. The tile is in the Tiles room.".into()},
+        GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Leave Admin Mode and they are read-only again.".into()},
+    ]}.render());
+    let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:String::new(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())(delete())},controls:actions(),seats:PortalSeats::default()};
+    let tiles=room("tiles",false,html! {
+        (Exhibit{name:"Portal tile".into(),piece:portal.render(),admin:true,words:vec![
+            "One service on your HomeServer. Press the tile and the service opens in a new browser tab.".into(),
+            "The coloured edge tells you whether the service is running: green when it is up, red when it is down, amber when only part of it is up, grey when there is nothing to check, as with a plain link.".into(),
+            "Guests see the service's name and a larger picture, and no controls. This one is drawn as you see it in Admin Mode. The eye at the top left hides the tile from guests or shows it again. The six keys start, stop and restart the service, turn it on or off at startup, and show its status. The bin at the top right, shown while the pointer is on the tile, removes the portal; portals that came with your HomeServer have no bin.".into(),
+            "A service run by a script shows a note in place of the keys, because it changes only when the system restarts.".into(),
+            "You will meet it on the Portals tab.".into(),
+        ]})
+        (Exhibit{name:"Add Portal".into(),piece:add().render(),admin:true,words:vec![
+            "The last card on the Portals tab in Admin Mode. Press it to add a service of your own: you give it a name, a description, its address and the service it should watch.".into(),
+            "You will meet it on the Portals tab, in Admin Mode.".into(),
+        ]})
     });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
-    let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","Pages"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
+    let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","How it works"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
     let table=SettingsTable{headings:["Setting".into(),"Value".into(),"Source".into(),"Status".into()],rows:[("Default tab","showcase","shell","Active"),("Health interval","30s","profile","Active"),("External actions","disabled","catalog","Specimen")].into_iter().map(|(setting,value,source,status)|SettingsRow{setting:setting.into(),value:value.into(),source:source.into(),status:status.into()}).collect()};
     let config=Panel{id:"config".into(),active:false,kind:PanelKind::Configuration,catalog_specimen:Some("test-configuration-patterns".into()),content:html!{
       (SubpanelHeader{kicker:"Configuration specimens".into(),title:"Configuration".into(),description:"Three appliance settings patterns.".into(),trailing:Badge::new("3 patterns").render()})
@@ -113,7 +89,7 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("pages","Pages"),("sections","Sections"),("tiles","Tiles"),("controls","Controls"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(pages)(sections)(tiles)(controls)(animations)(showcase)(config)(health)}};
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }

@@ -47,6 +47,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_empty-state.css"),
     },
     Sheet {
+        path: "library/_exhibit.css",
+        css: include_str!("../style/library/_exhibit.css"),
+    },
+    Sheet {
         path: "library/_file-input.css",
         css: include_str!("../style/library/_file-input.css"),
     },

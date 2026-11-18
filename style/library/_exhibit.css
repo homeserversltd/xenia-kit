@@ -1,0 +1,11 @@
+/* The museum's two shapes: a block of guide words, and one exhibit (the piece beside its plain-words label, stacked on a narrow screen). */
+.ui-guide { max-width: 68ch; }
+.ui-guide p { margin: 0 0 .75rem; line-height: 1.55; color: var(--text); }
+.ui-guide p:last-child { margin-bottom: 0; }
+.ui-exhibit { display: grid; grid-template-columns: minmax(0, 336px) minmax(0, 1fr); gap: 1.5rem; align-items: start; padding-block: 1.5rem; }
+.ui-exhibit + .ui-exhibit { border-top: 1px solid var(--border); }
+.ui-exhibit__name { margin: 0 0 .5rem; font-size: 1rem; font-weight: 600; color: var(--text); }
+.ui-exhibit__words { max-width: 62ch; }
+.ui-exhibit__words p { margin: 0 0 .6rem; line-height: 1.55; color: var(--text); }
+.ui-exhibit__words p:last-child { margin-bottom: 0; color: var(--text-secondary); }
+@media (max-width: 768px) { .ui-exhibit { grid-template-columns: minmax(0, 1fr); } }
