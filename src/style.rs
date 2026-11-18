@@ -163,6 +163,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/packs/portals.css"),
     },
     Sheet {
+        path: "packs/test-services.css",
+        css: include_str!("../style/packs/test-services.css"),
+    },
+    Sheet {
         path: "shell/document-2-css.css",
         css: include_str!("../style/shell/document-2-css.css"),
     },

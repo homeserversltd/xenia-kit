@@ -1,0 +1,3 @@
+/* The Test tab's section header row: kicker, title and sentence on the left, a badge or control on the right. */
+.test-subpanel-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+.test-kicker { color: var(--text-secondary); font-size: .75rem; font-weight: 700; text-transform: uppercase; }
