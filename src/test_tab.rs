@@ -45,8 +45,8 @@ pub fn test_tab() -> Markup {
         (Exhibit{name:"Portal tile".into(),piece:portal.render(),admin:true,words:vec![
             "A door to a service on your HomeServer, or to a link. On the Portals tab, press a tile and it opens in a new browser tab. The one shown here is for looking at: it opens nothing and its controls change nothing.".into(),
             "The coloured edge tells you whether the service is running: green when it is up, red when it is down, amber when only part of it is up, and a muted edge when it cannot be checked, as with a plain link.".into(),
-            "Guests see the portal's name and a larger picture, and no controls. In Admin Mode a tile shows the controls drawn here. The eye at the top left hides the tile from guests or shows it again. The six keys start, stop and restart the service, turn it on or off at startup, and show its status.".into(),
-            "A service run by a script shows a note in place of the keys: it is managed by its script, and a change to it needs a system restart.".into(),
+            "Guests see the portal's name and a larger picture, and no controls. In Admin Mode a service's tile shows the controls drawn here. The eye at the top left hides the tile from guests or shows it again; a hidden tile stays on your Admin Mode page, dimmed, with a dashed edge. The six keys start, stop and restart the service, turn it on or off at startup, and show its status.".into(),
+            "A service run by a script shows a note in place of the keys: it is managed by its script, and a change to it needs a system restart. A plain link has no keys.".into(),
             "You will meet it on the Portals tab.".into(),
         ]})
     });
