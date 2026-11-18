@@ -41,7 +41,7 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles, one tile for each service on your HomeServer. Press a tile and the service opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Leave Admin Mode and they are read-only again.".into()},
     ]}.render());
-    let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:String::new(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())(delete())},controls:actions(),seats:PortalSeats::default()};
+    let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())(delete())},controls:actions(),seats:PortalSeats::default()};
     let tiles=room("tiles",false,html! {
         (Exhibit{name:"Portal tile".into(),piece:portal.render(),admin:true,words:vec![
             "One service on your HomeServer. Press the tile and the service opens in a new browser tab.".into(),
