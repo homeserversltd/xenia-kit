@@ -1,7 +1,7 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape}};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape, LoadingSpinner, ToastKind, VisibleToast}};
 
 fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 
@@ -23,16 +23,16 @@ pub fn test_tab() -> Markup {
         ("row-info-tile","Row Info Tile","Row Info Tile",&["row-info-tile"]), ("dropdowns","Dropdowns","Click-to-Open Dropdowns",&["select"]),
         ("slider","Slider","Slider Component",&["slider"]), ("textbox","Text Box","TextBox Component",&["text-box"]),
         ("upload-components","Upload Components","Upload Components",&["breadcrumbs","file-input"]),
-        ("progress-bar","Progress Bar","Progress Bar",&["progress-bar"]), ("loading-spinner","Loading / Spinner","Loading / Spinner",&["loading-spinner"]),
+        ("progress-bar","Progress Bar","Progress Bar",&["progress-bar"]),
         ("skeleton-slot","Skeleton & Slot","Skeleton & Slot",&["skeleton","slot"]), ("table","Table","Table",&["table"]),
-        ("collapsible","Collapsible","Collapsible",&["collapsible"]), ("modals","Modals","Modals",&["modal"]), ("toasts","Toasts / Notifications","Toasts / Notifications",&[]),
+        ("collapsible","Collapsible","Collapsible",&["collapsible"]), ("modals","Modals","Modals",&["modal"]),
         ("stat-tiles","Stat Tiles","Stat Tiles",&["stat-tile"]), ("sub-tabs","Sub-tabs","In-place Sub-tabs",&["sub-tabs"]),
         ("switches","Switches","Switch Rows",&["switch"]), ("empty-states","Empty States","Empty States",&["empty-state"]),
         ("setting-rows","Setting Rows","Setting Rows",&["setting-row"]),
         ("update-cards","Update Cards","Update Cards",&["update-card"]), ("usage-bars","Usage Bars","Usage Bars",&["usage-bar"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
+    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="tabs",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![
@@ -40,6 +40,7 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
         GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off. They are in the Buttons & switches room, with the icon button.".into()},
+        GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait. They are in the Messages room.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
     let tiles=room("tiles",false,html! {
@@ -80,6 +81,25 @@ pub fn test_tab() -> Markup {
             "You will meet it on the Upload tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
     });
+    let messages=room("messages",false,html! {
+        (Exhibit{name:"Toast".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            (VisibleToast{kind:ToastKind::Success,message:"Successfully uploaded 2 file(s)".into()})
+            (VisibleToast{kind:ToastKind::Warning,message:"Uploaded 2 file(s), 1 failed".into()})
+        }},words:vec![
+            "A toast is a short message that appears near the top of the page after something happens, stays a few seconds and goes away by itself. The ones shown here stay put.".into(),
+            "Its colour tells you how it went: green for done, orange when only part worked, red for a failure, blue for plain news. After an upload that worked you get one saying how many files went up.".into(),
+            "You will meet it on the Upload tab, and in Admin Mode on tabs such as DNS and DHCP.".into(),
+        ]})
+        (Exhibit{name:"Loading spinner".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            @for (size,label) in [(Size::Medium,"Loading network activity"),(Size::Small,"Loading")] {
+                (LoadingSpinner{size,label:Some(label.into()),inline:true,hidden:false,hx:Default::default()})
+            }
+        }},words:vec![
+            "A spinner is a small turning ring. It means the site is fetching or doing something, and it goes away when that is finished.".into(),
+            "On the Stats tab it turns beside the words Loading network activity... until that panel has its list. In Admin Mode it turns on the DHCP tab while the device list loads.".into(),
+            "You will meet it on the Stats tab, and in Admin Mode on the DHCP tab.".into(),
+        ]})
+    });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
     let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","How it works"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
     let table=SettingsTable{headings:["Setting".into(),"Value".into(),"Source".into(),"Status".into()],rows:[("Default tab","showcase","shell","Active"),("Health interval","30s","profile","Active"),("External actions","disabled","catalog","Specimen")].into_iter().map(|(setting,value,source,status)|SettingsRow{setting:setting.into(),value:value.into(),source:source.into(),status:status.into()}).collect()};
@@ -114,7 +134,7 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(animations)(showcase)(config)(health)}};
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("messages","Messages"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(messages)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }

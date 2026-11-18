@@ -5,8 +5,8 @@
 use crate::{
     html, Markup, Render,
     present::{Paragraph, ShowcaseArticle, ShowcaseRow, CatalogGrid, CatalogKind, Text, TextKind, SliderValue, List},
-    specimen::{LoadingFrame,LoadingView,LoadingButton,SliderLabels,AddressBoundaryReadouts,ScaffoldGrid,ProgressGroup,ProgressGroupKind,BreadcrumbReadout,FileSelectionReadout},
-    layout::{ShowcaseGrid, ShowcaseItem, ToastSpawn, ToastSpawnKind},
+    specimen::{SliderLabels,AddressBoundaryReadouts,ScaffoldGrid,ProgressGroup,ProgressGroupKind,BreadcrumbReadout,FileSelectionReadout},
+    layout::{ShowcaseGrid, ShowcaseItem},
     showcase,
     upload::{
         DirectoryBrowser, DirectoryCrumb, DirectoryEntry, DirectoryExpansion,
@@ -14,7 +14,7 @@ use crate::{
         UploadProgressList, UploadProgressPlacement, UploadStatus,
     },
     ux::{
-        Button, FileInput, Hx, LoadingSpinner, ProgressBar, ProgressKind, ScaffoldSlot,
+        Button, FileInput, Hx, ProgressBar, ProgressKind, ScaffoldSlot,
         Size, Skeleton, SkeletonChild, SkeletonLine, Slider, SlotLifecycle, TextBox,
         TextBoxKind,
     },
@@ -398,22 +398,6 @@ fn progress_bar() -> Markup {
     html!{(Paragraph{text:"General library primitives and their Upload domain-pack reflection. Progress reports job completion; capacity examples use meter semantics.".into()})(basic)(sizes)(capacities)(indeterminate)(Text{kind:TextKind::Heading4,content:html!{"Upload domain-pack states"}})(progress_uploads())}
 }
 
-fn loading_spinner() -> Markup {
-    let spinner = |size, label: Option<&str>, inline, hidden| LoadingSpinner {
-        size,
-        label: label.map(str::to_owned),
-        inline,
-        hidden,
-        hx: Hx::default(),
-    }
-    .render();
-    let saving = LoadingButton{label:"Saving".into(),spinner:spinner(Size::Small,None,true,true)};
-    let sizes=ShowcaseArticle{title:"Size variants".into(),content:ShowcaseRow{modal_controls:false,content:html!{(spinner(Size::Small,Some("Small loading spinner"),false,false))(spinner(Size::Medium,Some("Medium loading spinner"),false,false))(spinner(Size::Large,Some("Large loading spinner"),false,false))}}.render()};
-    let inline=ShowcaseArticle{title:"Inline and button".into(),content:html!{(Text{kind:TextKind::Paragraph,content:html!{(Text{kind:TextKind::Span,content:html!{"Loading a compact result…"}}) " " (spinner(Size::Small,Some("Loading"),true,false))}})(saving)}};
-    let frame=ShowcaseArticle{title:"Live loading frame".into(),content:LoadingFrame{toggle_label:"Show loaded state".into(),result:"Loading state active".into(),loading:"Loading network data...".into(),spinner:spinner(Size::Medium,Some("Loading network data"),false,false)}.render()};
-    html!{(Text{kind:TextKind::Paragraph,content:html!{"Og " (Text{kind:TextKind::Code,content:html!{"LoadingSpinner"}}) " is one primitive; full-tablet, in-frame, and inline loading are compositions of its size plus local layout."}})(CatalogGrid{kind:CatalogKind::Spinner,content:html!{(sizes)(inline)(frame)}})(Text{kind:TextKind::Heading4,content:html!{"Stats full-tablet composition"}})(LoadingView{spinner:spinner(Size::Large,Some("Connecting to server"),false,false),message:"Connecting to server...".into()})}
-}
-
 fn skeleton_slot() -> Markup {
     let intro=Text{kind:TextKind::Paragraph,content:html!{"Skeleton is the request-free first frame. Each slot moves from pending to ready, or reports a fault with retry. For a guest pane, put " (Text{kind:TextKind::Code,content:html!{"hx-get=\"/api/tabs/<guest>/...\""}}) " and " (Text{kind:TextKind::Code,content:html!{"hx-trigger=\"load\""}}) " on the slot; the crown defers the read until admission and confines it to that guest's own part path."}};
     html!{(intro)(ScaffoldGrid{guest:"test".into(),version:"1".into(),content:html!{
@@ -459,38 +443,6 @@ fn modals() -> Markup {
     html!{(ShowcaseRow{content:flow(buttons),modal_controls:true})(showcase::modal())}
 }
 
-fn toasts() -> Markup {
-    // ToastSpawn emits declarative controls only; the host owns the effects.
-    let variants = [
-        ToastSpawn {
-            label: "Spawn info".into(),
-            message: "Information notification".into(),
-            kind: ToastSpawnKind::Info,
-        },
-        ToastSpawn {
-            label: "Spawn success".into(),
-            message: "Settings saved".into(),
-            kind: ToastSpawnKind::Success,
-        },
-        ToastSpawn {
-            label: "Spawn warning".into(),
-            message: "Review this appliance setting".into(),
-            kind: ToastSpawnKind::Warning,
-        },
-        ToastSpawn {
-            label: "Spawn error".into(),
-            message: "The requested action failed".into(),
-            kind: ToastSpawnKind::Error,
-        },
-    ]
-    .into_iter()
-    .map(|toast| toast.render());
-    let intro=Text{kind:TextKind::Paragraph,content:html!{"Og " (Text{kind:TextKind::Code,content:html!{"Toast"}}) " feedback grammar: spawn a result, keep multiple results stacked, hover to pause its lifetime, and click a result to dismiss it."}};
-    let first=ShowcaseArticle{title:"Variant controls".into(),content:ShowcaseRow{content:flow(variants),modal_controls:false}.render()};
-    let second=ShowcaseArticle{title:"Stack and dismissal".into(),content:html!{(Paragraph{text:"Each result lasts three seconds unless hovered. Click a result to dismiss it through the og exit animation.".into()})(ToastSpawn{label:"Spawn another stack item".into(),message:"Stack item".into(),kind:ToastSpawnKind::Stack})}};
-    html!{(intro)(CatalogGrid{kind:CatalogKind::Toast,content:html!{(first)(second)}})}
-}
-
 /// Return the content for one category-B showcase row.
 pub fn section(id: &str) -> Option<Markup> {
     Some(match id {
@@ -500,12 +452,10 @@ pub fn section(id: &str) -> Option<Markup> {
         "textbox" => textbox(),
         "upload-components" => upload_components(),
         "progress-bar" => progress_bar(),
-        "loading-spinner" => loading_spinner(),
         "skeleton-slot" => skeleton_slot(),
         "table" => table(),
         "collapsible" => collapsible(),
         "modals" => modals(),
-        "toasts" => toasts(),
         _ => return None,
     })
 }
