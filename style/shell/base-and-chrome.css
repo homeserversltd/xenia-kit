@@ -83,6 +83,8 @@
       color: var(--text);
     }
     * { box-sizing: border-box; }
+    /* Hidden elements stay hidden despite component display rules. */
+    [hidden]:not([hidden="until-found"]) { display: none !important; }
     body { margin: 0; min-height: 100vh; background: var(--background); color: var(--text); }
     .app { min-height: 100vh; display: flex; flex-direction: column; }
     .top-bar {
