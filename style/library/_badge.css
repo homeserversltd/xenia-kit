@@ -9,3 +9,8 @@
 .notification-names label { display: grid; gap: .3rem; }
 .notifications-result[data-ok="false"] { color: var(--error); }
 .notifications-result[data-ok="true"] { color: var(--success); }
+
+/* Outline badge variant. */
+.ui-badge--outline { background-color: transparent; }
+.ui-badge--outline.ui-badge--success { color: var(--success); border-color: var(--success); }
+.ui-badge--outline.ui-badge--info { color: var(--secondary); border-color: var(--border); }

@@ -19,3 +19,11 @@
   .ui-setting-row__control { width: 100%; }
   .ui-setting-row__field { flex: 1 1 auto; min-width: 0; }
 }
+
+/* Ruled and inline setting-row variants. */
+.ui-setting-row--ruled { border-bottom: 1px solid var(--border); }
+.ui-setting-row--ruled-top { border-top: 1px solid var(--border); }
+@media (max-width: 639px) {
+  .ui-setting-row--inline { align-items: center; flex-direction: row; }
+  .ui-setting-row--inline .ui-setting-row__control { width: auto; }
+}
