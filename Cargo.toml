@@ -1,6 +1,6 @@
 [package]
 name = "xenia-kit"
-version = "0.13.0"
+version = "0.14.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
@@ -8,12 +8,14 @@ description = "Typed Coronatio markup and HTTP building blocks for household car
 
 [features]
 default = ["builders"]
+markup = ["dep:maud"]
 builders = [
+    "markup",
+    "maud/axum",
     "dep:async-stream",
     "dep:axum",
     "dep:cssparser",
     "dep:futures-core",
-    "dep:maud",
     "dep:regex",
     "dep:reqwest",
     "dep:serde",
@@ -24,7 +26,7 @@ builders = [
 
 [dependencies]
 axum = { version = "0.8", optional = true }
-maud = { version = "0.27", features = ["axum"], optional = true }
+maud = { version = "0.27", optional = true }
 tokio = { version = "1", features = ["net", "fs", "time", "sync", "rt-multi-thread", "macros"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }

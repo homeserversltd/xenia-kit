@@ -12,7 +12,9 @@ the theme catalog, author-face names, and the shared theme switcher script
 as `THEME_SCRIPT`. A guest cartridge still ships no
 stylesheet beyond a declared `pack.css` and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
-`default-features = false`; the default `builders` feature retains the full kit.
+`default-features = false`. Add `features = ["markup"]` for the markup
+builders without the HTTP stack. The default `builders` feature includes
+`markup` and retains the full kit, including HTTP integrations.
 
 The script exposes `window.CrownTheme.current()`, `names()`, and `set(name)`.
 Before the catalog loads, `current()` returns `null` and `names()` is empty;

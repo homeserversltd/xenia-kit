@@ -1,3 +1,4 @@
+#[cfg(feature = "builders")]
 use axum::{
     http::{header, HeaderValue},
     response::{Html, IntoResponse, Response},
@@ -99,6 +100,7 @@ impl Render for Fragment {
         }
     }
 }
+#[cfg(feature = "builders")]
 impl IntoResponse for Fragment {
     fn into_response(self) -> Response {
         let mut response = Html(self.render().0).into_response();
