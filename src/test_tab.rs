@@ -31,17 +31,17 @@ pub fn test_tab() -> Markup {
     let services=Panel{id:"services".into(),active:false,kind:PanelKind::Services,catalog_specimen:Some("test-services-portal-grid".into()),content:html!{
         (SubpanelHeader{kicker:"Services specimen".into(),title:"Service Portals".into(),description:"Portal-card states, service types, and appliance controls.".into(),trailing:Badge::new("7 services").render()})
         (crate::present::Paragraph{text:"Guest view".into()})
-        (PortalGrid{content:html!{@for (name,description,_,state) in portal_data.into_iter().enumerate().filter(|(i,_)| *i != 3).take(4).map(|(_,portal)| portal) {
+        (PortalGrid{seats:vec![],content:html!{@for (name,description,_,state) in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown].into_iter().filter_map(|wanted| portal_data.into_iter().find(|(_,_,_,state)| *state == wanted)) {
             (PortalCard{name:name.into(),description:description.into(),image:format!("/api/portals/images/{name}.png"),state,visible:true,show_name:true,link:None,chrome:html!{},controls:html!{},seats:PortalSeats::default()})
         }}})
         (crate::present::Paragraph{text:"Admin view".into()})
         div data-admin-mode="true" {
-            (PortalGrid{content:html!{@for (name,description,service_type,state) in portal_data {
+            (PortalGrid{seats:vec![],content:html!{@for (name,description,service_type,state) in portal_data {
                 @let controls=if service_type=="systemd" {let rows=[[ ("Start","Start service"),("Stop","Stop service"),("Restart","Restart service") ].as_slice(),[("Enable","Enable service at boot"),("Disable","Disable service at boot"),("Status","Check service status")].as_slice()].into_iter().map(|row|row.iter().map(|(label,title)|ServiceAction{label:(*label).into(),title:(*title).into(),action:None}).collect()).collect(); ServiceActions{rows,gate:None,services_json:None}.render()} else if service_type=="script" {ServiceNotice{title:"System restart required for changes to take effect. Script-managed services are controlled through system scripts rather than direct service commands.".into(),text:"Script-managed Service — system restart required".into(),gate:None}.render()} else {html!{}};
                 (PortalCard{name:name.into(),description:description.into(),image:format!("/api/portals/images/{name}.png"),state,visible:true,show_name:false,link:None,chrome:html!{},controls,seats:PortalSeats::default()})
             }
             (PortalCard{name:"Hidden portal".into(),description:"Visible to administrators".into(),image:"/api/portals/images/default.png".into(),state:PortalState::Unknown,visible:false,show_name:false,link:None,chrome:html!{},controls:html!{},seats:PortalSeats::default()})
-            (AddPortalCard{accessible_label:"Add new portal".into(),title:"Add Portal".into(),description:"Create a new portal for your services".into(),gate:None,opener:Some(AddPortalOpener::Specimen)})}})
+            (AddPortalCard{accessible_label:"Add new portal".into(),title:"Add Portal".into(),description:"Create a new portal for your services".into(),gate:None,opener:None,seats:vec![]})}})
         }
     }};
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];

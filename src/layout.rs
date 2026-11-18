@@ -198,7 +198,7 @@ impl Render for ToastSpawn {
 }
 
 /// Availability of a portal card.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PortalState { Up, Down, Partial, Unknown }
 
 /// Optional link facts supplied by a host page.
@@ -299,9 +299,9 @@ impl Render for HealthReadout {
 
 /// A grid of service portal cards and their add control.
 #[derive(Clone)]
-pub struct PortalGrid { pub content: Markup }
+pub struct PortalGrid { pub content: Markup, pub seats: Vec<crate::fragment::DataSeat> }
 impl Render for PortalGrid {
-    fn render(&self) -> Markup { html! { div class="portals-grid" data-test-services-grid { (self.content.clone()) } } }
+    fn render(&self) -> Markup { crate::fragment::seat(html! { div class="portals-grid" { (self.content.clone()) } }, &self.seats) }
 }
 
 /// Optional admin gate, scoped to a caller-named viewport.
@@ -317,7 +317,7 @@ impl Render for ServiceNotice {
 
 /// Which delegated opener, if any, the host supplies for Add Portal.
 #[derive(Clone, Copy, Debug)]
-pub enum AddPortalOpener { Page, Specimen }
+pub enum AddPortalOpener { Page }
 
 /// The delegated portal-creation card.
 #[derive(Clone, Debug)]
@@ -327,20 +327,62 @@ pub struct AddPortalCard {
     pub description: String,
     pub gate: Option<AdminGate>,
     pub opener: Option<AddPortalOpener>,
+    pub seats: Vec<crate::fragment::DataSeat>,
 }
 impl Render for AddPortalCard {
     fn render(&self) -> Markup {
-        html! { div class="portal-card add-portal-card" data-admin-only[self.gate.is_some()]
+        crate::fragment::seat(html! { div class="portal-card add-portal-card" data-admin-only[self.gate.is_some()]
             data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())]
             data-add-portal-open[matches!(self.opener, Some(AddPortalOpener::Page))]
-            data-test-add-portal[matches!(self.opener, Some(AddPortalOpener::Specimen))]
             role="button" tabindex="0" aria-label=(&self.accessible_label) {
             div class="portal-card-face" { div class="add-portal-content" {
                 div class="add-portal-icon" { i class="fas fa-plus" {} }
                 h3 class="add-portal-title" { (&self.title) }
                 p class="add-portal-description" { (&self.description) }
             } }
-        } }
+        } }, &self.seats)
+    }
+}
+
+/// Portal visibility control; caller-owned action marks ride in seats.
+#[derive(Clone, Debug)]
+pub struct PortalEye {
+    pub visible: bool,
+    pub label: String,
+    pub gate: Option<AdminGate>,
+    pub seats: Vec<crate::fragment::DataSeat>,
+}
+impl Render for PortalEye {
+    fn render(&self) -> Markup {
+        crate::fragment::seat(html! {
+            button type="button" class="visibility-toggle ui-visibility-toggle"
+                data-admin-only[self.gate.is_some()] data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())]
+                data-visible=(self.visible.to_string()) aria-pressed=(self.visible.to_string()) aria-label=(&self.label) {
+                i class=(if self.visible { "fas fa-eye" } else { "fas fa-eye-slash" }) aria-hidden="true" {}
+            }
+        }, &self.seats)
+    }
+}
+
+/// Portal delete control with optional host gate, identity and marks.
+#[derive(Clone, Debug)]
+pub struct PortalDelete {
+    pub gate: Option<AdminGate>,
+    pub hidden: bool,
+    pub name: Option<String>,
+    pub title: String,
+    pub label: String,
+    pub seats: Vec<crate::fragment::DataSeat>,
+}
+impl Render for PortalDelete {
+    fn render(&self) -> Markup {
+        crate::fragment::seat(html! {
+            button type="button" class="delete-portal-button"
+                data-admin-only[self.gate.is_some()] data-admin-viewport=[self.gate.as_ref().map(|g| g.viewport.as_str())]
+                hidden[self.hidden] data-portal-name=[self.name.as_deref()] title=(&self.title) aria-label=(&self.label) {
+                i class="fas fa-trash" aria-hidden="true" {}
+            }
+        }, &self.seats)
     }
 }
 

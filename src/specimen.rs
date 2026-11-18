@@ -61,15 +61,10 @@ pub struct PortalRemoveSimulator {
 impl Render for PortalRemoveSimulator {
     fn render(&self) -> Markup {
         let visible = self.visible.to_string();
-        let eye = if self.visible { "fas fa-eye" } else { "fas fa-eye-slash" };
         html! { div class="portals-grid" data-test-portal-remove-simulator {
             div class="portal-element" data-portal-element data-visible=(&visible) {
-                button type="button" class="visibility-toggle ui-visibility-toggle" data-visible=(&visible) aria-pressed=(&visible) aria-label=(&self.visibility_label) {
-                    i class=(eye) aria-hidden="true" {}
-                }
-                button type="button" class="delete-portal-button" data-test-portal-delete data-portal-name=(&self.name) title=(&self.delete_label) aria-label=(&self.delete_label) {
-                    i class="fas fa-trash" aria-hidden="true" {}
-                }
+                (crate::layout::PortalEye { visible: self.visible, label: self.visibility_label.clone(), gate: None, seats: vec![] })
+                (crate::layout::PortalDelete { gate: None, hidden: false, name: Some(self.name.clone()), title: self.delete_label.clone(), label: self.delete_label.clone(), seats: vec![crate::fragment::DataSeat::new("data-test-portal-delete", None).expect("static data seat")] })
                 article class="portal-card up" data-portal-card data-portal-name=(&self.name) role="group" aria-label=(&self.name) {
                     div class="portal-card-face" { div class="portal-card-header" {
                         div class="portal-icon" aria-hidden="true" { i class="fas fa-flask" {} }

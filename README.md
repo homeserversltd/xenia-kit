@@ -135,7 +135,9 @@ children can contain requesting slots.
 `layout::SubpanelHeader` renders a subpanel's labels and optional trailing content.
 `layout::ToastSpawn` renders a host-delegated notification button.
 `layout::PortalCard` renders the complete portal element; `PortalLink` supplies optional destination and JSON services, and `PortalSeats` binds the article, icon, name and description. Chrome and controls are composed markup.
-`layout::PortalGrid` arranges service portals and their add control.
+`layout::PortalGrid` arranges service portals and their add control, with caller-owned data seats.
+`layout::PortalEye` renders the tile's visibility control with optional gate and data seats.
+`layout::PortalDelete` renders the tile's delete control with optional gate, hidden state, identity and data seats.
 `layout::AdminGate` scopes optional controls to a caller-named viewport.
 `layout::ServiceNotice` renders a script-managed service notice.
 `layout::ConfigPattern` renders a labelled configuration card.
@@ -150,7 +152,7 @@ children can contain requesting slots.
 `layout::AnimationBand` groups named animation content.
 `layout::MotionStage` renders a labelled motion stage.
 `layout::StillnessControl` renders a delegated stop-motion control.
-`layout::AddPortalCard` renders the delegated portal-creation control.
+`layout::AddPortalCard` renders the portal-creation card with optional page opener, gate and data seats; omit the opener for an inert specimen.
 `layout::ResolverSpecimen` supplies the delegated resolver scope.
 `layout::HealthDot` renders a health-summary indicator.
 `motion::MotionAtomSpecimen` composes a labelled motion atom and play control.
