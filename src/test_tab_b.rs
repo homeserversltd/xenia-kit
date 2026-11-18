@@ -356,7 +356,7 @@ fn upload_components() -> Markup {
     html!{(Paragraph{text:"Working library controls and an Upload domain-pack specimen share the production vocabulary.".into()})
       (CatalogGrid{kind:CatalogKind::UploadLibrary,content:html!{
         (ShowcaseArticle{title:"Breadcrumbs".into(),content:html!{(showcase::breadcrumbs())(BreadcrumbReadout{path:"/mnt/nas/media/kids".into(),reset_label:"Reset to Root".into()})}})
-        (ShowcaseArticle{title:"IconButton".into(),content:ShowcaseRow{modal_controls:false,content:showcase::icon_button()}.render()})
+
         (ShowcaseArticle{title:"FileInput".into(),content:file})
       }})
       (Text{kind:TextKind::Heading3,content:html!{"Upload domain-pack specimen"}})(upload_pack())

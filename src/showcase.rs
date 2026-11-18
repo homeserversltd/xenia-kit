@@ -15,6 +15,8 @@ fn sample_badge(text: &str, tone: Option<Tone>, size: Option<Size>) -> Badge {
         text: text.into(),
         tone,
         size,
+        pill: false,
+        outline: false,
         hx: Hx::default(),
     }
 }
@@ -378,6 +380,8 @@ pub fn icon_button() -> Markup {
         shape,
         label: label.into(),
         disabled,
+        ghost: false,
+        danger: false,
         hx: Hx::default(),
     };
     rendered(vec![

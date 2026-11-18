@@ -10,9 +10,9 @@ use crate::{
     present::{Text, TextKind,Paragraph,CatalogGrid,CatalogKind,ShowcaseArticle,ShowcaseRow,ShowcaseBox},
     layout::{ResolverOption, ResolverSpecimen, ShowcaseGrid, ShowcaseItem, StatusDot},
     ux::{
-        Badge, Button, ButtonTone, Calendar, CalendarMode, Card, CardBody, CardState,
+        Button, ButtonTone, Calendar, CalendarMode, Card, CardBody, CardState,
         Checkbox, EditableField, EditableSize, Input, IpCalendar, Size,
-        Tab, Tabs, TimePicker, Toggle, Tone, VisibilityToggle,
+        Tab, Tabs, TimePicker, VisibilityToggle,
     },
 };
 
@@ -26,51 +26,6 @@ fn item(title: &str, parts: Vec<Markup>) -> Markup {
 
 fn grid(items: Vec<Markup>) -> Markup {
     ShowcaseGrid { content: compose(items) }.render()
-}
-
-fn button(
-    text: &str,
-    tone: ButtonTone,
-    size: Option<Size>,
-    loading: bool,
-    disabled: bool,
-    left_icon: Option<&str>,
-    right_icon: Option<&str>,
-) -> Markup {
-    Button {
-        text: text.into(),
-        tone: Some(tone),
-        size,
-        loading,
-        disabled,
-        left_icon: left_icon.map(str::to_owned),
-        right_icon: right_icon.map(str::to_owned),
-        ..Button::default()
-    }
-    .render()
-}
-
-fn toggle(
-    label: Option<&str>,
-    size: Size,
-    checked: bool,
-    disabled: bool,
-    aria_label: Option<&str>,
-) -> Markup {
-    Toggle {
-        label: label.map(str::to_owned),
-        size: Some(size),
-        checked,
-        disabled,
-        aria_label: aria_label.map(str::to_owned),
-        delegated: !disabled,
-        ..Toggle::default()
-    }
-    .render()
-}
-
-fn badge(text: &str, tone: Option<Tone>, size: Option<Size>) -> Markup {
-    Badge { text: text.into(), tone, size, ..Badge::default() }.render()
 }
 
 fn checkbox(label: &str, size: Option<Size>, checked: bool, disabled: bool, delegated: bool) -> Markup {
@@ -91,52 +46,6 @@ fn tab(label: &str) -> Tab {
 
 fn tabs(tabs: Vec<Tab>) -> Markup {
     Tabs { tabs, ..Tabs::default() }.render()
-}
-
-fn category_buttons() -> Markup {
-    html!{(grid(vec![
-        item("Primary", vec![
-            button("Primary Button", ButtonTone::Primary, None, false, false, None, None),
-            button("With Icon", ButtonTone::Primary, None, false, false, Some("⌘"), None),
-            button("Loading", ButtonTone::Primary, None, true, false, None, None),
-            button("Disabled", ButtonTone::Primary, None, false, true, None, None),
-        ]),
-        item("Secondary", vec![
-            button("Secondary Button", ButtonTone::Secondary, None, false, false, None, None),
-            button("Icon Right", ButtonTone::Secondary, None, false, false, None, Some("👤")),
-            button("Disabled", ButtonTone::Secondary, None, false, true, None, None),
-        ]),
-        item("Danger", vec![
-            button("Danger Button", ButtonTone::Danger, None, false, false, None, None),
-            button("Disabled", ButtonTone::Danger, None, false, true, None, None),
-        ]),
-        item("Warning", vec![
-            button("Warning Button", ButtonTone::Warning, None, false, false, None, None),
-            button("Disabled", ButtonTone::Warning, None, false, true, None, None),
-        ]),
-        item("Success", vec![
-            button("Success Button", ButtonTone::Success, None, false, false, None, None),
-            button("Disabled", ButtonTone::Success, None, false, true, None, None),
-        ]),
-    ]))(Text{kind:TextKind::Heading3,content:html!{"Button Sizes"}})
-    (ShowcaseRow{modal_controls:false,content:html!{
-        (button("Small", ButtonTone::Primary, Some(Size::Small), false, false, None, None))
-        (button("Medium", ButtonTone::Primary, Some(Size::Medium), false, false, None, None))
-        (button("Large", ButtonTone::Primary, Some(Size::Large), false, false, None, None))
-    }})}
-}
-
-fn category_toggles() -> Markup {
-    grid(vec![
-        item("Small", vec![toggle(Some("Small Toggle"), Size::Small, false, false, None)]),
-        item("Medium (Default)", vec![toggle(Some("Medium Toggle"), Size::Medium, true, false, None)]),
-        item("Large", vec![toggle(Some("Large Toggle"), Size::Large, false, false, None)]),
-        item("Without Label", vec![toggle(None, Size::Medium, false, false, Some("Toggle without label"))]),
-        item("Disabled", vec![
-            toggle(Some("Disabled Off"), Size::Medium, false, true, None),
-            toggle(Some("Disabled On"), Size::Medium, true, true, None),
-        ]),
-    ])
 }
 
 fn category_tabs() -> Markup {
@@ -230,22 +139,6 @@ fn category_cards() -> Markup {
         item("Clickable Card", vec![Card { body: CardBody::Text("Click this card to interact.".into()), state: Some(CardState::Clickable), ..Card::default() }.render()]),
         item("Active Card", vec![Card { body: CardBody::Text("This card indicates an active state.".into()), state: Some(CardState::Active), ..Card::default() }.render()]),
         item("Error Card", vec![Card { body: CardBody::Text("This card indicates an error state.".into()), state: Some(CardState::Error), ..Card::default() }.render()]),
-    ])
-}
-
-fn category_badges() -> Markup {
-    grid(vec![
-        item("Badge Variants", vec![ShowcaseRow{modal_controls:false,content:html!{
-            (badge("Primary", Some(Tone::Primary), None)) (badge("Secondary", Some(Tone::Secondary), None))
-            (badge("Success", Some(Tone::Success), None)) (badge("Warning", Some(Tone::Warning), None))
-            (badge("Danger", Some(Tone::Danger), None)) (badge("Info", Some(Tone::Info), None))
-        }}.render()]),
-        item("Badge Sizes", vec![badge("Small", None, Some(Size::Small)), badge("Medium", None, Some(Size::Medium)), badge("Large", None, Some(Size::Large))]),
-        item("Badge Usage Examples", vec![
-            Text{kind:TextKind::Div,content:html! { "Status: " (badge("Online", Some(Tone::Success), None)) }}.render(),
-            Text{kind:TextKind::Div,content:html! { "Count: " (badge("42", Some(Tone::Primary), None)) }}.render(),
-            Text{kind:TextKind::Div,content:html! { "Alert: " (badge("Critical", Some(Tone::Danger), None)) }}.render(),
-        ]),
     ])
 }
 
@@ -368,12 +261,9 @@ fn category_upstream_resolvers() -> Markup {
 /// Return category content only; the parent supplies each enclosing category.
 pub fn section(id: &str) -> Option<Markup> {
     match id {
-        "buttons" => Some(category_buttons()),
-        "toggles" => Some(category_toggles()),
         "tabs" => Some(category_tabs()),
         "inputs" => Some(category_inputs()),
         "cards" => Some(category_cards()),
-        "badges" => Some(category_badges()),
         "checkboxes" => Some(category_checkboxes()),
         "utilities" => Some(category_utilities()),
         "visibility-system" => Some(category_visibility_system()),

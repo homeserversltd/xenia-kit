@@ -288,6 +288,8 @@ pub struct Badge {
     pub text: String,
     pub tone: Option<Tone>,
     pub size: Option<Size>,
+    pub pill: bool,
+    pub outline: bool,
     pub hx: Hx,
 }
 impl Badge {
@@ -299,7 +301,7 @@ impl Badge {
     }
 }
 renderer!(Badge, s, {
-    html! {span class=(classes("ui-badge",&[s.tone.map(Tone::name),s.size.map(Size::name)])){(&s.text)}}
+    html! {span class=(classes("ui-badge",&[s.tone.map(Tone::name),s.size.map(Size::name),s.pill.then_some("pill"),s.outline.then_some("outline")])){(&s.text)}}
 });
 
 #[derive(Clone, Default)]
@@ -618,6 +620,7 @@ pub enum Icon {
     Refresh,
     Sync,
     Settings,
+    Text(&'static str),
 }
 impl Icon {
     fn class(self) -> &'static str {
@@ -625,6 +628,7 @@ impl Icon {
             Self::Refresh => "fas fa-rotate",
             Self::Sync => "fas fa-sync",
             Self::Settings => "fas fa-cog",
+            Self::Text(_) => "",
         }
     }
 }
@@ -640,10 +644,12 @@ pub struct IconButton {
     pub shape: Shape,
     pub label: String,
     pub disabled: bool,
+    pub ghost: bool,
+    pub danger: bool,
     pub hx: Hx,
 }
 renderer!(IconButton, s, {
-    html! {button type="button" class=(classes("ui-icon-button",&[Some(s.size.name()),Some(match s.shape{Shape::Square=>"square",Shape::Circle=>"circle"})])) disabled[s.disabled] aria-label=(&s.label){i class=(s.icon.class()) aria-hidden="true"{}}}
+    html! {button type="button" class=(classes("ui-icon-button",&[Some(s.size.name()),Some(match s.shape{Shape::Square=>"square",Shape::Circle=>"circle"}),s.ghost.then_some("ghost"),s.danger.then_some("danger")])) disabled[s.disabled] aria-label=(&s.label){@match s.icon { Icon::Text(text) => { (text) }, _ => { i class=(s.icon.class()) aria-hidden="true"{} } }}}
 });
 #[derive(Clone, Default)]
 pub struct VisibilityToggle {

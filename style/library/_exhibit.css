@@ -8,4 +8,5 @@
 .ui-exhibit__words { max-width: 62ch; }
 .ui-exhibit__words p { margin: 0 0 .6rem; line-height: 1.55; color: var(--text); }
 .ui-exhibit__words p:last-child { margin-bottom: 0; color: var(--text-secondary); }
+.ui-exhibit__variants { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
 @media (max-width: 768px) { .ui-exhibit { grid-template-columns: minmax(0, 1fr); } }

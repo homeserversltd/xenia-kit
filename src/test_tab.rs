@@ -1,7 +1,7 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::Badge};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Tone, Size, IconButton, Icon, Shape}};
 
 fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 
@@ -14,15 +14,15 @@ fn room(id: &str, active: bool, content: Markup) -> Panel { Panel { id:id.into()
 /// Render the complete Test tab from typed kit components.
 pub fn test_tab() -> Markup {
     let categories: &[(&str,&str,&str,&[&str])] = &[
-        ("buttons","Buttons","Button Variants",&["button"]), ("toggles","Toggles","Toggle Switches",&["toggle"]),
+
         ("tabs","Tabs","Tab Navigation",&["tabs"]), ("inputs","Inputs","Input Fields",&["input"]),
-        ("cards","Cards","Cards",&["card"]), ("badges","Badges","Badges",&["badge"]),
+        ("cards","Cards","Cards",&["card"]),
         ("checkboxes","Checkboxes","Checkboxes",&["checkbox"]), ("utilities","Utilities","Utility Components",&["plus-button","editable-field"]),
         ("visibility-system","Visibility System","Visibility System",&["visibility-toggle"]), ("calendar-time","Calendar & Time","Calendar & Time Picker",&["calendar","time-picker"]),
         ("lan-ip-calendar","LAN IP Calendar","LAN IP Calendar",&["ip-calendar"]), ("upstream-resolvers","Upstream Resolvers","Upstream Resolvers",&[]),
         ("row-info-tile","Row Info Tile","Row Info Tile",&["row-info-tile"]), ("dropdowns","Dropdowns","Click-to-Open Dropdowns",&["select"]),
         ("slider","Slider","Slider Component",&["slider"]), ("textbox","Text Box","TextBox Component",&["text-box"]),
-        ("upload-components","Upload Components","Upload Components",&["breadcrumbs","icon-button","file-input"]),
+        ("upload-components","Upload Components","Upload Components",&["breadcrumbs","file-input"]),
         ("progress-bar","Progress Bar","Progress Bar",&["progress-bar"]), ("loading-spinner","Loading / Spinner","Loading / Spinner",&["loading-spinner"]),
         ("skeleton-slot","Skeleton & Slot","Skeleton & Slot",&["skeleton","slot"]), ("table","Table","Table",&["table"]),
         ("collapsible","Collapsible","Collapsible",&["collapsible"]), ("modals","Modals","Modals",&["modal"]), ("toasts","Toasts / Notifications","Toasts / Notifications",&[]),
@@ -32,13 +32,14 @@ pub fn test_tab() -> Markup {
         ("update-cards","Update Cards","Update Cards",&["update-card"]), ("usage-bars","Usage Bars","Usage Bars",&["usage-bar"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["buttons","toggles","tabs","inputs","cards","badges","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
-    let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="buttons",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
+    let section_order=["tabs","inputs","cards","checkboxes","utilities","toasts","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","loading-spinner","skeleton-slot","table","collapsible","modals","stat-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
+    let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="tabs",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![
         GuideLine{lead:None,text:"This site is built from a small set of pieces that repeat from tab to tab. A tab is those pieces arranged for one job. This tab shows the pieces on their own.".into()},
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
+        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button does one thing; a switch turns one thing on or off. They are in the Buttons & switches room, with the badge and the icon button.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
     let tiles=room("tiles",false,html! {
@@ -48,6 +49,44 @@ pub fn test_tab() -> Markup {
             "Guests see the portal's name and a larger picture, and no controls. In Admin Mode a service's tile shows the controls drawn here. The eye at the top left hides the tile from guests or shows it again; a hidden tile stays on your Admin Mode page, dimmed, with a dashed edge. The six keys start, stop and restart the service, turn it on or off at startup, and show its status.".into(),
             "A service run by a script shows a note in place of the keys: it is managed by its script, and a change to it needs a system restart. A plain link has no keys.".into(),
             "You will meet it on the Portals tab.".into(),
+        ]})
+    });
+    let buttons_switches=room("buttons-switches",false,html! {
+        (Exhibit{name:"Button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            @for (label,tone,disabled) in [("Save",ButtonTone::Primary,false),("Cancel",ButtonTone::Secondary,false),("Remove",ButtonTone::Danger,false),("Upload Selected Files",ButtonTone::Primary,true)] {
+                (Button{text:label.into(),tone:Some(tone),disabled,button_type:true,..Button::default()})
+            }
+        }},words:vec![
+            "A button does one thing when you press it, and its label says what. The ones shown here are for looking at: pressing them does nothing.".into(),
+            "A filled button is the main action where it stands, such as Save, Pin or Upload Selected Files. An outlined button is a lesser step, such as Cancel, Refresh or Check for updates. A red button removes something or switches the HomeServer off: Remove, Unpin, Clear History, Shutdown.".into(),
+            "A dimmed button cannot be pressed yet. Upload Selected Files stays dimmed until you choose a file to send. Inside a list or a table a button is drawn smaller.".into(),
+            "You will meet it on the Upload, Backups, DHCP, Firewall, DNS and Admin tabs.".into(),
+        ]})
+        (Exhibit{name:"On/off switch".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            @for (label,checked) in [("Ad blocking",true),("Anonymize",false)] {
+                (Toggle{label:Some(label.into()),size:Some(Size::Medium),checked,..Toggle::default()})
+            }
+        }},words:vec![
+            "A switch turns one thing on or off. Press it and it changes side. The ones shown here flip and change nothing else.".into(),
+            "On the DNS tab, Ad blocking and Encrypted DNS are switches. On the DHCP tab, Anonymize hides device names and ID tags on your screen, for screenshots; nothing changes on your network. On the Admin tab one switch turns Samba file sharing on or off and another does the same for SSH sign-in by password.".into(),
+            "You will meet it on the DNS, DHCP and Admin tabs.".into(),
+        ]})
+        (Exhibit{name:"Badge".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            @for (text,tone) in [("Pinned",Tone::Success),("Available to pin",Tone::Info)] {
+                (Badge{text:text.into(),tone:Some(tone),pill:true,outline:true,..Badge::default()})
+            }
+        }},words:vec![
+            "A badge is a small label that tells you the state of the thing beside it. It is read, not pressed.".into(),
+            "On the DHCP tab each device's address carries one: Pinned when that address is kept for the device, Available to pin when it is not.".into(),
+            "You will meet it on the DHCP tab.".into(),
+        ]})
+        (Exhibit{name:"Icon button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
+            (IconButton{icon:Icon::Text("×"),size:Size::Small,shape:Shape::Circle,label:"Remove upload".into(),disabled:false,ghost:true,danger:true,hx:Default::default()})
+            (IconButton{icon:Icon::Text("›"),size:Size::Large,shape:Shape::Square,label:"Device details".into(),disabled:false,ghost:true,danger:false,hx:Default::default()})
+        }},words:vec![
+            "An icon button is a small button that shows a symbol and no words. The ones shown here do nothing.".into(),
+            "On the Upload tab the × beside a file takes that upload off the list, and the × beside a blacklist entry removes the entry. On the DHCP tab the › at the end of a device's row opens that device's details.".into(),
+            "You will meet it on the Upload and DHCP tabs.".into(),
         ]})
     });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
@@ -84,7 +123,7 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(animations)(showcase)(config)(health)}};
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }
