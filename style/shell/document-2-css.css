@@ -1,7 +1,7 @@
     .modal-actions, .modal-toolbar, .modal-pager, .update-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
     .modal-toolbar { justify-content: flex-start; border-top: none; margin-top: 0; padding-top: 0; }
-    .modal-button, .refresh-button { padding: 10px 15px; border-radius: 5px; border: 1px solid var(--border); background-color: var(--primary); display: inline-flex; align-items: center; gap: 8px; }
-    .modal-button:hover, .refresh-button:hover { background-color: var(--primaryHover); transform: translateY(-1px); }
+    .modal-button { padding: 10px 15px; border-radius: 5px; border: 1px solid var(--border); background-color: var(--primary); display: inline-flex; align-items: center; gap: 8px; }
+    .modal-button:hover { background-color: var(--primaryHover); transform: translateY(-1px); }
     .view-tabs { display: flex; gap: 5px; position: relative; bottom: -1px; }
     .tab-button { padding: 8px 16px; border: 1px solid var(--border); border-bottom: none; background-color: var(--primary); color: var(--text); border-radius: 6px 6px 0 0; }
     .tab-button.active { background-color: var(--background); z-index: 2; }

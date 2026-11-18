@@ -203,10 +203,10 @@ impl Render for DirectoryBrowser {
         html! {
             div class="directory-browser" data-test-directory-browser {
                 div class="directory-browser-header" {
-                    button type="button" class="refresh-button icon-button" aria-label=(&self.refresh_label) {
+                    button type="button" class="ui-icon-button ui-icon-button--small ui-icon-button--circle" aria-label=(&self.refresh_label) {
                         i class="fas fa-rotate" aria-hidden="true" {}
                     }
-                    button type="button" disabled { (&self.unavailable_action_label) }
+                    button type="button" class="ui-button ui-button--secondary ui-button--small" disabled { (&self.unavailable_action_label) }
                 }
                 (&self.location)
                 (&self.tree)
@@ -257,7 +257,7 @@ impl Render for UploadControls {
             div class="file-upload-section" data-test-domain-file-section {
                 input type="file" multiple[self.multiple]
                     data-test-domain-file aria-label=(&self.input_label);
-                button type="button" data-test-domain-submit disabled[self.submit_disabled] {
+                button type="button" class="ui-button ui-button--primary ui-button--medium" data-test-domain-submit disabled[self.submit_disabled] {
                     (&self.submit_label)
                 }
                 span data-test-domain-file-name { (&self.selection_summary) }
