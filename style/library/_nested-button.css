@@ -18,7 +18,7 @@
   }
 }
 .ui-nested-button:active:not(:disabled) {
-  background: color-mix(in srgb, var(--theme-surface-3) 88%, var(--background));
+  background: color-mix(in oklch, var(--theme-surface-3) 88%, oklch(from var(--theme-surface-3) calc(l * 0.5) c h));
   box-shadow: inset 0 1px 0 var(--nested-button-edge), 0 0 0 var(--nested-button-lip);
 }
 .ui-nested-button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
