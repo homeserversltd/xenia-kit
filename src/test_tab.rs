@@ -62,15 +62,11 @@ pub fn test_tab() -> Markup {
         (PortalGrid{content:guest_tiles(),seats:vec![]})
     });
     let tiles=shelf("tiles",false,html! {
-        @for state in [PortalState::Up,PortalState::Down,PortalState::Partial,PortalState::Unknown] {
-            (crate::present::Paragraph{text:format!("Portal tile — {state:?}")})
-            (tile(*PORTALS.iter().find(|p| p.3 == state).expect("sample state"),false,true))
-        }
+        (crate::present::Paragraph{text:"Portal tiles, left to right: up, down, partial, unknown".into()})
+        (PortalGrid{content:guest_tiles(),seats:vec![]})
         div data-admin-mode="true" {
-            (crate::present::Paragraph{text:"Portal tile — six service keys".into()}) (tile(PORTALS[0],true,true))
-            (crate::present::Paragraph{text:"Portal tile — script-managed service".into()}) (tile(PORTALS[2],true,true))
-            (crate::present::Paragraph{text:"Hidden portal — visible only to an admin viewer".into()}) (hidden_tile())
-            (crate::present::Paragraph{text:"Add Portal card".into()}) (add())
+            (crate::present::Paragraph{text:"Left to right: six service keys, script-managed service, hidden portal, Add Portal. The hidden portal shows only to an admin viewer.".into()})
+            (PortalGrid{content:html!{(tile(PORTALS[0],true,true))(tile(PORTALS[2],true,true))(hidden_tile())(add())},seats:vec![]})
         }
     });
     let controls=shelf("controls",false,html! {
@@ -79,11 +75,12 @@ pub fn test_tab() -> Markup {
         div data-admin-mode="true" {
             (crate::present::Paragraph{text:"Portal eye — visible".into()}) (eye(true))
             (crate::present::Paragraph{text:"Portal eye — hidden".into()}) (eye(false))
-            (crate::present::Paragraph{text:"Portal delete button".into()}) (delete())
+            (crate::present::Paragraph{text:"The delete button appears at the tile's top right while the pointer is over the tile.".into()})
+            (PortalGrid{content:html!{(PortalCard{name:PORTALS[0].0.into(),description:PORTALS[0].1.into(),image:format!("/api/portals/images/{}.png",PORTALS[0].0),state:PORTALS[0].3,visible:true,show_name:false,link:None,chrome:delete().render(),controls:html!{},seats:PortalSeats::default()})},seats:vec![]})
         }
     });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
-    let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","Services"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
+    let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","Pages"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
     let table=SettingsTable{headings:["Setting".into(),"Value".into(),"Source".into(),"Status".into()],rows:[("Default tab","showcase","shell","Active"),("Health interval","30s","profile","Active"),("External actions","disabled","catalog","Specimen")].into_iter().map(|(setting,value,source,status)|SettingsRow{setting:setting.into(),value:value.into(),source:source.into(),status:status.into()}).collect()};
     let config=Panel{id:"config".into(),active:false,kind:PanelKind::Configuration,catalog_specimen:Some("test-configuration-patterns".into()),content:html!{
       (SubpanelHeader{kicker:"Configuration specimens".into(),title:"Configuration".into(),description:"Three appliance settings patterns.".into(),trailing:Badge::new("3 patterns").render()})
