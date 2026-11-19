@@ -1283,8 +1283,13 @@ pub struct VisibleToast {
     pub message: String,
 }
 
-impl Render for VisibleToast {
-    fn render(&self) -> Markup {
+impl VisibleToast {
+    /// Render a specimen without registering it with the host's toast listeners.
+    pub fn render_inert(&self) -> Markup {
+        self.render_with_marker(false)
+    }
+
+    fn render_with_marker(&self, host_managed: bool) -> Markup {
         let (kind, icon) = match self.kind {
             ToastKind::Info => ("info", "ℹ️"),
             ToastKind::Success => ("success", "✅"),
@@ -1292,11 +1297,17 @@ impl Render for VisibleToast {
             ToastKind::Error => ("error", "❌"),
         };
         html! {
-            div class=(format!("toast {kind}")) data-coronatio-toast="" role="alert" {
+            div class=(format!("toast {kind}")) data-coronatio-toast=[host_managed.then_some("")] role="alert" {
                 span class="toast-icon" aria-hidden="true" { (icon) }
                 span class="toast-message" { (&self.message) }
             }
         }
+    }
+}
+
+impl Render for VisibleToast {
+    fn render(&self) -> Markup {
+        self.render_with_marker(true)
     }
 }
 

@@ -83,11 +83,11 @@ pub fn test_tab() -> Markup {
     });
     let messages=room("messages",false,html! {
         (Exhibit{name:"Toast".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
-            (VisibleToast{kind:ToastKind::Success,message:"Successfully uploaded 2 file(s)".into()})
-            (VisibleToast{kind:ToastKind::Warning,message:"Uploaded 2 file(s), 1 failed".into()})
+            (VisibleToast{kind:ToastKind::Success,message:"Successfully uploaded 2 file(s)".into()}.render_inert())
+            (VisibleToast{kind:ToastKind::Warning,message:"Uploaded 2 file(s), 1 failed".into()}.render_inert())
         }},words:vec![
-            "A toast is a short message that appears near the top of the page after something happens, stays a few seconds and goes away by itself. The ones shown here stay put.".into(),
-            "Its colour tells you how it went: green for done, orange when only part worked, red for a failure, blue for plain news. After an upload that worked you get one saying how many files went up.".into(),
+            "A toast is a short message that appears near the top of the page after something happens. It stays a few seconds, longer while the pointer rests on it, and then goes away. The ones shown here stay put.".into(),
+            "Its colour is a hint: green for good news, orange for a warning, red for a failure. After an upload that worked you get one saying how many files went up.".into(),
             "You will meet it on the Upload tab, and in Admin Mode on tabs such as DNS and DHCP.".into(),
         ]})
         (Exhibit{name:"Loading spinner".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
@@ -95,8 +95,8 @@ pub fn test_tab() -> Markup {
                 (LoadingSpinner{size,label:Some(label.into()),inline:true,hidden:false,hx:Default::default()})
             }
         }},words:vec![
-            "A spinner is a small turning ring. It means the site is fetching or doing something, and it goes away when that is finished.".into(),
-            "On the Stats tab it turns beside the words Loading network activity... until that panel has its list. In Admin Mode it turns on the DHCP tab while the device list loads.".into(),
+            "A spinner is a small turning ring. It means the site is fetching or doing something and is not finished yet.".into(),
+            "On the Stats tab it turns beside the words Loading network activity... for as long as that panel has no list to show. In Admin Mode it turns on the DHCP tab, beside Loading device identities…, until the device list has been read.".into(),
             "You will meet it on the Stats tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
     });
