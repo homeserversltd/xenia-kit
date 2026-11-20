@@ -10,7 +10,8 @@ and the operator skin.
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
 the theme catalog, author-face names, and the shared theme switcher script
 as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css`
-for guides and exhibits and `library/_health-board.css` for health boards.
+for guides and exhibits, `library/_health-board.css` for health boards, and
+`library/_status-tile.css` for status tiles.
 A guest cartridge still ships no stylesheet beyond a declared `pack.css`
 and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
@@ -104,6 +105,9 @@ children can contain requesting slots.
 - `composite::StatTile` renders a labelled reading with an optional meter and detail; a seated meter without a percent has no value until bound.
 - `composite::StatTileSeats` binds a tile, reading, meter and detail to delegated data.
 - `composite::StatTiles` arranges readings in a labelled grid.
+- `composite::StatusMark` shows a state word beside a decorative dot in one of four tones.
+- `composite::StatusTile` shows a title, optional state mark and reading, and detail lines; it becomes a button when given a guest `DialogId` to open.
+- `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.
 - `composite::EmptyState` explains what is missing and the next step.
 - `composite::GuideLine` describes a paragraph with an optional emphasized lead; `composite::Guide` groups guide paragraphs.

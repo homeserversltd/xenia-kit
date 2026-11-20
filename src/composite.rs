@@ -1,14 +1,14 @@
-//! Base composites: stat tiles, a switch row, an empty state and in-place sub-tabs.
+//! Base composites: stat and status tiles, switch rows, empty states and sub-tabs.
 //!
 //! Each composite is proven in the Test tab before any face wears it. The crown
-//! library paints them (`_stat-tile.css`, `_switch.css`, `_empty-state.css`,
-//! `_sub-tabs.css`); this module emits markup only, with no inline style, so it
-//! also renders under a `style-src 'self'` policy. Data seats let a face bind live
-//! values without writing the markup by hand.
+//! library paints them (`_stat-tile.css`, `_status-tile.css`, `_switch.css`,
+//! `_empty-state.css`, `_sub-tabs.css`); this module emits markup only, with no
+//! inline style, so it also renders under a `style-src 'self'` policy. Data seats
+//! let a face bind live values without writing the markup by hand.
 use maud::{html, Markup, Render};
 
 use crate::fragment::{seat, DataSeat};
-use crate::ux::{Button, ButtonTone};
+use crate::ux::{Button, ButtonTone, DialogId};
 
 /// The reading at or above which a tile takes the warning state, unless set.
 pub const DEFAULT_THRESHOLD: u8 = 90;
@@ -97,6 +97,126 @@ impl Render for StatTiles {
     fn render(&self) -> Markup {
         html! {
             div class="ui-stat-tiles" role="group" aria-label=(&self.label) {
+                @for tile in &self.tiles { (tile) }
+            }
+        }
+    }
+}
+
+/// The state signalled by a status mark's decorative dot.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MarkTone {
+    Good,
+    Moving,
+    Stopped,
+    Idle,
+}
+
+impl MarkTone {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Good => "good",
+            Self::Moving => "moving",
+            Self::Stopped => "stopped",
+            Self::Idle => "idle",
+        }
+    }
+}
+
+/// A state word with a decorative dot that agrees with it.
+#[derive(Clone)]
+pub struct StatusMark {
+    pub tone: MarkTone,
+    /// The visible word that names the state. A blank word omits the mark.
+    pub word: String,
+}
+
+impl StatusMark {
+    pub fn new(tone: MarkTone, word: impl Into<String>) -> Self {
+        Self {
+            tone,
+            word: word.into(),
+        }
+    }
+}
+
+impl Render for StatusMark {
+    fn render(&self) -> Markup {
+        if self.word.trim().is_empty() {
+            return html! {};
+        }
+        html! {
+            span class="ui-status-mark" data-tone=(self.tone.as_str()) {
+                span class="ui-status-mark__dot" aria-hidden="true" {}
+                span class="ui-status-mark__word" { (&self.word) }
+            }
+        }
+    }
+}
+
+/// A status summary, optionally opening a guest dialog in the same pane.
+#[derive(Clone, Default)]
+pub struct StatusTile {
+    pub title: String,
+    pub mark: Option<StatusMark>,
+    pub reading: Option<String>,
+    pub lines: Vec<String>,
+    pub opens: Option<DialogId>,
+}
+
+impl StatusTile {
+    pub fn new(title: impl Into<String>) -> Self {
+        Self {
+            title: title.into(),
+            ..Self::default()
+        }
+    }
+}
+
+impl Render for StatusTile {
+    fn render(&self) -> Markup {
+        let parts = html! {
+            span class="ui-status-tile__head" {
+                span class="ui-status-tile__title" { (&self.title) }
+                @if let Some(mark) = &self.mark { (mark) }
+            }
+            @if let Some(reading) = &self.reading {
+                span class="ui-status-tile__reading" { (reading) }
+            }
+            @for line in &self.lines {
+                span class="ui-status-tile__line" { (line) }
+            }
+        };
+        match &self.opens {
+            Some(id) => {
+                let id = id.as_str();
+                html! {
+                    button class="ui-status-tile" type="button" data-status-tile
+                        data-crown-dialog-open=(id) aria-haspopup="dialog" aria-controls=(id) { (parts) }
+                }
+            }
+            None => html! { article class="ui-status-tile" data-status-tile { (parts) } },
+        }
+    }
+}
+
+/// A labelled, wrapping grid of status tiles with an optional wider column minimum.
+#[derive(Clone, Default)]
+pub struct StatusTiles {
+    pub label: String,
+    pub wide: bool,
+    pub tiles: Vec<StatusTile>,
+}
+
+impl Render for StatusTiles {
+    fn render(&self) -> Markup {
+        let class = if self.wide {
+            "ui-status-tiles ui-status-tiles--wide"
+        } else {
+            "ui-status-tiles"
+        };
+        html! {
+            div class=(class) role="group" aria-label=(&self.label) {
                 @for tile in &self.tiles { (tile) }
             }
         }

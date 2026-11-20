@@ -119,6 +119,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_stat-tile.css"),
     },
     Sheet {
+        path: "library/_status-tile.css",
+        css: include_str!("../style/library/_status-tile.css"),
+    },
+    Sheet {
         path: "library/_sub-tabs.css",
         css: include_str!("../style/library/_sub-tabs.css"),
     },

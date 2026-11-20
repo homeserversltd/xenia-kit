@@ -1,0 +1,105 @@
+/* LIBRARY band: status tiles. The word carries the state; the dot only agrees. */
+.ui-status-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+.ui-status-tiles--wide {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+.ui-status-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+  overflow: clip;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-soft) 55%, var(--background));
+  color: var(--text);
+}
+button.ui-status-tile {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+button.ui-status-tile:hover {
+  border-color: var(--accent);
+}
+button.ui-status-tile:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+.ui-status-tile__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+.ui-status-tile__title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-status-tile__reading {
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 34px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ui-status-tile__line {
+  display: block;
+  overflow: hidden;
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-status-mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+.ui-status-mark__dot {
+  flex: none;
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border: 1px solid color-mix(in srgb, var(--text) 40%, transparent);
+  border-radius: 50%;
+}
+.ui-status-mark[data-tone="good"] .ui-status-mark__dot { background: var(--status-up); }
+.ui-status-mark[data-tone="moving"] .ui-status-mark__dot { background: var(--status-partial); }
+.ui-status-mark[data-tone="stopped"] .ui-status-mark__dot { background: var(--status-down); }
+.ui-status-mark[data-tone="idle"] .ui-status-mark__dot { background: var(--status-unknown); }
+.ui-status-mark__word {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+}

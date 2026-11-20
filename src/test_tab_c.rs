@@ -1,9 +1,12 @@
-//! Category C showcase content: the base composites of TEST-TRANCH-09.
+//! Category C showcase content: the kit's base composites.
 //!
-//! Stat tiles, the switch row, the empty state and in-place sub-tabs, each with
-//! every state working. No HTML element tags or class values are authored here.
+//! No HTML element tags or class values are authored here.
 use crate::{
-    composite::{EmptyState, SettingField, SettingForm, SettingRow, SettingRows, SettingRowSeats, SettingState, StatTile, StatTiles, Switch, SubTab, SubTabs, UpdateCard, UpdateCards, UsageBar, UsageBars, UsageBarState},
+    composite::{
+        EmptyState, MarkTone, SettingField, SettingForm, SettingRow, SettingRowSeats, SettingRows,
+        SettingState, StatTile, StatTiles, StatusMark, StatusTile, StatusTiles, SubTab, SubTabs,
+        Switch, UpdateCard, UpdateCards, UsageBar, UsageBarState, UsageBars,
+    },
     fragment::DataSeat,
     layout::{ShowcaseGrid, ShowcaseItem},
     present::Paragraph,
@@ -55,6 +58,37 @@ fn stat_tiles() -> Markup {
         item("System readings", system_tiles().render()),
         item("States", states.render()),
     ])
+}
+
+fn status_tiles() -> Markup {
+    StatusTiles {
+        label: "Sample statuses".into(),
+        wide: true,
+        tiles: vec![
+            StatusTile {
+                mark: Some(StatusMark::new(MarkTone::Good, "Ready")),
+                reading: Some("24 of 24".into()),
+                lines: vec!["Checks passed: 24".into(), "Checks failed: 0".into()],
+                ..StatusTile::new("Sample counter")
+            },
+            StatusTile {
+                mark: Some(StatusMark::new(MarkTone::Moving, "Working")),
+                lines: vec!["Total: 12".into(), "Complete: 7".into(), "Remaining: 5".into()],
+                ..StatusTile::new("Sample queue")
+            },
+            StatusTile {
+                mark: Some(StatusMark::new(MarkTone::Stopped, "Stopped")),
+                ..StatusTile::new(
+                    "Sample task with a deliberately long name that extends past the available title space",
+                )
+            },
+            StatusTile {
+                mark: Some(StatusMark::new(MarkTone::Idle, "Unknown")),
+                ..StatusTile::new("Sample feed")
+            },
+        ],
+    }
+    .render()
 }
 
 fn switches() -> Markup {
@@ -206,6 +240,7 @@ fn usage_bars() -> Markup {
 pub fn section(id: &str) -> Option<Markup> {
     Some(match id {
         "stat-tiles" => stat_tiles(),
+        "status-tiles" => status_tiles(),
         "switches" => switches(),
         "empty-states" => empty_states(),
         "sub-tabs" => sub_tabs(),
