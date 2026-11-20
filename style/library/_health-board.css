@@ -1,0 +1,91 @@
+/* Health board: a summary and one row per door supplied by the host. */
+.ui-health-board .ui-health-board__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    background: var(--background-alt);
+    border-radius: var(--border-radius);
+}
+.ui-health-board .ui-health-board__count {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .25rem .5rem;
+    margin: 0;
+    color: var(--text-secondary);
+}
+.ui-health-board .ui-health-board__count > strong {
+    color: var(--text);
+    font-size: 1.5rem;
+}
+.ui-health-board .ui-health-board__rows {
+    list-style: none;
+    margin: .75rem 0 0;
+    padding: 0;
+}
+.ui-health-board .ui-health-board__row {
+    display: grid;
+    grid-template-columns: .5rem minmax(0, 1fr) minmax(0, 2fr) max-content max-content;
+    grid-template-areas: "dot name path state sha";
+    align-items: center;
+    gap: .375rem .75rem;
+    padding: .625rem 1rem;
+}
+.ui-health-board .ui-health-board__row + .ui-health-board__row {
+    border-top: 1px solid var(--border);
+}
+.ui-health-board .ui-health-board__dot {
+    grid-area: dot;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background: currentColor;
+}
+.ui-health-board .ui-health-board__name {
+    grid-area: name;
+    color: var(--text);
+}
+.ui-health-board .ui-health-board__path { grid-area: path; }
+.ui-health-board .ui-health-board__state { grid-area: state; }
+.ui-health-board .ui-health-board__sha { grid-area: sha; }
+.ui-health-board .ui-health-board__name,
+.ui-health-board .ui-health-board__path {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ui-health-board .ui-health-board__path,
+.ui-health-board .ui-health-board__sha {
+    font-family: var(--monoFont);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+.ui-health-board .ui-health-board__row[data-state="checking"] .ui-health-board__dot,
+.ui-health-board .ui-health-board__row[data-state="checking"] .ui-health-board__state {
+    color: var(--statusUnknown);
+}
+.ui-health-board .ui-health-board__row[data-state="ok"] .ui-health-board__dot,
+.ui-health-board .ui-health-board__row[data-state="ok"] .ui-health-board__state {
+    color: var(--statusUp);
+}
+.ui-health-board .ui-health-board__row[data-state="none"] .ui-health-board__dot,
+.ui-health-board .ui-health-board__row[data-state="none"] .ui-health-board__state {
+    color: var(--statusDown);
+}
+@media (max-width: 640px) {
+    .ui-health-board .ui-health-board__row {
+        grid-template-columns: .5rem minmax(0, 1fr) max-content;
+        grid-template-areas:
+            "dot name state"
+            ". path path"
+            ". sha sha";
+    }
+    .ui-health-board .ui-health-board__name,
+    .ui-health-board .ui-health-board__path,
+    .ui-health-board .ui-health-board__sha {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}

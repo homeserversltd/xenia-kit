@@ -111,16 +111,16 @@ pub fn test_tab() -> Markup {
        (ConfigPattern{pattern:"grid".into(),marker:"Pattern C".into(),title:"Settings Grid".into(),kind:ConfigKind::Table,body:table.render()})
       }})
     }};
-    let summary=HealthSummary{score:"3 / 4".into(),caption:"systems ready".into(),dependencies:[("Rust shell","Available",HealthState::Healthy),("UX library","Available",HealthState::Healthy),("Portal probes","Partial",HealthState::Partial),("Legacy API","Not connected",HealthState::Unknown)].into_iter().map(|(label,value,state)|HealthDependency{label:label.into(),value:value.into(),state}).collect()};
-    let timeline=HealthTimeline{entries:[("10:42:01","PASS","Shell route answered"),("10:42:02","PASS","UX packs loaded"),("10:42:03","WARN","Portal probe unavailable")].into_iter().map(|(time,outcome,description)|TimelineEntry{time:time.into(),outcome:outcome.into(),description:description.into()}).collect()};
-    let health=Panel{id:"health".into(),active:false,kind:PanelKind::Health,catalog_specimen:Some("test-health-viewports".into()),content:html!{
-      (SubpanelHeader{kicker:"Health specimens".into(),title:"Health Status".into(),description:"Summary, service detail, and diagnostic readouts.".into(),trailing:Badge::new("3 viewports").render()})
-      (ViewLayout{kind:ViewLayoutKind::Health,content:html!{
-       (HealthViewport{id:"summary".into(),kind:HealthViewKind::Summary,marker:"Viewport A".into(),title:"Dashboard Summary".into(),action:HealthCheck{label:"Run Health Check".into()}.render(),body:summary.render()})
-       (HealthViewport{id:"services".into(),kind:HealthViewKind::Services,marker:"Viewport B".into(),title:"Per-Service Health".into(),action:html!{},body:html!{@for (label,value,state) in [("Shell","Healthy",HealthState::Healthy),("Assets","Healthy",HealthState::Healthy),("Portals","Partial",HealthState::Partial),("Worker","Down",HealthState::Down),("Legacy API","Unknown",HealthState::Unknown)]{(HealthReadout{label:label.into(),value:value.into(),state})}}})
-       (HealthViewport{id:"diagnostics".into(),kind:HealthViewKind::Diagnostics,marker:"Viewport C".into(),title:"Timeline and Results".into(),action:html!{},body:html!{(&timeline)(HealthResults{counts:[("8","tests"),("7","passed"),("1","warning")].into_iter().map(|(value,label)|ResultCount{value:value.into(),label:label.into()}).collect()})(HealthOutput{text:r#"{"schema":"coronatio.test.health.v1","status":"ready","passed":7}"#.into()})}})
-      }})
-    }};
+    let health = Panel {
+        id: "health".into(),
+        active: false,
+        kind: PanelKind::Basic,
+        catalog_specimen: None,
+        content: HealthBoard {
+            check_label: "Check again".into(),
+            idle_caption: "Not checked yet".into(),
+        }.render(),
+    };
     let atoms=[("Fade in / out",MotionAtom::Fade,"Fade"),("Slide up / down",MotionAtom::Slide,"Slide"),("Scale presence",MotionAtom::Scale,"Scale"),("Color crossfade",MotionAtom::Color,"Color"),("Height collapse / expand",MotionAtom::Height,"Height")];
     let composed=[("Toggle slider travel",MotionDetailStage::Toggle,"Play"),("Modal fade + scale",MotionDetailStage::Modal{dialog_label:"Dialog".into()},"Play"),("Toast enter / exit",MotionDetailStage::Toast{message:"Settings saved".into()},"Play"),("Progress stripe",MotionDetailStage::Progress,"Start demo"),("Spinner / indicator",MotionDetailStage::Spinner{accessible_label:"Demo indicator".into()},"Start demo")];
     let animations=Panel{id:"animations".into(),active:false,kind:PanelKind::Animations,catalog_specimen:Some("indranet-animation-lab".into()),content:html!{

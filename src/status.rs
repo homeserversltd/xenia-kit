@@ -103,3 +103,36 @@ pub struct HealthCheck { pub label: String }
 impl Render for HealthCheck {
     fn render(&self) -> Markup { html! { button class="ui-button ui-button--primary" data-test-health-check { (&self.label) } } }
 }
+
+/// A health board with an empty row list and an inert template for the host to fill.
+#[derive(Clone, Debug)]
+pub struct HealthBoard {
+    pub check_label: String,
+    pub idle_caption: String,
+}
+
+impl Render for HealthBoard {
+    fn render(&self) -> Markup {
+        html! {
+            section class="ui-health-board" data-health-board {
+                div class="ui-health-board__summary" {
+                    p class="ui-health-board__count" {
+                        strong data-health-board-count { "–" } " "
+                        span data-health-board-caption { (&self.idle_caption) }
+                    }
+                    button type="button" class="ui-button ui-button--primary" data-health-board-check { (&self.check_label) }
+                }
+                ol class="ui-health-board__rows" data-health-board-rows aria-live="polite" {}
+                template data-health-board-row {
+                    li class="ui-health-board__row" data-state="checking" {
+                        span class="ui-health-board__dot" aria-hidden="true" {}
+                        span class="ui-health-board__name" data-health-board-name {}
+                        code class="ui-health-board__path" data-health-board-path {}
+                        span class="ui-health-board__state" data-health-board-state {}
+                        code class="ui-health-board__sha" data-health-board-sha {}
+                    }
+                }
+            }
+        }
+    }
+}

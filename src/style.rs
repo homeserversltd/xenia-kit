@@ -55,6 +55,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_file-input.css"),
     },
     Sheet {
+        path: "library/_health-board.css",
+        css: include_str!("../style/library/_health-board.css"),
+    },
+    Sheet {
         path: "library/_ip-calendar.css",
         css: include_str!("../style/library/_ip-calendar.css"),
     },

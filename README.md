@@ -9,8 +9,10 @@ and the operator skin.
 
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
 the theme catalog, author-face names, and the shared theme switcher script
-as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css` for guides and exhibits. A guest cartridge still ships no
-stylesheet beyond a declared `pack.css` and no JavaScript of its own.
+as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css`
+for guides and exhibits and `library/_health-board.css` for health boards.
+A guest cartridge still ships no stylesheet beyond a declared `pack.css`
+and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
 `default-features = false`. Add `features = ["markup"]` for the markup
 builders without the HTTP stack. The default `builders` feature includes
@@ -189,6 +191,8 @@ children can contain requesting slots.
 `status::HealthResults` renders diagnostic counts.
 `status::HealthOutput` renders an escaped diagnostic readout.
 `status::HealthCheck` renders the delegated health-check action.
+`status::HealthBoard` renders a count, a check button and an empty list with a
+row template; the crown owns the live checks and fills the rows.
 `present::Text` wraps composed inline content in a semantic text element.
 `present::Paragraph` renders escaped paragraph text.
 `present::ShowcaseRow` arranges controls, optionally as a modal catalog.
