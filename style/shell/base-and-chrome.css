@@ -205,6 +205,20 @@
       overflow-x: hidden;
       overflow-y: hidden;
     }
+    /* Draw a centered hairline in each gap while rows are one 48px tab tall. */
+    @media (min-width: 761px) {
+      .tab-bar {
+        --tab-row-height: 48px;
+        --tab-row-gap: 7px;
+        --tab-row-line-start: calc(var(--tab-row-height) + (var(--tab-row-gap) - 1px) / 2);
+        row-gap: var(--tab-row-gap);
+        background: repeating-linear-gradient(to bottom,
+          transparent 0 var(--tab-row-line-start),
+          var(--theme-outline) var(--tab-row-line-start) calc(var(--tab-row-line-start) + 1px),
+          transparent calc(var(--tab-row-line-start) + 1px) calc(var(--tab-row-height) + var(--tab-row-gap))
+        ) padding-box, var(--theme-gradient-surface);
+      }
+    }
     .tab-bar.hidden { display: none; }
     .tab {
       display: grid;
