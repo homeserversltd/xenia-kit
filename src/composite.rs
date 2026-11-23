@@ -13,12 +13,43 @@ use crate::ux::{Button, ButtonTone, DialogId};
 /// The reading at or above which a tile takes the warning state, unless set.
 pub const DEFAULT_THRESHOLD: u8 = 90;
 
+/// Colour band for a raised stat tile's meter or, without a meter, its reading.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Band {
+    Calm,
+    Busy,
+    Hot,
+}
+
+impl Band {
+    /// Calm below 70%, busy from 70%, and hot from 90%.
+    pub fn of_percent(p: f64) -> Band {
+        if p >= 90.0 {
+            Band::Hot
+        } else if p >= 70.0 {
+            Band::Busy
+        } else {
+            Band::Calm
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Calm => "calm",
+            Self::Busy => "busy",
+            Self::Hot => "hot",
+        }
+    }
+}
+
 /// One reading: a label, a large tabular value, an optional 4px meter and detail.
 ///
 /// A tile with a `percent` draws a native `meter` whose `high` mark is the
-/// threshold, so the fill takes the warning colour past it, and the `flag` word
-/// shows with it. A tile without a `percent` draws no bar unless its meter is
-/// seated, in which case it renders a valueless meter for later binding.
+/// threshold. At or above it the `flag` word shows and a flat tile takes
+/// the warning colour. Raised tiles colour the meter (or the reading when
+/// there is no meter) by band instead. A tile without a `percent` draws no bar
+/// unless its meter is seated, in which case it renders a valueless meter for
+/// later binding.
 #[derive(Clone, Default)]
 pub struct StatTile {
     pub label: String,
@@ -29,6 +60,14 @@ pub struct StatTile {
     /// The word shown beside the label in the warning state; "High" when empty.
     pub flag: Option<String>,
     pub seats: StatTileSeats,
+    /// Opt in to the raised face and band colours.
+    pub raised: bool,
+    /// A decorative mark before the label, hidden from assistive technology.
+    pub glyph: Option<String>,
+    /// A unit beside the reading, outside its delegated data seat.
+    pub unit: Option<String>,
+    /// An explicit band for a raised tile, otherwise derived from its percent.
+    pub band: Option<Band>,
 }
 
 /// Delegated data seats for a face that binds a tile's parts to live values.
@@ -63,6 +102,18 @@ impl Render for StatTile {
         let threshold = self.threshold();
         let state = if self.warning() { "warning" } else { "normal" };
         let flag = self.flag.as_deref().unwrap_or("High");
+        let (class, band) = if self.raised {
+            let band = self
+                .band
+                .or_else(|| self.percent.map(|p| Band::of_percent(f64::from(p))));
+            ("ui-stat-tile ui-stat-tile--raised", band.map(Band::as_str))
+        } else {
+            ("ui-stat-tile", None)
+        };
+        let reading = seat(
+            html! {span class="ui-stat-tile__reading" { (&self.reading) }},
+            &self.seats.reading,
+        );
         let meter = if self.percent.is_some() || !self.seats.meter.is_empty() {
             Some(seat(
                 html! {meter class="ui-stat-tile__meter" min="0" max="100" low=(threshold) high=(threshold) optimum="0" value=[self.percent.map(|v| v.min(100))] aria-label=(&self.label) {}},
@@ -70,12 +121,25 @@ impl Render for StatTile {
             ))
         } else { None };
         let tile = html! {
-            article class="ui-stat-tile" data-stat-tile data-state=(state) {
+            article class=(class) data-stat-tile data-state=(state) data-band=[band] {
                 div class="ui-stat-tile__head" {
-                    span class="ui-stat-tile__label" { (&self.label) }
+                    span class="ui-stat-tile__label" {
+                        @if let Some(glyph) = &self.glyph {
+                            span class="ui-stat-tile__glyph" aria-hidden="true" { (glyph) }
+                            " "
+                        }
+                        (&self.label)
+                    }
                     span class="ui-stat-tile__flag" { (flag) }
                 }
-                (seat(html! {span class="ui-stat-tile__reading" { (&self.reading) }}, &self.seats.reading))
+                @if let Some(unit) = &self.unit {
+                    span class="ui-stat-tile__value" {
+                        (reading)
+                        span class="ui-stat-tile__unit" { (unit) }
+                    }
+                } @else {
+                    (reading)
+                }
                 @if let Some(meter) = meter { (meter) }
                 @if self.detail.is_some() || !self.seats.detail.is_empty() {
                     (seat(html! {span class="ui-stat-tile__detail" { (self.detail.as_deref().unwrap_or("")) }}, &self.seats.detail))

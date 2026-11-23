@@ -3,7 +3,7 @@
 //! No HTML element tags or class values are authored here.
 use crate::{
     composite::{
-        EmptyState, MarkTone, SettingField, SettingForm, SettingRow, SettingRowSeats, SettingRows,
+        Band, EmptyState, MarkTone, SettingField, SettingForm, SettingRow, SettingRowSeats, SettingRows,
         SettingState, StatTile, StatTiles, StatusMark, StatusTile, StatusTiles, SubTab, SubTabs,
         Switch, UpdateCard, UpdateCards, UsageBar, UsageBarState, UsageBars,
     },
@@ -54,9 +54,29 @@ fn stat_tiles() -> Markup {
             tile("Unavailable", "—", None, Some("no reading yet")),
         ],
     };
+    let raised = |label, glyph: &str, reading, percent, unit: Option<&str>, band| StatTile {
+        raised: true,
+        glyph: Some(glyph.into()),
+        percent,
+        unit: unit.map(Into::into),
+        band,
+        ..StatTile::new(label, reading)
+    };
+    let raised_readings = StatTiles {
+        label: "Raised readings".into(),
+        tiles: vec![
+            raised("CPU", "↗", "26%", Some(26), None, None),
+            raised("RAM", "◒", "76%", Some(76), None, None),
+            raised("Disk /", "⌂", "93%", Some(93), None, None),
+            raised("Load", "↗", "1.3", None, None, Some(Band::Calm)),
+            raised("Network", "⇅", "553.6", None, Some("KiB/s"), None),
+            raised("Temperature", "℃", "47.6", None, Some("°C"), None),
+        ],
+    };
     grid([
         item("System readings", system_tiles().render()),
         item("States", states.render()),
+        item("Raised readings", raised_readings.render()),
     ])
 }
 

@@ -103,6 +103,7 @@ children can contain requesting slots.
 ## Composite parts
 
 - `composite::StatTile` renders a labelled reading with an optional meter and detail; a seated meter without a percent has no value until bound.
+- Set `StatTile::raised` for the raised look, with an optional decorative `glyph`, a separate `unit`, and a `Band` set explicitly or derived from the percent.
 - `composite::StatTileSeats` binds a tile, reading, meter and detail to delegated data.
 - `composite::StatTiles` arranges readings in a labelled grid.
 - `composite::StatusMark` shows a state word beside a decorative dot in one of four tones.

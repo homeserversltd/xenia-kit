@@ -90,3 +90,46 @@
   white-space: nowrap;
 }
 .ui-stat-tile__detail:empty { display: none; }
+
+/* Raised readings are static; the band colours either the meter or the number. */
+.ui-stat-tile--raised {
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-soft) 90%, white);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+    0 4px 0 color-mix(in srgb, color-mix(in srgb, var(--surface-soft) 90%, white) 60%, black),
+    0 6px 6px color-mix(in srgb, black 30%, transparent);
+}
+.ui-stat-tile--raised .ui-stat-tile__label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.ui-stat-tile--raised .ui-stat-tile__value { white-space: nowrap; }
+.ui-stat-tile--raised .ui-stat-tile__unit {
+  margin-left: 4px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+}
+.ui-stat-tile--raised[data-state="warning"] .ui-stat-tile__reading { color: var(--text); }
+.ui-stat-tile--raised > .ui-stat-tile__meter {
+  color: var(--text-secondary);
+  background: var(--border);
+}
+.ui-stat-tile--raised[data-band="calm"] > .ui-stat-tile__meter,
+.ui-stat-tile--raised[data-band="calm"]:not(:has(> .ui-stat-tile__meter)) .ui-stat-tile__reading { color: var(--success); }
+.ui-stat-tile--raised[data-band="busy"] > .ui-stat-tile__meter,
+.ui-stat-tile--raised[data-band="busy"]:not(:has(> .ui-stat-tile__meter)) .ui-stat-tile__reading { color: var(--warning); }
+.ui-stat-tile--raised[data-band="hot"] > .ui-stat-tile__meter,
+.ui-stat-tile--raised[data-band="hot"]:not(:has(> .ui-stat-tile__meter)) .ui-stat-tile__reading { color: var(--error); }
+.ui-stat-tile--raised .ui-stat-tile__meter::-webkit-meter-bar { background: var(--border); }
+
+/* Keep each engine's native threshold states on the same band colour. */
+.ui-stat-tile--raised .ui-stat-tile__meter::-webkit-meter-optimum-value,
+.ui-stat-tile--raised .ui-stat-tile__meter::-webkit-meter-suboptimum-value,
+.ui-stat-tile--raised .ui-stat-tile__meter::-webkit-meter-even-less-good-value { background: currentColor; }
+.ui-stat-tile--raised .ui-stat-tile__meter::-moz-meter-bar { background: currentColor; }
+.ui-stat-tile--raised .ui-stat-tile__meter:-moz-meter-sub-optimum::-moz-meter-bar,
+.ui-stat-tile--raised .ui-stat-tile__meter:-moz-meter-sub-sub-optimum::-moz-meter-bar { background: currentColor; }
