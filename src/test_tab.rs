@@ -30,11 +30,10 @@ pub fn test_tab() -> Markup {
         ("status-tiles","Status Tiles","Status Tiles",&["status-tile"]),
         ("sub-tabs","Sub-tabs","In-place Sub-tabs",&["sub-tabs"]),
         ("switches","Switches","Switch Rows",&["switch"]), ("empty-states","Empty States","Empty States",&["empty-state"]),
-        ("setting-rows","Setting Rows","Setting Rows",&["setting-row"]),
         ("update-cards","Update Cards","Update Cards",&["update-card"]), ("usage-bars","Usage Bars","Usage Bars",&["usage-bar"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","skeleton-slot","table","collapsible","modals","stat-tiles","status-tiles","sub-tabs","switches","empty-states","setting-rows","update-cards","usage-bars"];
+    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","skeleton-slot","table","collapsible","modals","stat-tiles","status-tiles","sub-tabs","switches","empty-states","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="tabs",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![
@@ -45,6 +44,32 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait. They are in the Messages room.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
+    let tile_order = [("setting-rows", "Setting Rows"), ("secret-tiles", "Secret Tiles")];
+    let selected_tile = "secret-tiles";
+    let tile_showcase = Showcase {
+        scope: "tiles-showcase".into(),
+        identity: "tile-catalog".into(),
+        tabs: TabStrip {
+            label: "Tile categories".into(),
+            depth: TabDepth::Category,
+            categories: true,
+            tabs: tile_order.iter().map(|&(id, label)| TabChoice {
+                id: id.into(), label: label.into(), active: id == selected_tile,
+            }).collect(),
+        },
+        categories: html! {
+            @for (id, title) in tile_order {
+                @let specimen = categories_c::section(id).expect("named tile category");
+                @let content = if id == "secret-tiles" {
+                    html! { div data-catalog-specimen="anatomy" {
+                        p { "Examples only. Nothing is saved here." }
+                        (specimen)
+                    } }
+                } else { specimen };
+                (ShowcaseCategory { id: id.into(), title: title.into(), active: id == selected_tile, content })
+            }
+        },
+    };
     let tiles=room("tiles",false,html! {
         (Exhibit{name:"Portal tile".into(),piece:portal.render(),admin:true,words:vec![
             "A door to a service on your HomeServer, or to a link. On the Portals tab, press a tile and it opens in a new browser tab. The one shown here is for looking at: it opens nothing and its controls change nothing.".into(),
@@ -53,6 +78,7 @@ pub fn test_tab() -> Markup {
             "A service run by a script shows a note in place of the keys: it is managed by its script, and a change to it needs a system restart. A plain link has no keys.".into(),
             "You will meet it on the Portals tab.".into(),
         ]})
+        (tile_showcase)
     });
     let buttons_switches=room("buttons-switches",false,html! {
         (Exhibit{name:"Button".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {

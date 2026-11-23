@@ -561,6 +561,108 @@ impl Render for SettingRows {
     }
 }
 
+/// The input kind for a write-only secret tile field.
+#[derive(Clone, Copy, Default)]
+pub enum SecretTileFieldKind {
+    #[default]
+    Password,
+    Text,
+}
+
+/// One required input, optionally labelled and (for text) pattern-constrained.
+#[derive(Clone, Default)]
+pub struct SecretTileField {
+    pub field: SettingField,
+    pub label: Option<String>,
+    pub kind: SecretTileFieldKind,
+    pub pattern: Option<String>,
+}
+
+/// Delegated data seats for the tile's status, feedback and state word.
+#[derive(Clone, Default)]
+pub struct SecretTileSeats {
+    pub status: Vec<DataSeat>,
+    pub feedback: Vec<DataSeat>,
+    pub word: Vec<DataSeat>,
+}
+
+/// A tile with its own POST form. Inputs never accept or render a stored value.
+#[derive(Clone, Default)]
+pub struct SecretTile {
+    pub label: String,
+    pub about: Option<String>,
+    pub status: Option<String>,
+    pub state: SettingState,
+    pub word: Option<String>,
+    pub fields: Vec<SecretTileField>,
+    /// The submit action; non-submit button and dialog modes are ignored.
+    pub action: Button,
+    pub form: SettingForm,
+    pub seats: SecretTileSeats,
+}
+
+impl Render for SecretTile {
+    fn render(&self) -> Markup {
+        let word = self.word.as_deref().unwrap_or(match self.state {
+            SettingState::Unset => "Not set",
+            SettingState::Ok => "Set",
+            SettingState::Error => "Refused",
+            SettingState::Saving => "Saving",
+        });
+        let action = Button {
+            button_type: false,
+            modal_open: None,
+            crown_dialog_open: None,
+            modal_dismiss: false,
+            ..self.action.clone()
+        };
+        let tile = html! {
+            form class="ui-secret-tile" data-state=(self.state.name()) method="post" action=(&self.form.action) autocomplete="off" {
+                div class="ui-secret-tile__head" {
+                    span class="ui-secret-tile__label" { (&self.label) }
+                    (seat(html! { span class="ui-secret-tile__word" role="status" { (word) } }, &self.seats.word))
+                }
+                @if let Some(about) = &self.about { p class="ui-secret-tile__about" { (about) } }
+                (seat(html! { p class="ui-secret-tile__status" role="status" { (self.status.as_deref().unwrap_or("")) } }, &self.seats.status))
+                @for control in &self.fields {
+                    @let field = &control.field;
+                    @let (kind, pattern, autocomplete) = match control.kind {
+                        SecretTileFieldKind::Password => ("password", None, if field.new_password { "new-password" } else { "off" }),
+                        SecretTileFieldKind::Text => ("text", control.pattern.as_deref(), "off"),
+                    };
+                    label class="ui-secret-tile__field" {
+                        @if let Some(label) = &control.label { span class="ui-input-label" { (label) } }
+                        input class="ui-input" type=(kind) name=(&field.name)
+                            aria-label=[control.label.is_none().then_some(self.label.as_str())]
+                            required minlength=[field.minlength] maxlength=[field.maxlength]
+                            pattern=[pattern] autocomplete=(autocomplete);
+                    }
+                }
+                (action)
+                (seat(html! { p class="ui-secret-tile__feedback" role="status" {} }, &self.seats.feedback))
+            }
+        };
+        seat(tile, &self.form.seats)
+    }
+}
+
+/// A labelled, wrapping grid of write-only secret forms.
+#[derive(Clone, Default)]
+pub struct SecretTiles {
+    pub label: String,
+    pub tiles: Vec<SecretTile>,
+}
+
+impl Render for SecretTiles {
+    fn render(&self) -> Markup {
+        html! {
+            div class="ui-secret-tiles" role="group" aria-label=(&self.label) {
+                @for tile in &self.tiles { (tile) }
+            }
+        }
+    }
+}
+
 /// Delegated seats on an update card and its content.
 #[derive(Clone, Default)]
 pub struct UpdateCardSeats {

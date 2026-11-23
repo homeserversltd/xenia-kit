@@ -10,8 +10,9 @@ and the operator skin.
 `xenia_kit::style` provides the shared sheets in crown order, lookup by path,
 the theme catalog, author-face names, and the shared theme switcher script
 as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css`
-for guides and exhibits, `library/_health-board.css` for health boards, and
-`library/_status-tile.css` for status tiles.
+for guides and exhibits, `library/_health-board.css` for health boards,
+`library/_status-tile.css` for status tiles, and `library/_secret-tile.css`
+for write-only secret tiles.
 A guest cartridge still ships no stylesheet beyond a declared `pack.css`
 and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
@@ -121,6 +122,11 @@ children can contain requesting slots.
 - `composite::SettingRowSeats` binds the status and feedback lines to delegated data.
 - `composite::SettingRow` renders a setting's text and optional controls.
 - `composite::SettingRows` groups settings in a labelled list.
+- `composite::SecretTileFieldKind` selects password or text input.
+- `composite::SecretTileField` describes a required input and its label, bounds and optional text pattern, without a stored value.
+- `composite::SecretTileSeats` binds a tile's status line, feedback and state word to delegated data.
+- `composite::SecretTile` renders one tile and its own write-only POST form.
+- `composite::SecretTiles` groups secret forms in a labelled grid that wraps to fit.
 - `composite::UpdateCardSeats` binds an update card and its path, sentence, diff and feedback.
 - `composite::UpdateCard` renders an interactable file and its diff and actions.
 - `composite::UpdateCards` groups waiting and silenced file cards.

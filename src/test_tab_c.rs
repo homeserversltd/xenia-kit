@@ -1,6 +1,7 @@
 //! Category C showcase content: the kit's base composites.
 //!
 //! No HTML element tags or class values are authored here.
+use crate::composite::{SecretTile, SecretTileField, SecretTileFieldKind, SecretTileSeats, SecretTiles};
 use crate::{
     composite::{
         Band, EmptyState, MarkTone, SettingField, SettingForm, SettingRow, SettingRowSeats, SettingRows,
@@ -224,6 +225,63 @@ fn setting_rows() -> Markup {
     ])
 }
 
+fn secret_tiles() -> Markup {
+    let marker = |name: &str| vec![DataSeat::new(name, None).expect("valid seat")];
+    let tile = |label: &str, action: &str| SecretTile {
+        label: label.into(),
+        action: Button { disabled: true, ..Button::new(action) },
+        form: SettingForm { action: "#".into(), seats: marker("data-secret-form") },
+        seats: SecretTileSeats {
+            status: marker("data-secret-status"),
+            feedback: marker("data-secret-feedback"),
+            word: marker("data-secret-word"),
+        },
+        ..SecretTile::default()
+    };
+    let password = |name: &str, label: &str, maxlength| SecretTileField {
+        field: SettingField { name: name.into(), maxlength, ..SettingField::default() },
+        label: Some(label.into()),
+        ..SecretTileField::default()
+    };
+    SecretTiles {
+        label: "Secrets".into(),
+        tiles: vec![
+            SecretTile {
+                status: Some("Connected to Forgejo.".into()),
+                state: SettingState::Ok,
+                fields: vec![password("token", "Token", None)],
+                ..tile("Forgejo token", "Set")
+            },
+            SecretTile {
+                about: Some("For the voice bot".into()),
+                state: SettingState::Ok,
+                word: Some("Saved".into()),
+                fields: vec![password("value", "Value", Some(511))],
+                ..tile("OPENAI_KEY", "Replace")
+            },
+            SecretTile {
+                fields: vec![
+                    SecretTileField {
+                        field: SettingField { name: "name".into(), maxlength: Some(64), ..SettingField::default() },
+                        label: Some("Name".into()),
+                        kind: SecretTileFieldKind::Text,
+                        pattern: Some("[A-Za-z0-9_]{1,64}".into()),
+                    },
+                    SecretTileField {
+                        field: SettingField { name: "about".into(), maxlength: Some(200), ..SettingField::default() },
+                        label: Some("What it's for".into()),
+                        kind: SecretTileFieldKind::Text,
+                        pattern: None,
+                    },
+                    password("value", "Value", Some(511)),
+                ],
+                ..tile("Any named key", "Put")
+            },
+        ],
+    }
+    .render()
+}
+
 fn update_cards() -> Markup {
     let waiting = UpdateCard {
         id: "hermes-config".into(), path: "/etc/hermes/config.yaml".into(),
@@ -265,6 +323,7 @@ pub fn section(id: &str) -> Option<Markup> {
         "empty-states" => empty_states(),
         "sub-tabs" => sub_tabs(),
         "setting-rows" => setting_rows(),
+        "secret-tiles" => secret_tiles(),
         "update-cards" => update_cards(),
         "usage-bars" => usage_bars(),
         _ => return None,

@@ -95,6 +95,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_row-info-tile.css"),
     },
     Sheet {
+        path: "library/_secret-tile.css",
+        css: include_str!("../style/library/_secret-tile.css"),
+    },
+    Sheet {
         path: "library/_select.css",
         css: include_str!("../style/library/_select.css"),
     },
