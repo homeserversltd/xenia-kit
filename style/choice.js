@@ -35,7 +35,7 @@ document.addEventListener('change', event => {
 document.addEventListener('click', event => {
   const option = event.target instanceof Element ? event.target.closest('.ui-choice__option') : null;
   const choice = option?.closest(selector);
-  if (!choice) return;
+  if (!choice || event.detail === 0) return;
   // Label activation and the radio's change complete before the next task.
   setTimeout(() => {
     sync(choice);
@@ -57,7 +57,13 @@ document.addEventListener('keydown', event => {
   const input = event.target;
   if ((event.key === 'Enter' || event.key === ' ') && input instanceof HTMLInputElement && input.matches('.ui-choice__option .ui-choice__input[type="radio"]') && input.closest(selector)) {
     event.preventDefault();
-    input.click();
+    if (!input.checked) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    const choice = input.closest(selector);
+    choice.open = false;
+    choice.querySelector('[data-ui-choice-current]')?.focus();
   }
 });
 })();
