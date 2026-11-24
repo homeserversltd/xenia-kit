@@ -8,7 +8,7 @@
 use maud::{html, Markup, Render};
 
 use crate::fragment::{seat, DataSeat};
-use crate::ux::{Button, ButtonTone, DialogId};
+use crate::ux::{Button, ButtonTone, DialogId, Icon, IconButton, Shape, Size};
 
 /// One radio option with a decorative icon and explanatory line.
 #[derive(Clone, Default)]
@@ -286,6 +286,100 @@ impl Render for StatusMark {
                 span class="ui-status-mark__word" { (&self.word) }
             }
         }
+    }
+}
+
+/// One labelled fact; seats bind its value.
+#[derive(Clone, Default)]
+pub struct DetailFact { pub label: String, pub value: String, pub seats: Vec<DataSeat> }
+
+/// A captioned group of facts.
+#[derive(Clone, Default)]
+pub struct DetailGroup { pub label: String, pub facts: Vec<DetailFact>, pub seats: Vec<DataSeat> }
+
+/// A captioned state with an optional action.
+#[derive(Clone)]
+pub struct DetailStatus { pub label: String, pub mark: StatusMark, pub action: Option<Markup> }
+
+/// Delegated seats on the sheet and its parts.
+#[derive(Clone, Default)]
+pub struct DetailSheetSeats {
+    pub sheet: Vec<DataSeat>, pub glyph: Vec<DataSeat>, pub close: Vec<DataSeat>,
+    pub name: Vec<DataSeat>, pub subtitle: Vec<DataSeat>, pub role: Vec<DataSeat>,
+    pub reading: Vec<DataSeat>, pub meter: Vec<DataSeat>, pub detail: Vec<DataSeat>,
+    pub status: Vec<DataSeat>, pub status_action: Vec<DataSeat>, pub actions: Vec<DataSeat>,
+}
+
+/// One thing's identity, usage, facts, state and available actions.
+#[derive(Clone, Default)]
+pub struct DetailSheet {
+    pub glyph: Option<String>, pub name: String, pub name_id: Option<String>, pub subtitle: Option<String>,
+    pub role: Option<StatusMark>, pub close_label: Option<String>,
+    pub reading: Option<String>, pub value: f64, pub max: f64, pub detail: Option<String>, pub usage: bool,
+    pub groups: Vec<DetailGroup>, pub status: Option<DetailStatus>, pub actions: Option<Markup>,
+    pub seats: DetailSheetSeats,
+}
+
+impl Render for DetailSheet {
+    fn render(&self) -> Markup {
+        let max = if self.max.is_finite() { self.max.max(0.000001) } else { 0.000001 };
+        let value = if self.value.is_finite() { self.value.clamp(0.0, max) } else { 0.0 };
+        let sheet = html! {
+            article class="ui-detail-sheet" {
+                div class="ui-detail-sheet__head" {
+                    @if self.glyph.is_some() || !self.seats.glyph.is_empty() {
+                        (seat(html! { span class="ui-detail-sheet__glyph" aria-hidden="true" { (self.glyph.as_deref().unwrap_or("")) } }, &self.seats.glyph))
+                    }
+                    div class="ui-detail-sheet__identity" {
+                        (seat(html! { h2 class="ui-detail-sheet__name" id=[self.name_id.as_deref()] { (&self.name) } }, &self.seats.name))
+                        @if self.subtitle.is_some() || !self.seats.subtitle.is_empty() {
+                            (seat(html! { p class="ui-detail-sheet__subtitle" { (self.subtitle.as_deref().unwrap_or("")) } }, &self.seats.subtitle))
+                        }
+                    }
+                    @if let Some(role) = &self.role { (seat(role.render(), &self.seats.role)) }
+                    @if let Some(label) = &self.close_label {
+                        span class="ui-detail-sheet__close" {
+                            (seat(IconButton { icon: Icon::Text("×"), size: Size::Small, shape: Shape::Square, label: label.clone(), disabled: false, ghost: true, danger: false, hx: Default::default() }.render(), &self.seats.close))
+                        }
+                    }
+                }
+                @if self.usage || !self.seats.reading.is_empty() || !self.seats.meter.is_empty() || !self.seats.detail.is_empty() {
+                    div class="ui-detail-sheet__usage" {
+                        (seat(html! { span class="ui-detail-sheet__reading" { (self.reading.as_deref().unwrap_or("")) } }, &self.seats.reading))
+                        (seat(html! { meter class="ui-detail-sheet__meter" min="0" max=(max) value=(value) aria-label=(self.reading.as_deref().unwrap_or(&self.name)) {} }, &self.seats.meter))
+                        @if self.detail.is_some() || !self.seats.detail.is_empty() {
+                            (seat(html! { span class="ui-detail-sheet__detail" { (self.detail.as_deref().unwrap_or("")) } }, &self.seats.detail))
+                        }
+                    }
+                }
+                @for group in &self.groups {
+                    (seat(html! { section class="ui-detail-sheet__group" {
+                        p class="ui-detail-sheet__group-label" { (&group.label) }
+                        dl class="ui-detail-sheet__facts" {
+                            @for fact in &group.facts { div class="ui-detail-sheet__fact" {
+                                dt { (&fact.label) }
+                                (seat(html! { dd { (&fact.value) } }, &fact.seats))
+                            } }
+                        }
+                    } }, &group.seats))
+                }
+                @if let Some(status) = &self.status {
+                    (seat(html! { section class="ui-detail-sheet__group ui-detail-sheet__group--status" {
+                        p class="ui-detail-sheet__group-label" { (&status.label) }
+                        div class="ui-detail-sheet__status" {
+                            (&status.mark)
+                            @if status.action.is_some() || !self.seats.status_action.is_empty() {
+                                (seat(html! { span class="ui-detail-sheet__status-action" { @if let Some(action) = &status.action { (action) } } }, &self.seats.status_action))
+                            }
+                        }
+                    } }, &self.seats.status))
+                }
+                @if self.actions.is_some() || !self.seats.actions.is_empty() {
+                    (seat(html! { div class="ui-detail-sheet__actions" { @if let Some(actions) = &self.actions { (actions) } } }, &self.seats.actions))
+                }
+            }
+        };
+        seat(sheet, &self.seats.sheet)
     }
 }
 

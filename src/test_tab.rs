@@ -1,7 +1,7 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape, LoadingSpinner, ToastKind, VisibleToast}};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit, DetailFact, DetailGroup, DetailStatus, DetailSheet, MarkTone, StatusMark}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape, LoadingSpinner, ToastKind, VisibleToast}};
 
 fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 
@@ -42,6 +42,7 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
         GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off. They are in the Buttons & switches room, with the icon button.".into()},
         GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait. They are in the Messages room.".into()},
+        GuideLine{lead:Some("Details".into()),text:" are how the site shows one thing in full: its name, how full it is, its facts, its state and what you can do with it. In Admin Mode, press a drive on the Admin tab and its details open. The detail sheet is in the Details room.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
     let tile_order = [("setting-rows", "Setting Rows"), ("secret-tiles", "Secret Tiles")];
@@ -128,6 +129,25 @@ pub fn test_tab() -> Markup {
             "You will meet it on the Stats tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
     });
+    let facts = |items: &[(&str, &str)]| items.iter().map(|(label, value)| DetailFact { label: (*label).into(), value: (*value).into(), seats: vec![] }).collect();
+    let sample_button = |text: &str| Button { text: text.into(), tone: Some(ButtonTone::Secondary), size: Some(Size::Small), button_type: true, ..Button::default() };
+    let details=room("details",false,html! {
+        (Exhibit { name:"Detail sheet".into(), admin:true, piece: DetailSheet {
+            glyph:Some("▣".into()), name:"homeserver-primary-nas".into(), subtitle:Some("SABRENT · USB · 3.6 TB".into()),
+            role:Some(StatusMark::new(MarkTone::Good,"Your NAS")), close_label:Some("Close".into()),
+            usage:true, reading:Some("1.5 TB free of 3.6 TB".into()), value:2.1, max:3.6, detail:Some("58% used".into()),
+            groups:vec![
+                DetailGroup { label:"Drive".into(), facts:facts(&[("Device","sdb"),("Partition","sdb1"),("Serial","DD5641988396B")]), seats:vec![] },
+                DetailGroup { label:"Storage".into(), facts:facts(&[("Filesystem","xfs"),("Encryption","Unlocked"),("Mounted at","/mnt/nas")]), seats:vec![] },
+            ],
+            status:Some(DetailStatus { label:"Health".into(), mark:StatusMark::new(MarkTone::Idle,"Not tested yet"), action:Some(sample_button("Test drive").render()) }),
+            actions:Some(sample_button("Eject safely").render()), ..DetailSheet::default()
+        }.render(), words:vec![
+            "A detail sheet shows one thing in full on a single card, so you can check it and act on it without hunting: its name at the top, how full it is, its facts in small labelled groups, its state, and the things you can do with it. The one shown here is for looking at: its buttons do nothing.".into(),
+            "When the drive's space is known, the bar shows how much of it is used, and the words above it say how much is free. A small dot beside a word is only a hint: the word always says what it means.".into(),
+            "In Admin Mode you will meet it on the Admin tab: press a drive and its details open.".into(),
+        ] })
+    });
     let readbacks=[("Capabilities",[("Component catalog","Enabled"),("Health checks","Enabled")]),("Settings",[("Default section","Component Showcase"),("Refresh interval","30 seconds")])];
     let editor=ConfigEditor{name_label:"Display name".into(),name:"Test catalog".into(),selection_label:"Default section".into(),choices:["Component Showcase","How it works"].into_iter().map(|label|ConfigChoice{label:label.into()}).collect(),toggle_label:"Automatic health checks".into(),checked:true,reset_label:"Reset".into(),save_label:"Save".into()};
     let table=SettingsTable{headings:["Setting".into(),"Value".into(),"Source".into(),"Status".into()],rows:[("Default tab","showcase","shell","Active"),("Health interval","30s","profile","Active"),("External actions","disabled","catalog","Specimen")].into_iter().map(|(setting,value,source,status)|SettingsRow{setting:setting.into(),value:value.into(),source:source.into(),status:status.into()}).collect()};
@@ -162,7 +182,7 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("messages","Messages"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(messages)(animations)(showcase)(config)(health)}};
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("messages","Messages"),("details","Details"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(messages)(details)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }

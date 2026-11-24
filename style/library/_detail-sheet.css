@@ -1,0 +1,25 @@
+/* LIBRARY band: detail sheet, TEST-TRANCH-19 (pali:workflow-coronatio-test-tab-indra-ux-bedrock-tablet). */
+.ui-detail-sheet { min-width: 0; color: var(--text); }
+.ui-detail-sheet__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-width: 0; }
+.ui-detail-sheet__glyph { color: var(--text-secondary); font-size: 20px; }
+.ui-detail-sheet__identity { flex: 1 1 12rem; min-width: 0; }
+.ui-detail-sheet__name { margin: 0; font-size: 17px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.ui-detail-sheet__subtitle { margin: 0; font-size: 13px; color: var(--text-secondary); }
+.ui-detail-sheet__close { display: flex; }
+.ui-detail-sheet__usage { display: grid; gap: 4px; min-width: 0; margin-top: 16px; }
+.ui-detail-sheet__reading { font-size: 14px; color: var(--text); }
+.ui-detail-sheet__meter { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 8px; margin: 0; border: 0; border-radius: 4px; background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
+.ui-detail-sheet__meter::-webkit-meter-inner-element { display: block; height: 8px; }
+.ui-detail-sheet__meter::-webkit-meter-bar { height: 8px; border: 0; border-radius: 4px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+.ui-detail-sheet__meter::-webkit-meter-optimum-value, .ui-detail-sheet__meter::-webkit-meter-suboptimum-value, .ui-detail-sheet__meter::-webkit-meter-even-less-good-value { border-radius: 4px; background: var(--accent); }
+.ui-detail-sheet__meter::-moz-meter-bar { border-radius: 4px; background: var(--accent); }
+.ui-detail-sheet__detail { font-size: 12px; color: var(--text-muted); }
+.ui-detail-sheet__group { margin-top: 16px; padding-top: 16px; border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent); min-width: 0; }
+.ui-detail-sheet__group-label { margin: 0 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.ui-detail-sheet__facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); row-gap: 12px; column-gap: 16px; margin: 0; min-width: 0; }
+.ui-detail-sheet__fact { min-width: 0; }
+.ui-detail-sheet__fact dt { font-size: 12px; color: var(--text-muted); }
+.ui-detail-sheet__fact dd { margin: 0; font-size: 14px; color: var(--text); overflow-wrap: anywhere; }
+.ui-detail-sheet__status { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ui-detail-sheet__actions { display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: var(--surface); padding-block: 12px; margin-top: 16px; border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+@media (max-width: 639px) { .ui-detail-sheet__actions { flex-wrap: wrap; } }

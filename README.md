@@ -110,6 +110,8 @@ children can contain requesting slots.
 - `composite::StatTileSeats` binds a tile, reading, meter and detail to delegated data.
 - `composite::StatTiles` arranges readings in a labelled grid.
 - `composite::StatusMark` shows a state word beside a decorative dot in one of four tones.
+- `composite::DetailSheet` shows identity, usage, fact groups, state and actions; `DetailSheetSeats` binds its parts.
+- `composite::DetailGroup` groups `DetailFact` values; `DetailStatus` supplies a state mark and optional action.
 - `composite::StatusTile` shows a title, optional state mark and reading, and detail lines; it becomes a button when given a guest `DialogId` to open.
 - `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.
