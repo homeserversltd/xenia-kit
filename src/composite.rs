@@ -10,6 +10,52 @@ use maud::{html, Markup, Render};
 use crate::fragment::{seat, DataSeat};
 use crate::ux::{Button, ButtonTone, DialogId};
 
+/// One radio option with a decorative icon and explanatory line.
+#[derive(Clone, Default)]
+pub struct ChoiceOption {
+    pub value: String,
+    pub icon: String,
+    pub title: String,
+    pub line: String,
+    pub checked: bool,
+}
+
+/// An in-flow explained choice list backed by native radio controls.
+#[derive(Clone, Default)]
+pub struct Choice {
+    pub name: String,
+    pub label: String,
+    pub options: Vec<ChoiceOption>,
+    pub seats: Vec<DataSeat>,
+}
+
+impl Render for Choice {
+    fn render(&self) -> Markup {
+        let selected = self.options.iter().position(|option| option.checked);
+        let current = selected.and_then(|i| self.options.get(i)).or_else(|| self.options.first());
+        seat(html! {
+            details class="ui-choice" data-ui-choice {
+                summary class="ui-choice__current" data-ui-choice-current {
+                    @if let Some(option) = current {
+                        i class=(format!("ui-choice__icon fas {}", option.icon)) aria-hidden="true" {}
+                        span class="ui-choice__title" { (&option.title) }
+                    }
+                }
+                div class="ui-choice__list" role="radiogroup" aria-label=(&self.label) {
+                    @for (index, option) in self.options.iter().enumerate() {
+                        label class="ui-choice__option" {
+                            input class="ui-choice__input" type="radio" name=(&self.name) value=(&option.value) checked[selected == Some(index)];
+                            i class=(format!("ui-choice__icon fas {}", option.icon)) aria-hidden="true" {}
+                            span class="ui-choice__title" { (&option.title) }
+                            span class="ui-choice__line" { (&option.line) }
+                        }
+                    }
+                }
+            }
+        }, &self.seats)
+    }
+}
+
 /// The reading at or above which a tile takes the warning state, unless set.
 pub const DEFAULT_THRESHOLD: u8 = 90;
 

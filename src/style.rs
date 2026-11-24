@@ -39,6 +39,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_checkbox.css"),
     },
     Sheet {
+        path: "library/_choice.css",
+        css: include_str!("../style/library/_choice.css"),
+    },
+    Sheet {
         path: "library/_collapsible.css",
         css: include_str!("../style/library/_collapsible.css"),
     },
@@ -200,6 +204,7 @@ pub const THEME_CATALOG: &str = include_str!("../style/theme/catalog.json");
 pub const AUTHOR_FACE: &str = include_str!("../style/author-face.json");
 pub const THEME_SCRIPT: &str = include_str!("../style/theme.js");
 pub const EXPLAIN_SCRIPT: &str = include_str!("../style/explain.js");
+pub const CHOICE_SCRIPT: &str = include_str!("../style/choice.js");
 
 /// The catalog-derived theme properties for pages that paint before it loads.
 #[cfg(feature = "builders")]

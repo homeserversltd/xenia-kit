@@ -2,8 +2,10 @@
 
 Build a household cartridge in Rust from the crown's typed UI components. Builders
 implement `maud::Render`, so composition is ordinary `html! { (component) }`.
-Text and attribute values are escaped. The crown supplies JavaScript behavior
-and the operator skin.
+Text and attribute values are escaped. The kit ships the face-shared scripts
+`THEME_SCRIPT`, `EXPLAIN_SCRIPT`, and `CHOICE_SCRIPT`; each face serves them
+under its own policy. A guest cartridge still ships no JavaScript. The crown
+supplies the operator skin.
 
 ## Shared style
 
@@ -111,6 +113,7 @@ children can contain requesting slots.
 - `composite::StatusTile` shows a title, optional state mark and reading, and detail lines; it becomes a button when given a guest `DialogId` to open.
 - `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.
+- `composite::Choice` and `ChoiceOption` render an explained radio dropdown.
 - `composite::EmptyState` explains what is missing and the next step.
 - `composite::GuideLine` describes a paragraph with an optional emphasized lead; `composite::Guide` groups guide paragraphs.
 - `composite::Exhibit` places a composed piece beside its name and plain explanation; the piece can be shown in admin form.

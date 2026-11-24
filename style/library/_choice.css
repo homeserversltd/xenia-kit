@@ -1,0 +1,26 @@
+.ui-choice { width: 100%; }
+.ui-choice__current {
+  display: flex; align-items: center; gap: .75rem; box-sizing: border-box;
+  width: 100%; padding: .625rem .75rem; border: 1px solid var(--border);
+  border-radius: var(--border-radius, 6px); background: var(--background);
+  color: var(--text); font: inherit; font-size: 14px; line-height: 1.5;
+  cursor: pointer; list-style: none;
+}
+.ui-choice__current::-webkit-details-marker { display: none; }
+.ui-choice__current:hover { border-color: var(--primary); background: var(--primaryHover); }
+.ui-choice__current:focus-visible, .ui-choice__option:focus-within {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+.ui-choice__list { display: grid; gap: .25rem; padding: .5rem 0; }
+.ui-choice__option {
+  display: grid; grid-template-columns: auto 1fr; column-gap: .75rem;
+  align-items: center; padding: .625rem .75rem; border: 1px solid var(--border);
+  border-radius: var(--border-radius, 6px); cursor: pointer;
+  background: var(--background); color: var(--text);
+}
+.ui-choice__option:hover { border-color: var(--primary); }
+.ui-choice__input { grid-column: 1; grid-row: 1 / span 2; }
+.ui-choice__option .ui-choice__icon { grid-column: 2; grid-row: 1; margin-right: .5rem; }
+.ui-choice__option .ui-choice__title { grid-column: 2; grid-row: 1; padding-left: 1.75rem; }
+.ui-choice__line { grid-column: 2; color: var(--text-muted); font-size: .875rem; }
