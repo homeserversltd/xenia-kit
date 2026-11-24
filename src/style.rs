@@ -11,6 +11,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/shell/base-and-chrome.css"),
     },
     Sheet {
+        path: "shell/explain.css",
+        css: include_str!("../style/shell/explain.css"),
+    },
+    Sheet {
         path: "library/_badge.css",
         css: include_str!("../style/library/_badge.css"),
     },
@@ -195,6 +199,7 @@ pub fn sheet(path: &str) -> Option<&'static str> {
 pub const THEME_CATALOG: &str = include_str!("../style/theme/catalog.json");
 pub const AUTHOR_FACE: &str = include_str!("../style/author-face.json");
 pub const THEME_SCRIPT: &str = include_str!("../style/theme.js");
+pub const EXPLAIN_SCRIPT: &str = include_str!("../style/explain.js");
 
 /// The catalog-derived theme properties for pages that paint before it loads.
 #[cfg(feature = "builders")]
