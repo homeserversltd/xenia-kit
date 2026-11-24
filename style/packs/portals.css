@@ -744,3 +744,18 @@
 }
 
 .portal-form:has(input[name="type"][value="link"]:checked) [data-portal-service-fields] { display: none; }
+
+.portal-form .form-group .ui-choice {
+  & .ui-choice__option {
+    display: grid; margin-bottom: 0; font-weight: revert; font-size: revert; color: var(--text);
+  }
+  & .ui-choice__input {
+    all: revert; grid-column: 1; grid-row: 1 / span 2;
+  }
+}
+
+.portal-form .form-group {
+  position: relative;
+  & button[data-explain-dot] { position: static; }
+  & button[data-explain-dot]::after { left: 0; right: 0; width: auto; max-width: none; }
+}
