@@ -56,6 +56,31 @@ impl Render for Choice {
     }
 }
 
+/// A collapsible bubble whose body stays in the document flow.
+#[derive(Clone, Default)]
+pub struct CollapsibleBubble {
+    pub title: String,
+    pub line: String,
+    pub open: bool,
+    pub seats: Vec<DataSeat>,
+    pub body: Markup,
+}
+
+impl Render for CollapsibleBubble {
+    fn render(&self) -> Markup {
+        seat(html! {
+            details class="ui-collapsible ui-collapsible--bubble" open[self.open] {
+                summary class="ui-collapsible__header" {
+                    span class="ui-collapsible__title" { (&self.title) }
+                    span class="ui-collapsible__line" { (&self.line) }
+                    i class="ui-collapsible__icon fas fa-chevron-down" aria-hidden="true" {}
+                }
+                div class="ui-collapsible__content" { (&self.body) }
+            }
+        }, &self.seats)
+    }
+}
+
 /// The reading at or above which a tile takes the warning state, unless set.
 pub const DEFAULT_THRESHOLD: u8 = 90;
 

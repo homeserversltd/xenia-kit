@@ -114,6 +114,7 @@ children can contain requesting slots.
 - `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.
 - `composite::Choice` and `ChoiceOption` render an explained radio dropdown.
+- `composite::CollapsibleBubble` renders a rounded, in-flow disclosure.
 - `composite::EmptyState` explains what is missing and the next step.
 - `composite::GuideLine` describes a paragraph with an optional emphasized lead; `composite::Guide` groups guide paragraphs.
 - `composite::Exhibit` places a composed piece beside its name and plain explanation; the piece can be shown in admin form.

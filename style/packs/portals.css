@@ -742,3 +742,5 @@
 @media (prefers-reduced-motion: reduce) {
   .portal-card-face { transition-duration: .001ms !important; }
 }
+
+.portal-form:has(input[name="type"][value="link"]:checked) [data-portal-service-fields] { display: none; }
