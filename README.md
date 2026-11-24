@@ -93,7 +93,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on How it works, followed by Tiles, Buttons & switches, Messages, Motion, Component Showcase, Configuration and Health Status. The guide explains the pieces; Tiles exhibits one portal tile, and Messages exhibits the toast and loading spinner. Other families remain in their existing panels.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on How it works, followed by Tiles, Buttons & switches, Messages, Details, Motion, Component Showcase, Configuration and Health Status. The guide explains the pieces; Tiles exhibits one portal tile, Messages exhibits the toast and loading spinner, and Details exhibits a detail sheet. Other families remain in their existing panels.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
