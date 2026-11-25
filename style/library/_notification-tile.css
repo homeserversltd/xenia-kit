@@ -65,7 +65,8 @@
 .ui-notification-tile__title { margin: 0; font-size: 16px; font-weight: 600; line-height: 22px; color: var(--text); overflow-wrap: anywhere; }
 .ui-notification-tile__body { margin: 0; font-size: 14px; line-height: 20px; color: var(--text); overflow-wrap: anywhere; }
 .ui-notification-tile__fields { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ui-notification-tile .ui-input-label { color: var(--text); }
 .ui-notification-tile__foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-.ui-notification-tile__feedback { margin: 0; font-size: 13px; line-height: 18px; color: var(--text); }
-.ui-notification-tile__feedback:empty { display: none; }
+.ui-notification-tile__feedback { margin: 0; font-size: 13px; line-height: 18px; color: var(--text); overflow-wrap: anywhere; }
+.ui-notification-tile__feedback:empty { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ui-notification-tile [hidden] { display: none; }

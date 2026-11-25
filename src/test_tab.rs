@@ -137,10 +137,10 @@ pub fn test_tab() -> Markup {
                 NotificationTile { tone:NoticeTone::Blue, tag:"homeserver".into(), title:"Update available".into(), body:Some("3 modules behind".into()), hidden:true, ..NotificationTile::default() },
             ],
         }.render(), words:vec![
-            "A notification tile is one message from your house, shown on the bell while it still holds. At the top it names the box it is about, with a dot and a word for how much it matters: red for an Alert, amber for a Warning, blue for Info. The tiles shown here are examples, for looking at: their buttons do nothing.".into(),
-            "Some tiles carry a button for the one thing you can do about them. A request from a new box to join your house has an Accept button, with the names it will answer to ready to change. On the bell these buttons appear in Admin Mode, and this exhibit shows them as they look there; without Admin Mode you see the tile and Hide.".into(),
-            "Hide puts a tile away without deleting it, and anyone can press it. Hidden tiles are not counted on the bell. Press Hidden at the foot of the bell to see them, set aside and drawn flat, and press Unhide to bring one back.".into(),
-            "You will meet it behind the bell at the top of the page, on the HomeServer and on HomeSI.".into(),
+            "A notification tile is one message from your house, shown on the bell for as long as it is still true. At the top it names the box it is about and, when the message has a colour, a dot and a word for how much it matters: red for an Alert, amber for a Warning, blue for Info. The tiles shown here are examples, for looking at: their buttons do nothing.".into(),
+            "Some tiles carry a button for the one thing you can do about them. A request from a new box to join your house has an Accept button, with the names it will answer to ready to change. On the bell these buttons appear in Admin Mode, and this exhibit shows them as they look there; without Admin Mode you see the tile and Hide, and a line saying the owner can act on it in Admin Mode.".into(),
+            "Hide puts a tile away without deleting it, and anyone can press it. Hidden tiles are not counted on the bell. Press Hidden at the foot of the window to see them, set aside and drawn flat, and press Unhide to bring one back.".into(),
+            "You will meet it in the window the bell opens at the top of the page, on the HomeServer and on HomeSI.".into(),
         ] })
     });
     let facts = |items: &[(&str, &str)]| items.iter().map(|(label, value)| DetailFact { label: (*label).into(), value: (*value).into(), seats: vec![] }).collect();
