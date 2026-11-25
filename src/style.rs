@@ -179,6 +179,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_detail-sheet.css"),
     },
     Sheet {
+        path: "library/_notification-tile.css",
+        css: include_str!("../style/library/_notification-tile.css"),
+    },
+    Sheet {
         path: "library/_visibility-toggle.css",
         css: include_str!("../style/library/_visibility-toggle.css"),
     },

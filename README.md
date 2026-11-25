@@ -93,7 +93,7 @@ specimen index order. Layout builders compose a cartridge's own panes; crown
 integration is separate, and the crown owns visible toasts and scaffold lifecycle
 states.
 
-`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on How it works, followed by Tiles, Buttons & switches, Messages, Details, Motion, Component Showcase, Configuration and Health Status. The guide explains the pieces; Tiles exhibits one portal tile, Messages exhibits the toast and loading spinner, and Details exhibits a detail sheet. Other families remain in their existing panels.
+`xenia_kit::test_tab()` (also `showcase::test_tab()`) opens on How it works, followed by Tiles, Buttons & switches, Messages, Details, Motion, Component Showcase, Configuration and Health Status. The guide explains the pieces; Tiles exhibits one portal tile, Messages exhibits the toast, the loading spinner and the notification tile, and Details exhibits a detail sheet. Other families remain in their existing panels.
 
 `VisibleToast` renders a visible notification; `Toast` remains the separate request builder.
 `ScaffoldSlot::new(guest_id, name, state)` validates the guest and slot names.
@@ -112,6 +112,10 @@ children can contain requesting slots.
 - `composite::StatusMark` shows a state word beside a decorative dot in one of four tones.
 - `composite::DetailSheet` shows identity, usage, fact groups, state and actions; `DetailSheetSeats` binds its parts.
 - `composite::DetailGroup` groups `DetailFact` values; `DetailStatus` supplies a state mark and optional action.
+- `composite::NoticeTone` selects red, amber, blue or no notification colour.
+- `composite::NotificationTileSeats` binds the tile and its parts to delegated data.
+- `composite::NotificationTile` renders one notification with optional inputs and action.
+- `composite::NotificationTiles` groups notifications in a labelled list.
 - `composite::StatusTile` shows a title, optional state mark and reading, and detail lines; it becomes a button when given a guest `DialogId` to open.
 - `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.

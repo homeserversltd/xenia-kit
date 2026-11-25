@@ -289,6 +289,92 @@ impl Render for StatusMark {
     }
 }
 
+/// The colour and accompanying word of a notification.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum NoticeTone { Red, Amber, Blue, #[default] None }
+
+impl NoticeTone {
+    pub fn from_color(color: &str) -> Self {
+        match color { "red" => Self::Red, "amber" => Self::Amber, "blue" => Self::Blue, _ => Self::None }
+    }
+    pub fn as_str(self) -> &'static str {
+        match self { Self::Red => "red", Self::Amber => "amber", Self::Blue => "blue", Self::None => "none" }
+    }
+    pub fn word(self) -> Option<&'static str> {
+        match self { Self::Red => Some("Alert"), Self::Amber => Some("Warning"), Self::Blue => Some("Info"), Self::None => None }
+    }
+}
+
+/// Delegated seats on a notification tile and its parts.
+#[derive(Clone, Default)]
+pub struct NotificationTileSeats {
+    pub tile: Vec<DataSeat>, pub tag: Vec<DataSeat>, pub mark: Vec<DataSeat>, pub word: Vec<DataSeat>,
+    pub title: Vec<DataSeat>, pub body: Vec<DataSeat>, pub fields: Vec<DataSeat>, pub foot: Vec<DataSeat>,
+    pub act: Vec<DataSeat>, pub hide: Vec<DataSeat>, pub feedback: Vec<DataSeat>,
+}
+
+/// One notification with an optional action and inputs.
+#[derive(Clone, Default)]
+pub struct NotificationTile {
+    pub tag: String,
+    pub tone: NoticeTone,
+    pub title: String,
+    pub body: Option<String>,
+    pub fields: Option<Markup>,
+    pub act: Option<String>,
+    pub hidden: bool,
+    pub seats: NotificationTileSeats,
+}
+
+impl Render for NotificationTile {
+    fn render(&self) -> Markup {
+        let tile = html! {
+            article class="ui-notification-tile" data-tone=(self.tone.as_str()) data-state=(if self.hidden { "hidden" } else { "shown" }) {
+                div class="ui-notification-tile__head" {
+                    (seat(html! { span class="ui-notification-tile__tag" { (&self.tag) } }, &self.seats.tag))
+                    @if self.tone.word().is_some() || !self.seats.mark.is_empty() || !self.seats.word.is_empty() {
+                        (seat(html! { span class="ui-notification-tile__mark" {
+                            @if self.tone.word().is_some() { span class="ui-notification-tile__dot" aria-hidden="true" {} }
+                            @if self.tone.word().is_some() || !self.seats.word.is_empty() {
+                                (seat(html! { span class="ui-notification-tile__word" { (self.tone.word().unwrap_or("")) } }, &self.seats.word))
+                            }
+                        } }, &self.seats.mark))
+                    }
+                }
+                (seat(html! { h3 class="ui-notification-tile__title" { (&self.title) } }, &self.seats.title))
+                @if self.body.is_some() || !self.seats.body.is_empty() {
+                    (seat(html! { p class="ui-notification-tile__body" { (self.body.as_deref().unwrap_or("")) } }, &self.seats.body))
+                }
+                @if self.fields.is_some() || !self.seats.fields.is_empty() {
+                    (seat(html! { div class="ui-notification-tile__fields" { @if let Some(fields) = &self.fields { (fields) } } }, &self.seats.fields))
+                }
+                (seat(html! { div class="ui-notification-tile__foot" {
+                    @if self.act.is_some() || !self.seats.act.is_empty() {
+                        (seat(Button { text: self.act.clone().unwrap_or_default(), tone: Some(ButtonTone::Primary), size: Some(Size::Small), button_type: true, ..Button::default() }.render(), &self.seats.act))
+                    }
+                    (seat(Button { text: if self.hidden { "Unhide" } else { "Hide" }.into(), tone: Some(ButtonTone::Secondary), size: Some(Size::Small), button_type: true, ..Button::default() }.render(), &self.seats.hide))
+                } }, &self.seats.foot))
+                (seat(html! { p class="ui-notification-tile__feedback" role="status" aria-live="polite" {} }, &self.seats.feedback))
+            }
+        };
+        seat(tile, &self.seats.tile)
+    }
+}
+
+/// A labelled list of notification tiles.
+#[derive(Clone, Default)]
+pub struct NotificationTiles { pub label: String, pub tiles: Vec<NotificationTile> }
+
+impl Render for NotificationTiles {
+    fn render(&self) -> Markup {
+        html! { section class="ui-notification-tiles" aria-label=(&self.label) {
+            ul class="ui-notification-tiles__list" {
+                @for tile in &self.tiles { li class="ui-notification-tiles__item" { (tile) } }
+            }
+        } }
+    }
+}
+
 /// One labelled fact; seats bind its value.
 #[derive(Clone, Default)]
 pub struct DetailFact { pub label: String, pub value: String, pub seats: Vec<DataSeat> }

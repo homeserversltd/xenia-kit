@@ -1,7 +1,7 @@
 #[path="test_tab_a.rs"] mod categories_a;
 #[path="test_tab_b.rs"] mod categories_b;
 #[path="test_tab_c.rs"] mod categories_c;
-use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit, DetailFact, DetailGroup, DetailStatus, DetailSheet, MarkTone, StatusMark}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape, LoadingSpinner, ToastKind, VisibleToast}};
+use crate::{html, Markup, Fragment, Render, layout::*, status::*, motion::*, composite::{Guide, GuideLine, Exhibit, DetailFact, DetailGroup, DetailStatus, DetailSheet, MarkTone, StatusMark, NotificationTile, NotificationTiles, NoticeTone}, ux::{Badge, Button, ButtonTone, Toggle, Size, IconButton, Icon, Shape, LoadingSpinner, ToastKind, VisibleToast, Input}};
 
 fn eye() -> PortalEye { PortalEye { visible:true, label:"Hide portal".into(), gate:None, seats:vec![] } }
 
@@ -41,7 +41,7 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
         GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off. They are in the Buttons & switches room, with the icon button.".into()},
-        GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait. They are in the Messages room.".into()},
+        GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait; a notification tile tells you what your house wants you to know. They are in the Messages room.".into()},
         GuideLine{lead:Some("Details".into()),text:" are how the site shows one thing in full: its name, how full it is, its facts, its state and what you can do with it. In Admin Mode, press a drive on the Admin tab and its details open. The detail sheet is in the Details room.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
@@ -128,6 +128,20 @@ pub fn test_tab() -> Markup {
             "On the Stats tab it turns beside the words Loading network activity... for as long as that panel has no list to show. In Admin Mode it turns on the DHCP tab, beside Loading device identities…, until the device list has been read.".into(),
             "You will meet it on the Stats tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
+        (Exhibit { name:"Notification tile".into(), admin:true, piece:NotificationTiles {
+            label:"Notification tiles".into(), tiles:vec![
+                NotificationTile { tone:NoticeTone::Blue, tag:"homeserver".into(), title:"Update available".into(), body:Some("3 modules behind".into()), ..NotificationTile::default() },
+                NotificationTile { tone:NoticeTone::Blue, tag:"homesi".into(), title:"Connect homesi to your house".into(), fields:Some(Input { label:Some("Portal name".into()), name:Some("names".into()), value:Some("si.home.arpa".into()), ..Input::default() }.render()), act:Some("Accept".into()), ..NotificationTile::default() },
+                NotificationTile { tone:NoticeTone::Red, tag:"homeserver".into(), title:"Disk almost full".into(), body:Some("Backups cannot run until space is freed".into()), ..NotificationTile::default() },
+                NotificationTile { tone:NoticeTone::Amber, tag:"hometv".into(), title:"Certificate bundle is stale".into(), body:Some("Install the household certificate again".into()), ..NotificationTile::default() },
+                NotificationTile { tone:NoticeTone::Blue, tag:"homeserver".into(), title:"Update available".into(), body:Some("3 modules behind".into()), hidden:true, ..NotificationTile::default() },
+            ],
+        }.render(), words:vec![
+            "A notification tile is one message from your house, shown on the bell while it still holds. At the top it names the box it is about, with a dot and a word for how much it matters: red for an Alert, amber for a Warning, blue for Info. The tiles shown here are examples, for looking at: their buttons do nothing.".into(),
+            "Some tiles carry a button for the one thing you can do about them. A request from a new box to join your house has an Accept button, with the names it will answer to ready to change. On the bell these buttons appear in Admin Mode, and this exhibit shows them as they look there; without Admin Mode you see the tile and Hide.".into(),
+            "Hide puts a tile away without deleting it, and anyone can press it. Hidden tiles are not counted on the bell. Press Hidden at the foot of the bell to see them, set aside and drawn flat, and press Unhide to bring one back.".into(),
+            "You will meet it behind the bell at the top of the page, on the HomeServer and on HomeSI.".into(),
+        ] })
     });
     let facts = |items: &[(&str, &str)]| items.iter().map(|(label, value)| DetailFact { label: (*label).into(), value: (*value).into(), seats: vec![] }).collect();
     let sample_button = |text: &str| Button { text: text.into(), tone: Some(ButtonTone::Secondary), size: Some(Size::Small), button_type: true, ..Button::default() };
