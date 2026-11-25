@@ -63,7 +63,7 @@
   background: var(--notification-edge);
 }
 .ui-notification-tile__title { margin: 0; font-size: 16px; font-weight: 600; line-height: 22px; color: var(--text); overflow-wrap: anywhere; }
-.ui-notification-tile__body { margin: 0; font-size: 14px; line-height: 20px; color: var(--text); overflow-wrap: anywhere; }
+.ui-notification-tile__body, .ui-notification-tile__hint { margin: 0; font-size: 14px; line-height: 20px; color: var(--text); overflow-wrap: anywhere; }
 .ui-notification-tile__fields { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .ui-notification-tile .ui-input-label { color: var(--text); }
 .ui-notification-tile__foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 4px; }

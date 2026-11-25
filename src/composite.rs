@@ -326,6 +326,19 @@ pub struct NotificationTile {
     pub seats: NotificationTileSeats,
 }
 
+impl NotificationTile {
+    pub fn button_name(word: &str, title: &str, tag: &str) -> Option<String> {
+        let word = word.trim();
+        let title = title.trim();
+        let tag = tag.trim();
+        if word.is_empty() || (title.is_empty() && tag.is_empty()) {
+            return None;
+        }
+        let context = [title, tag].into_iter().filter(|part| !part.is_empty()).collect::<Vec<_>>().join(", ");
+        Some(format!("{word}: {context}"))
+    }
+}
+
 impl Render for NotificationTile {
     fn render(&self) -> Markup {
         let tile = html! {
@@ -350,9 +363,9 @@ impl Render for NotificationTile {
                 }
                 (seat(html! { div class="ui-notification-tile__foot" {
                     @if self.act.is_some() || !self.seats.act.is_empty() {
-                        (seat(Button { text: self.act.clone().unwrap_or_default(), tone: Some(ButtonTone::Primary), size: Some(Size::Small), button_type: true, ..Button::default() }.render(), &self.seats.act))
+                        (seat(Button { text: self.act.clone().unwrap_or_default(), tone: Some(ButtonTone::Primary), size: Some(Size::Small), button_type: true, aria_label: Self::button_name(self.act.as_deref().unwrap_or(""), &self.title, &self.tag), ..Button::default() }.render(), &self.seats.act))
                     }
-                    (seat(Button { text: if self.hidden { "Unhide" } else { "Hide" }.into(), tone: Some(ButtonTone::Secondary), size: Some(Size::Small), button_type: true, ..Button::default() }.render(), &self.seats.hide))
+                    (seat(Button { text: if self.hidden { "Unhide" } else { "Hide" }.into(), tone: Some(ButtonTone::Secondary), size: Some(Size::Small), button_type: true, aria_label: Self::button_name(if self.hidden { "Unhide" } else { "Hide" }, &self.title, &self.tag), ..Button::default() }.render(), &self.seats.hide))
                 } }, &self.seats.foot))
                 (seat(html! { p class="ui-notification-tile__feedback" role="status" aria-live="polite" {} }, &self.seats.feedback))
             }

@@ -318,6 +318,7 @@ pub struct Button {
     pub crown_dialog_open: Option<DialogId>,
     pub modal_dismiss: bool,
     pub interaction_result: Option<String>,
+    pub aria_label: Option<String>,
     pub hx: Hx,
 }
 impl Button {
@@ -334,7 +335,7 @@ impl Button {
     }
 }
 renderer!(Button, s, {
-    html! {button type=[(s.button_type || s.crown_dialog_open.is_some() || s.modal_dismiss).then_some("button")] class=(classes("ui-button",&[s.tone.map(ButtonTone::name),s.loading.then_some("loading"),s.size.map(Size::name)])) aria-busy=[s.loading.then_some("true")] disabled[s.disabled] data-ux-modal-open=[s.modal_open.as_deref()] data-crown-dialog-open=[s.crown_dialog_open.as_ref().map(DialogId::as_str)] data-modal-dismiss[s.modal_dismiss] data-interaction-result=[s.interaction_result.as_deref()] {
+    html! {button type=[(s.button_type || s.crown_dialog_open.is_some() || s.modal_dismiss).then_some("button")] class=(classes("ui-button",&[s.tone.map(ButtonTone::name),s.loading.then_some("loading"),s.size.map(Size::name)])) aria-busy=[s.loading.then_some("true")] aria-label=[s.aria_label.as_deref()] disabled[s.disabled] data-ux-modal-open=[s.modal_open.as_deref()] data-crown-dialog-open=[s.crown_dialog_open.as_ref().map(DialogId::as_str)] data-modal-dismiss[s.modal_dismiss] data-interaction-result=[s.interaction_result.as_deref()] {
         @if let Some(icon)=&s.left_icon {span class="ui-button__icon ui-button__icon--left" {(icon)}}
         (&s.text)
         @if let Some(icon)=&s.right_icon {" " span class="ui-button__icon ui-button__icon--right" {(icon)}}
