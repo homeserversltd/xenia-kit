@@ -1,4 +1,5 @@
 .ui-segmented {
+  position: relative;
   display: flex;
   box-sizing: border-box;
   min-inline-size: 0;
@@ -6,7 +7,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--border-radius, 8px);
   background: var(--surface-soft);
 }
 
@@ -25,6 +26,7 @@
 }
 
 .ui-segmented__option {
+  position: relative;
   display: flex;
   flex: 1 1 0;
   min-width: 0;
@@ -34,7 +36,7 @@
   justify-content: center;
   padding: 0 .5rem;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--border-radius, 8px);
   color: var(--secondary);
   font-weight: 500;
   cursor: pointer;
@@ -63,6 +65,6 @@
   cursor: wait;
 }
 
-.ui-segmented[data-busy] .ui-segmented__option:not(:has(.ui-segmented__input:checked)) {
+.ui-segmented[data-busy] .ui-segmented__option:not(:has(.ui-segmented__input:checked)) .ui-segmented__word {
   opacity: .5;
 }
