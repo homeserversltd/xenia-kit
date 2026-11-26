@@ -7,4 +7,4 @@
 .ui-inline-review kbd { display: inline-block; border: 1px solid var(--border); border-radius: .2rem; padding: .05rem .3rem; margin-right: .35rem; color: inherit; font: inherit; }
 .ui-inline-review .ui-button { min-width: 0; transform: none; transition: none; }
 .ui-inline-review .ui-button--secondary { color: var(--text); }
-.ui-inline-review .ui-button:hover { transform: none; }
+.ui-inline-review .ui-button:hover, .ui-inline-review .ui-button:active { transform: none; }

@@ -5,4 +5,4 @@
 .ui-result-line__mark[data-mark="refused"] .ui-result-line__dot { background: var(--status-down); }
 .ui-result-line__mark[data-mark="unknown"] .ui-result-line__dot { background: var(--status-unknown); }
 .ui-result-line .ui-button { min-width: 0; color: var(--text); transform: none; transition: none; }
-.ui-result-line .ui-button:hover { transform: none; }
+.ui-result-line .ui-button:hover, .ui-result-line .ui-button:active { transform: none; }

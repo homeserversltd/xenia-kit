@@ -4,4 +4,4 @@
 .ui-key-hints kbd { display: inline-block; border: 1px solid var(--border); border-radius: .2rem; padding: .05rem .3rem; color: var(--text); font: inherit; }
 .ui-key-hints .ui-button { min-width: 0; color: var(--text); transform: none; transition: none; }
 .ui-key-hints .ui-button kbd { margin-right: .35rem; }
-.ui-key-hints .ui-button:hover { transform: none; }
+.ui-key-hints .ui-button:hover, .ui-key-hints .ui-button:active { transform: none; }
