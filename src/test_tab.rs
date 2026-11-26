@@ -109,6 +109,16 @@ pub fn test_tab() -> Markup {
             "On the Upload tab the × beside a file takes that upload off the list. In Admin Mode the × beside a blacklist entry takes it out of the list, and Submit saves the change. On the DHCP tab the › at the end of a device's row opens that device's details.".into(),
             "You will meet it on the Upload tab, and in Admin Mode on the DHCP tab.".into(),
         ]})
+        (Exhibit{name:"Key hints".into(),admin:true,piece:crate::review::KeyHints {
+            label:"Keys on the Linker tab".into(), rows:vec![
+                [("h","up",true),("j/k","move",false),("l/Enter","open",false),("space","gather",false),("d","drop",true)].into_iter().map(|(key,word,button)| crate::review::KeyHint { key:key.into(), word:word.into(), button, seats:vec![] }).collect(),
+                [("del","delete",true),("r","rename",true),("n","new folder",true),("Esc","close",false)].into_iter().map(|(key,word,button)| crate::review::KeyHint { key:key.into(), word:word.into(), button, seats:vec![] }).collect(),
+            ],
+        }.render(),words:vec![
+            "Key hints name the keys a page answers to. Some are also buttons, for a mouse or a finger. The ones shown here are for looking at; on the Linker tab the keys and the buttons act.".into(),
+            "The arrow keys move and open too, as j, k, h and l do.".into(),
+            "You will meet them in Admin Mode on the Linker tab, under the list of files.".into(),
+        ]})
     });
     let messages=room("messages",false,html! {
         (Exhibit{name:"Toast".into(),admin:false,piece:html!{div class="ui-exhibit__variants" {
@@ -141,6 +151,25 @@ pub fn test_tab() -> Markup {
             "Some tiles carry a button for the one thing you can do about them. A request from a new box to join your house has an Accept button, with the names it will answer to ready to change. On the bell these buttons appear in Admin Mode, and this exhibit shows them as they look there; without Admin Mode you see the tile and Hide, and a line saying the owner can act on it in Admin Mode.".into(),
             "Hide puts a tile away without deleting it, and anyone can press it. Hidden tiles are not counted on the bell. Press Hidden at the foot of the window to see them, set aside and drawn flat, and press Unhide to bring one back.".into(),
             "You will meet it in the window the bell opens at the top of the page, on the HomeServer and on HomeSI.".into(),
+        ] })
+        (Exhibit { name:"Result line".into(), admin:true, piece:html! { div class="ui-exhibit__variants" {
+            (crate::review::ResultLine { mark:Some(crate::review::ResultMark::Done), words:"Dropped 2 into /mnt/nas/media/tv · 2 linked · 0 failed".into(), ..Default::default() })
+            (crate::review::ResultLine { mark:Some(crate::review::ResultMark::Refused), words:"linker-path-outside-root".into(), button:Some("Retry".into()), ..Default::default() })
+            (crate::review::ResultLine { mark:Some(crate::review::ResultMark::Unknown), words:"Outcome unknown (linker-deploy-outcome-unknown) · the folder was read again".into(), ..Default::default() })
+        } }, words:vec![
+            "A result line says how the last thing you did went. The lines shown here are for looking at. A dot and a word say whether it was done, refused, or ended without a clear answer; the words after them say what happened.".into(),
+            "When a folder could not be read, the line says why, and Retry asks for it again. When a change ended without a clear answer, the site reads the folder again at once, so the list shows what is really there.".into(),
+            "You will meet it in Admin Mode on the Linker tab, under the list of files.".into(),
+        ] })
+        (Exhibit { name:"Inline review".into(), admin:true, piece:crate::review::InlineReview {
+            question:"Delete 1?".into(), targets:vec![
+                crate::review::ReviewTarget { name:"Show S01/".into(), note:None, seats:vec![] },
+                crate::review::ReviewTarget { name:"notes.txt".into(), note:Some("kept: last copy".into()), seats:vec![] },
+            ], confirm:"Delete".into(), confirm_key:"y".into(), cancel:"Keep".into(), cancel_key:"n".into(), seats:Default::default(),
+        }.render(), words:vec![
+            "An inline review asks once, in place, before something that cannot be undone. It names what it will touch, and which ones it will keep and why. The one shown here is for looking at; on the Linker tab its buttons act.".into(),
+            "Press y or the red button to go ahead, n or the other button to stop.".into(),
+            "You will meet it in Admin Mode on the Linker tab, after you press Delete.".into(),
         ] })
     });
     let facts = |items: &[(&str, &str)]| items.iter().map(|(label, value)| DetailFact { label: (*label).into(), value: (*value).into(), seats: vec![] }).collect();

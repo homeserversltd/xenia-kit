@@ -75,8 +75,16 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_icon-button.css"),
     },
     Sheet {
+        path: "library/_inline-review.css",
+        css: include_str!("../style/library/_inline-review.css"),
+    },
+    Sheet {
         path: "library/_input.css",
         css: include_str!("../style/library/_input.css"),
+    },
+    Sheet {
+        path: "library/_key-hints.css",
+        css: include_str!("../style/library/_key-hints.css"),
     },
     Sheet {
         path: "library/_loading-spinner.css",
@@ -97,6 +105,10 @@ pub const SHARED: &[Sheet] = &[
     Sheet {
         path: "library/_progress-bar.css",
         css: include_str!("../style/library/_progress-bar.css"),
+    },
+    Sheet {
+        path: "library/_result-line.css",
+        css: include_str!("../style/library/_result-line.css"),
     },
     Sheet {
         path: "library/_row-info-tile.css",

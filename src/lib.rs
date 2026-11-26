@@ -18,6 +18,8 @@ pub mod pages;
 #[cfg(feature = "markup")]
 pub mod present;
 #[cfg(feature = "markup")]
+pub mod review;
+#[cfg(feature = "markup")]
 pub mod showcase;
 #[cfg(feature = "markup")]
 pub mod specimen;

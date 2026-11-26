@@ -1,0 +1,8 @@
+.ui-result-line { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; color: var(--text); margin: 0; }
+.ui-result-line__mark { display: inline-flex; align-items: center; gap: .35rem; color: var(--text); }
+.ui-result-line__dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--status-unknown); }
+.ui-result-line__mark[data-mark="done"] .ui-result-line__dot { background: var(--status-up); }
+.ui-result-line__mark[data-mark="refused"] .ui-result-line__dot { background: var(--status-down); }
+.ui-result-line__mark[data-mark="unknown"] .ui-result-line__dot { background: var(--status-unknown); }
+.ui-result-line .ui-button { min-width: 0; color: var(--text); transform: none; transition: none; }
+.ui-result-line .ui-button:hover { transform: none; }

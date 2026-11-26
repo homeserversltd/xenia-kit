@@ -1,0 +1,10 @@
+.ui-inline-review { border: 1px solid var(--border); border-radius: .4rem; padding: .75rem; color: var(--text); }
+.ui-inline-review__question { margin: 0 0 .5rem; color: var(--text); }
+.ui-inline-review__targets { margin: 0 0 .75rem; padding-left: 1.5rem; }
+.ui-inline-review__targets li { color: var(--text); }
+.ui-inline-review__note { color: var(--text-muted); margin-left: .5rem; }
+.ui-inline-review__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ui-inline-review kbd { display: inline-block; border: 1px solid var(--border); border-radius: .2rem; padding: .05rem .3rem; margin-right: .35rem; color: inherit; font: inherit; }
+.ui-inline-review .ui-button { min-width: 0; transform: none; transition: none; }
+.ui-inline-review .ui-button--secondary { color: var(--text); }
+.ui-inline-review .ui-button:hover { transform: none; }
