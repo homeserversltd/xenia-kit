@@ -29,11 +29,12 @@ pub fn test_tab() -> Markup {
         ("stat-tiles","Stat Tiles","Stat Tiles",&["stat-tile"]),
         ("status-tiles","Status Tiles","Status Tiles",&["status-tile"]),
         ("sub-tabs","Sub-tabs","In-place Sub-tabs",&["sub-tabs"]),
+        ("segmented","Segmented Choices","Segmented Choices",&["segmented"]),
         ("switches","Switches","Switch Rows",&["switch"]), ("empty-states","Empty States","Empty States",&["empty-state"]),
         ("update-cards","Update Cards","Update Cards",&["update-card"]), ("usage-bars","Usage Bars","Usage Bars",&["usage-bar"]),
     ];
     let chips=TabStrip{label:"Component showcase categories".into(),depth:TabDepth::Category,categories:true,tabs:categories.iter().enumerate().map(|(i,(id,name,_,_))|TabChoice{id:(*id).into(),label:(*name).into(),active:i==0}).collect()};
-    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","skeleton-slot","table","collapsible","modals","stat-tiles","status-tiles","sub-tabs","switches","empty-states","update-cards","usage-bars"];
+    let section_order=["tabs","inputs","cards","badges","checkboxes","utilities","visibility-system","lan-ip-calendar","upstream-resolvers","calendar-time","row-info-tile","dropdowns","slider","textbox","upload-components","progress-bar","skeleton-slot","table","collapsible","modals","stat-tiles","status-tiles","sub-tabs","segmented","switches","empty-states","update-cards","usage-bars"];
     let sections=html!{@for id in section_order { @let (_,_,heading,_)=categories.iter().find(|(key,_,_,_)|*key==id).expect("category"); (ShowcaseCategory{id:id.into(),title:(*heading).into(),active:id=="tabs",content:categories_a::section(id).or_else(|| categories_b::section(id)).or_else(|| categories_c::section(id)).expect("named showcase category")})}};
     let showcase=Panel{id:"showcase".into(),active:false,kind:PanelKind::Basic,catalog_specimen:None,content:html!{(Showcase{scope:"showcase".into(),identity:"og-test".into(),tabs:chips,categories:sections})}};
     let guide=room("how-it-works",true,Guide{lines:vec![

@@ -5,7 +5,7 @@ use crate::composite::{SecretTile, SecretTileField, SecretTileFieldKind, SecretT
 use crate::{
     composite::{
         Band, EmptyState, MarkTone, SettingField, SettingForm, SettingRow, SettingRowSeats, SettingRows,
-        SettingState, StatTile, StatTiles, StatusMark, StatusTile, StatusTiles, SubTab, SubTabs,
+        SettingState, Segmented, SegmentedOption, StatTile, StatTiles, StatusMark, StatusTile, StatusTiles, SubTab, SubTabs,
         Switch, UpdateCard, UpdateCards, UsageBar, UsageBarState, UsageBars,
     },
     fragment::DataSeat,
@@ -110,6 +110,29 @@ fn status_tiles() -> Markup {
         ],
     }
     .render()
+}
+
+fn segmented() -> Markup {
+    let groups: &[(&str, &[&str])] = &[
+        ("Two", &["Near", "Far"]),
+        ("Three", &["Small", "Medium", "Large"]),
+        ("Four", &["First", "Second", "Third", "A deliberately long choice that must be cut off"]),
+    ];
+    let mut items = Vec::new();
+    for (group, words) in groups {
+        for selected in 0..words.len() {
+            let name = format!("segmented-{}-{}", group.to_lowercase(), selected);
+            let mut choice = Segmented::new(&name, format!("{group} choices"));
+            choice.busy = *group == "Three" && selected == 1;
+            choice.options = words.iter().enumerate().map(|(index, word)| {
+                let mut option = SegmentedOption::new(index.to_string(), *word);
+                option.checked = index == selected;
+                option
+            }).collect();
+            items.push(item(&format!("{group} — {}", selected + 1), choice.render()));
+        }
+    }
+    grid(items)
 }
 
 fn switches() -> Markup {
@@ -319,6 +342,7 @@ pub fn section(id: &str) -> Option<Markup> {
     Some(match id {
         "stat-tiles" => stat_tiles(),
         "status-tiles" => status_tiles(),
+        "segmented" => segmented(),
         "switches" => switches(),
         "empty-states" => empty_states(),
         "sub-tabs" => sub_tabs(),

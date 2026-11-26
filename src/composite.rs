@@ -56,6 +56,53 @@ impl Render for Choice {
     }
 }
 
+/// One native radio in a segmented choice.
+#[derive(Clone, Default)]
+pub struct SegmentedOption {
+    pub value: String,
+    pub word: String,
+    pub checked: bool,
+}
+
+impl SegmentedOption {
+    pub fn new(value: impl Into<String>, word: impl Into<String>) -> Self {
+        Self { value: value.into(), word: word.into(), ..Self::default() }
+    }
+}
+
+/// A single row of native radio choices.
+#[derive(Clone, Default)]
+pub struct Segmented {
+    pub name: String,
+    pub label: String,
+    pub options: Vec<SegmentedOption>,
+    pub busy: bool,
+    pub seats: Vec<DataSeat>,
+}
+
+impl Segmented {
+    pub fn new(name: impl Into<String>, label: impl Into<String>) -> Self {
+        Self { name: name.into(), label: label.into(), ..Self::default() }
+    }
+}
+
+impl Render for Segmented {
+    fn render(&self) -> Markup {
+        let selected = self.options.iter().position(|option| option.checked);
+        seat(html! {
+            fieldset class="ui-segmented" aria-busy=[self.busy.then_some("true")] data-busy[self.busy] {
+                legend class="ui-segmented__legend" { (&self.label) }
+                @for (index, option) in self.options.iter().enumerate() {
+                    label class="ui-segmented__option" {
+                        input class="ui-segmented__input" type="radio" name=(&self.name) value=(&option.value) checked[selected == Some(index)];
+                        span class="ui-segmented__word" { (&option.word) }
+                    }
+                }
+            }
+        }, &self.seats)
+    }
+}
+
 /// A collapsible bubble whose body stays in the document flow.
 #[derive(Clone, Default)]
 pub struct CollapsibleBubble {

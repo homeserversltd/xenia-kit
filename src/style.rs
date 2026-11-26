@@ -43,6 +43,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_choice.css"),
     },
     Sheet {
+        path: "library/_segmented.css",
+        css: include_str!("../style/library/_segmented.css"),
+    },
+    Sheet {
         path: "library/_collapsible.css",
         css: include_str!("../style/library/_collapsible.css"),
     },

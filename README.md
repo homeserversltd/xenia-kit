@@ -13,8 +13,8 @@ supplies the operator skin.
 the theme catalog, author-face names, and the shared theme switcher script
 as `THEME_SCRIPT`. The shared library sheets include `library/_exhibit.css`
 for guides and exhibits, `library/_health-board.css` for health boards,
-`library/_status-tile.css` for status tiles, and `library/_secret-tile.css`
-for write-only secret tiles.
+`library/_status-tile.css` for status tiles, `library/_secret-tile.css`
+for write-only secret tiles, and `library/_segmented.css` for segmented choices.
 A guest cartridge still ships no stylesheet beyond a declared `pack.css`
 and no JavaScript of its own.
 A face that only needs shared style can depend on `xenia-kit` with
@@ -120,6 +120,7 @@ children can contain requesting slots.
 - `composite::StatusTiles` arranges status tiles in a labelled grid with an optional wider column minimum.
 - `composite::Switch` renders a labelled immediate on/off control.
 - `composite::Choice` and `ChoiceOption` render an explained radio dropdown.
+- `composite::Segmented` and `composite::SegmentedOption` render a segmented native-radio choice.
 - `composite::CollapsibleBubble` renders a rounded, in-flow disclosure.
 - `composite::EmptyState` explains what is missing and the next step.
 - `composite::GuideLine` describes a paragraph with an optional emphasized lead; `composite::Guide` groups guide paragraphs.

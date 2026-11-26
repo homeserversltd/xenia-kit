@@ -1,0 +1,68 @@
+.ui-segmented {
+  display: flex;
+  box-sizing: border-box;
+  min-inline-size: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.ui-segmented__legend,
+.ui-segmented__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ui-segmented__option {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding: 0 .5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--secondary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ui-segmented__word {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ui-segmented__option:has(.ui-segmented__input:checked) {
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ui-segmented__option:has(.ui-segmented__input:focus-visible) {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+
+.ui-segmented[data-busy] .ui-segmented__option {
+  cursor: wait;
+}
+
+.ui-segmented[data-busy] .ui-segmented__option:not(:has(.ui-segmented__input:checked)) {
+  opacity: .5;
+}
