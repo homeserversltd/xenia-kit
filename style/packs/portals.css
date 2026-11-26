@@ -61,6 +61,7 @@
 }
 
 .portal-card-face :is(button, a, input, select, textarea) { pointer-events: auto; }
+.portal-card-face .admin-controls { pointer-events: auto; }
 
 .portal-card-header {
   display: flex;
@@ -92,7 +93,7 @@
 }
 
 /* Active descendants propagate :active to the card, so explicitly exclude controls. */
-.portal-element:not([data-visible="false"]) > .portal-card[data-portal-card]:active:not(:has(:is(button, a, input, select, textarea):active)) > .portal-card-face {
+.portal-element:not([data-visible="false"]) > .portal-card[data-portal-card]:active:not(:has(:is(button, a, input, select, textarea):active, .admin-controls:hover, :is(button, a, input, select, textarea):disabled:hover)) > .portal-card-face {
   transform: translateY(var(--portal-keycap-depth));
   box-shadow: inset 0 1px 0 var(--portal-keycap-edge),
               0 0 0 var(--portal-keycap-lip),

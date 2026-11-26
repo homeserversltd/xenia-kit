@@ -35,4 +35,8 @@
   border-width: 4px;
   width: 48px;
   height: 48px;
-} 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner { animation: none; }
+}
