@@ -50,7 +50,7 @@
 }
 
 .ui-segmented__option:has(.ui-segmented__input:checked) {
-  background: var(--background);
+  background: color-mix(in srgb, var(--surface-soft) 80%, white);
   border: 1px solid var(--border);
   color: var(--text);
   font-weight: 600;
