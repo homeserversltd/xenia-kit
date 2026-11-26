@@ -40,8 +40,9 @@ pub fn test_tab() -> Markup {
         GuideLine{lead:None,text:"This site is built from a small set of pieces that repeat from tab to tab. A tab is those pieces arranged for one job. This tab shows the pieces on their own.".into()},
         GuideLine{lead:Some("Portals".into()),text:" is a grid of portal tiles. Each tile is a door to a service on your HomeServer, or to a link you keep there. Press a tile and it opens in a new browser tab. The tile is in the Tiles room.".into()},
         GuideLine{lead:Some("Admin Mode".into()),text:" adds controls to the pieces. Press Enter Admin Mode at the top right and give your PIN: pieces that can be changed then show their controls. Press Exit Admin Mode and they are read-only again.".into()},
-        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off. They are in the Buttons & switches room, with the icon button.".into()},
-        GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait; a notification tile tells you what your house wants you to know. They are in the Messages room.".into()},
+        GuideLine{lead:Some("Buttons and switches".into()),text:" are how you act on the site. A button is for one action; a switch shows whether one thing is on or off; key hints name the keys a page answers to. They are in the Buttons & switches room, with the icon button.".into()},
+        GuideLine{lead:Some("Messages".into()),text:" are how the site answers you. A toast tells you how something went; a spinner tells you to wait; a notification tile tells you what your house wants you to know; a result line says how your last action went; an inline review asks once before something that cannot be undone. They are in the Messages room.".into()},
+        GuideLine{lead:Some("Lists".into()),text:" are how the site shows what is in a folder. A listing row is one entry; the path line says where you stand and holds what you have gathered. They are in the Lists room.".into()},
         GuideLine{lead:Some("Details".into()),text:" are how the site shows one thing in full: its name, how full it is, its facts, its state and what you can do with it. In Admin Mode, press a drive on the Admin tab and its details open. The detail sheet is in the Details room.".into()},
     ]}.render());
     let portal=PortalCard{name:"Home Server".into(),description:"Primary appliance web service".into(),image:"/api/portals/images/Home Server.png".into(),state:PortalState::Up,visible:true,show_name:false,link:None,chrome:html!{(eye())},controls:actions(),seats:PortalSeats::default()};
@@ -225,7 +226,28 @@ pub fn test_tab() -> Markup {
       (AnimationBand{id:"lifecycle".into(),title:"Band C — Yijing Lifecycle".into(),description:"REST → ENTER → HOLD → EXIT → REST".into(),content:MotionLifecycleStage{phase:MotionPhase::Rest,jewel_label:"Jewel".into(),play_label:"Run lifecycle".into()}.render()})
       (AnimationBand{id:"accessibility".into(),title:"Band D — Accessibility".into(),description:"Compare ordinary motion with the reduced-motion result.".into(),content:ReducedMotionGroup{normal_title:"Normal".into(),normal_stage:MotionStage{label:"Move".into()}.render(),normal_play_label:"Play".into(),reduced_title:"Reduced motion".into(),reduced_stage:MotionStage{label:"Settle".into()}.render(),reduced_play_label:"Play".into()}.render()})
     }};
-    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("messages","Messages"),("details","Details"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
-    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(messages)(details)(animations)(showcase)(config)(health)}};
+    let lists=room("lists",false,html! {
+        (Exhibit { name:"Listing row".into(), admin:true, piece:crate::listing::ListingRows {
+            label:"Files in torrents".into(), seats:vec![], rows:vec![
+                crate::listing::ListingRow { kind:crate::listing::ListingKind::Folder, name:"Show S01".into(), count:None, checked:false, cursor:false, input_name:None, input_value:None, seats:Default::default() },
+                crate::listing::ListingRow { kind:crate::listing::ListingKind::File, name:"movie.mkv".into(), count:Some(2), checked:true, cursor:true, input_name:None, input_value:None, seats:Default::default() },
+                crate::listing::ListingRow { kind:crate::listing::ListingKind::File, name:"notes.txt".into(), count:None, checked:false, cursor:false, input_name:None, input_value:None, seats:Default::default() },
+            ],
+        }.render(), words:vec![
+            "A listing row is one entry in a folder: a box you tick to gather it, its name, and LINKED with a number when the file already has other names on the same disk. A folder's name ends with a slash. The rows shown here are for looking at; on the Linker tab, ticking a box gathers that entry.".into(),
+            "The arrow at the left marks the row the keyboard is on. Move it with j and k, or the up and down arrow keys.".into(),
+            "You will meet it in Admin Mode on the Linker tab.".into(),
+        ] })
+        (Exhibit { name:"Path line".into(), admin:true, piece:html! {
+            (crate::listing::PathLine { label:"Where you are".into(), trail:[("nas",false),("torrents",false),("complete",true)].into_iter().map(|(text,current)|crate::listing::Crumb{text:text.into(),current,seats:vec![]}).collect(), pocket:["/mnt/nas/torrents/complete/Show S01","/mnt/nas/torrents/complete/movie.mkv"].into_iter().map(|path|crate::listing::PocketItem{path:path.into(),seats:vec![]}).collect(), drop_key:"d".into(), seats:Default::default() })
+            (crate::listing::PathLine { label:"Where you are".into(), trail:vec![crate::listing::Crumb{text:"nas".into(),current:true,seats:vec![]}], pocket:vec![], drop_key:"d".into(), seats:Default::default() })
+        }, words:vec![
+            "A path line says where you stand, and holds the pocket. The one shown here is for looking at; on the Linker tab, pressing a folder in it goes back there.".into(),
+            "The pocket holds what you have gathered, from any folder. Open it to see each item; × takes one out, and Empty pocket takes them all out. Press d to drop links to everything in the pocket into the folder you are standing in. A link is the same file under a second name, so a dropped file takes no extra space. Its × is the icon button from the Buttons & switches room.".into(),
+            "You will meet it in Admin Mode on the Linker tab.".into(),
+        ] })
+    });
+    let tabs=TabStrip{label:"Test sections".into(),depth:TabDepth::Panel,categories:false,tabs:[("how-it-works","How it works"),("tiles","Tiles"),("buttons-switches","Buttons & switches"),("messages","Messages"),("lists","Lists"),("details","Details"),("animations","Motion"),("showcase","Component Showcase"),("config","Configuration"),("health","Health Status")].into_iter().enumerate().map(|(i,(id,label))|TabChoice{id:id.into(),label:label.into(),active:i==0}).collect()};
+    let tablet=Tablet{scope:"test".into(),tabs,panels:html!{(guide)(tiles)(buttons_switches)(messages)(lists)(details)(animations)(showcase)(config)(health)}};
     Fragment::new("test",html!{(tablet)}).render()
 }

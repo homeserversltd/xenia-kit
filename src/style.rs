@@ -91,6 +91,10 @@ pub const SHARED: &[Sheet] = &[
         css: include_str!("../style/library/_loading-spinner.css"),
     },
     Sheet {
+        path: "library/_listing.css",
+        css: include_str!("../style/library/_listing.css"),
+    },
+    Sheet {
         path: "library/_modal.css",
         css: include_str!("../style/library/_modal.css"),
     },

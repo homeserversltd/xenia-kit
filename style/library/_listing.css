@@ -1,0 +1,24 @@
+.ui-listing-rows { list-style: none; margin: 0; padding: 0; }
+.ui-listing-row { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; color: var(--text); min-width: 0; }
+.ui-listing-row + .ui-listing-row { border-top: 1px solid var(--border); }
+.ui-listing-row.cursor { outline: 1px solid var(--primary); outline-offset: -1px; }
+.ui-listing-row__cursor { visibility: hidden; }
+.ui-listing-row.cursor .ui-listing-row__cursor { visibility: visible; }
+.ui-listing-row .ui-checkbox { width: 20px; height: 20px; flex: 0 0 20px; }
+.ui-listing-row .ui-checkbox__icon { width: 12px; height: 12px; }
+.ui-listing-row__name { min-width: 0; overflow-wrap: anywhere; }
+.ui-listing-row__linked { margin-left: auto; white-space: nowrap; }
+.ui-path-line { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; color: var(--text); min-width: 0; }
+.ui-path-line__trail { min-width: 0; overflow-wrap: anywhere; }
+.ui-path-line__crumb { background: none; border: 0; padding: 0; color: var(--text); cursor: pointer; text-decoration: underline; }
+.ui-path-line__here, .ui-path-line__sep, .ui-path-line__drop, .ui-path-line kbd, .ui-path-line .ui-collapsible__title, .ui-path-line .ui-collapsible__content { color: var(--text); }
+.ui-path-line .ui-collapsible__line { color: var(--text-muted); }
+.ui-path-line__drop { margin-left: auto; white-space: nowrap; }
+.ui-path-line__items { list-style: none; margin: 0; padding: 0; }
+.ui-path-line__items li { display: flex; align-items: center; gap: .5rem; }
+.ui-path-line__items li span { min-width: 0; overflow-wrap: anywhere; }
+.ui-path-line button { min-width: 0; transform: none; transition: none; color: var(--text); }
+.ui-path-line .ui-button:hover:not(:disabled), .ui-path-line .ui-icon-button:hover:not(:disabled), .ui-path-line .ui-icon-button:active:not(:disabled), .ui-path-line .ui-button:active:not(:disabled) { transform: none; transition: none; }
+.ui-path-line .ui-icon-button--ghost { color: var(--text); }
+.ui-path-line .ui-collapsible__header { transform: none; transition: none; }
+.ui-path-line .ui-collapsible__header:hover { transform: none; transition: none; }

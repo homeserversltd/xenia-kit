@@ -9,6 +9,8 @@ pub mod fragment;
 pub mod health;
 #[cfg(feature = "markup")]
 pub mod layout;
+#[cfg(feature = "markup")]
+pub mod listing;
 #[cfg(feature = "builders")]
 pub mod manifest;
 #[cfg(feature = "markup")]
